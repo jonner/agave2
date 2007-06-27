@@ -26,18 +26,6 @@
 #include <algorithm>
 #include <iostream>
 
-int main (int argc, char** argv)
-{
-    agave::rgb_t rgb = {0.34, 0.12, 0.67, 0.75};
-    agave::Color c(rgb);
-    std::cout << c << std::endl;
-    std::cout << c*2 << std::endl;
-    agave::rgb_t rgb2 = {3.34, 0.12, 0.67, 0.75};
-    agave::Color c2(rgb2);
-    std::cout << c2 << std::endl;
-    std::cout << c + c2 << std::endl;
-}
-
 namespace agave
 {
     const double Color::m_red_luminance = 0.2126;
