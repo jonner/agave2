@@ -48,8 +48,9 @@ namespace agave
                 std::min (r, b));
     }
 
-    void Color::rgb_to_hsv (const rgb_t& rgb, hsv_t& hsv)
+    hsv_t Color::rgb_to_hsv (const rgb_t& rgb)
     {
+        hsv_t hsv;
         gdouble max, min, delta;
 
         max = rgb.max ();
@@ -86,10 +87,13 @@ namespace agave
         }
 
         hsv.a = rgb.a;
+
+        return hsv;
     }
 
-    void Color::hsv_to_rgb(const hsv_t& hsv, rgb_t& rgb)
+    rgb_t Color::hsv_to_rgb (const hsv_t& hsv)
     {
+        rgb_t rgb;
         gint i;
         gdouble f, w, q, t;
 
@@ -152,10 +156,13 @@ namespace agave
         }
 
         rgb.a = hsv.a;
+
+        return rgb;
     }
 
-    void Color::rgb_to_hsl(const rgb_t& rgb, hsl_t& hsl)
+    hsl_t Color::rgb_to_hsl (const rgb_t& rgb)
     {
+        hsl_t hsl;
         gdouble max, min, delta;
 
         max = rgb.max ();
@@ -200,6 +207,8 @@ namespace agave
         }
 
         hsl.a = rgb.a;
+
+        return hsl;
     }
 
     static gdouble
@@ -224,8 +233,10 @@ namespace agave
         return val;
     }
 
-    void Color::hsl_to_rgb(const hsl_t& hsl, rgb_t& rgb)
+    rgb_t Color::hsl_to_rgb (const hsl_t& hsl)
     {
+        rgb_t rgb;
+
         if (hsl.s == 0)
         {
             /*  achromatic case  */
@@ -250,27 +261,89 @@ namespace agave
         }
 
         rgb.a = hsl.a;
+
+        return rgb;
     }
 
-    void Color::cmyk_to_rgb(const cmyk_t& cmyk, rgb_t& rgb)
+    cmyk_t Color::rgb_to_cmyk (const rgb_t& rgb, double pullout)
     {
+        cmyk_t cmyk;
+        gdouble c, m, y, k;
+
+        c = 1.0 - rgb.r;
+        m = 1.0 - rgb.g;
+        y = 1.0 - rgb.b;
+
+        k = 1.0;
+        if (c < k)  k = c;
+        if (m < k)  k = m;
+        if (y < k)  k = y;
+
+        k *= pullout;
+
+        if (k < 1.0)
+        {
+            cmyk.c = (c - k) / (1.0 - k);
+            cmyk.m = (m - k) / (1.0 - k);
+            cmyk.y = (y - k) / (1.0 - k);
+        }
+        else
+        {
+            cmyk.c = 0.0;
+            cmyk.m = 0.0;
+            cmyk.y = 0.0;
+        }
+
+        cmyk.k = k;
+        cmyk.a = rgb.a;
+
+        return cmyk;
     }
 
-    Color::Color(void)
+    rgb_t Color::cmyk_to_rgb (const cmyk_t& cmyk)
     {
+        rgb_t rgb;
+        gdouble c, m, y, k;
+
+        k = cmyk.k;
+
+        if (k < 1.0)
+        {
+            c = cmyk.c * (1.0 - k) + k;
+            m = cmyk.m * (1.0 - k) + k;
+            y = cmyk.y * (1.0 - k) + k;
+        }
+        else
+        {
+            c = 1.0;
+            m = 1.0;
+            y = 1.0;
+        }
+
+        rgb.r = 1.0 - c;
+        rgb.g = 1.0 - m;
+        rgb.b = 1.0 - y;
+        rgb.a = cmyk.a;
+
+        return rgb;
+    }
+
+    Color::Color ()
+    {
+        // initialize to opaque black
         m_data.r = 0.;
         m_data.g = 0.;
         m_data.b = 0.;
         m_data.a = 1.;
     }
 
-    Color::Color(rgb_t rgb)
+    Color::Color (rgb_t rgb)
     {
         m_data = rgb;
         clamp ();
     }
 
-    Color::Color(double r, double g, double b, double a)
+    Color::Color (double r, double g, double b, double a)
     {
         m_data.r = r;
         m_data.g = g;
@@ -279,37 +352,37 @@ namespace agave
         clamp ();
     }
 
-    Color::Color(hsv_t hsv)
+    Color::Color (hsv_t hsv)
     {
-        hsv_to_rgb (hsv, m_data);
+        set (hsv_to_rgb (hsv));
         clamp ();
     }
 
-    Color::Color(hsl_t hsl)
+    Color::Color (hsl_t hsl)
     {
-        hsl_to_rgb (hsl, m_data);
+        set (hsl_to_rgb (hsl));
         clamp ();
     }
 
-    Color::Color(cmyk_t cmyk)
+    Color::Color (cmyk_t cmyk)
     {
-        cmyk_to_rgb (cmyk, m_data);
+        set (cmyk_to_rgb (cmyk));
         clamp ();
     }
 
-    Color::Color(Glib::ustring hexstring)
+    Color::Color (Glib::ustring hexstring)
     {
         // FIXME
         clamp ();
     }
 
-    Color::Color(const Color& other)
+    Color::Color (const Color& other)
     {
         *this = other;
         clamp ();
     }
 
-    Color::~Color(void)
+    Color::~Color ()
     {
     }
 
@@ -390,9 +463,74 @@ namespace agave
     }
 
 
-    std::ostream& operator<<(std::ostream& out, const Color& c)
+    std::ostream& operator<< (std::ostream& out, const Color& c)
     {
         return out << "<" << &c << "> " << "[R=" << c.m_data.r << " G=" <<
             c.m_data.g << " B=" << c.m_data.b << " A=" << c.m_data.a << "]";
+    }
+
+
+    void Color::shift_hue (hsv_t::value_type hue_delta)
+    {
+        hsv_t hsv = as_hsv ();
+        hsv.h += hue_delta;
+        set (hsv);
+    }
+
+    void Color::set (rgb_t rgb)
+    {
+        m_data = rgb;
+        m_signal_changed.emit ();
+    }
+
+    void Color::set (hsv_t hsv)
+    {
+        set (hsv_to_rgb (hsv));
+    }
+
+    void Color::set (hsl_t hsl)
+    {
+        set (hsl_to_rgb (hsl));
+    }
+
+    void Color::set (cmyk_t cmyk)
+    {
+        set (cmyk_to_rgb (cmyk));
+    }
+
+    void Color::set (Glib::ustring hexstring)
+    {
+        // FIXME: parse string to rgb color
+    }
+
+    rgb_t Color::as_rgb () const
+    {
+        return m_data;
+    }
+
+    hsv_t Color::as_hsv () const
+    {
+        return rgb_to_hsv (m_data);
+    }
+
+    hsl_t Color::as_hsl () const
+    {
+        return rgb_to_hsl (m_data);
+    }
+
+    cmyk_t Color::as_cmyk () const
+    {
+        return rgb_to_cmyk (m_data);
+    }
+
+    Glib::ustring Color::as_hexstring () const
+    {
+    }
+
+    double Color::luminance () const
+    {
+        return (m_data.r * m_red_luminance +
+                m_data.g * m_green_luminance +
+                m_data.b * m_blue_luminance);
     }
 }

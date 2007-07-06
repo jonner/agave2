@@ -27,6 +27,8 @@
 
 #include <iostream>
 #include <glibmm/ustring.h>
+#include <sigc++/trackable.h>
+#include <sigc++/signal.h>
 
 namespace agave
 {
@@ -37,8 +39,8 @@ namespace agave
     {
         typedef double value_type;
         value_type r, g, b, a;
-        value_type max(void) const;
-        value_type min(void) const;
+        value_type max () const;
+        value_type min () const;
     };
 
     bool operator==(const rgb_t& lhs, const rgb_t& rhs);
@@ -104,22 +106,22 @@ namespace agave
      * -- e.g. #FFFFFF)
      *
      * In addition, this class provides several utility functions to convert
-     * between these colorspaces. 
+     * between these colorspaces.
      *
      * @author Jonathon Jongsma
      */
-    class Color
+    class Color : public sigc::trackable
     {
         public:
-            Color(void);
-            Color(rgb_t rgb);
-            Color(double r, double g, double b, double a = 1.0);
-            Color(hsv_t hsv);
-            Color(hsl_t hsl);
-            Color(cmyk_t cmyk);
-            Color(Glib::ustring hexstring);
-            Color(const Color& other);
-            virtual ~Color(void);
+            Color ();
+            Color (rgb_t rgb);
+            Color (double r, double g, double b, double a = 1.0);
+            Color (hsv_t hsv);
+            Color (hsl_t hsl);
+            Color (cmyk_t cmyk);
+            Color (Glib::ustring hexstring);
+            Color (const Color& other);
+            virtual ~Color ();
 
             Color& operator=(const Color& rhs);
             bool operator==(const Color& rhs) const;
@@ -136,70 +138,72 @@ namespace agave
              *
              * @param rgb   A color in RGBA colorspace
              */
-            void set(rgb_t rgb);
+            void set (rgb_t rgb);
 
             /**
              * set the value of the color with an HSV(A) specification
              *
              * @param hsv   A color in HSVA colorspace
              */
-            void set(hsv_t hsv);
+            void set (hsv_t hsv);
 
             /**
              * Set the value of the color with an HSL(A) specification
              *
              * @param hsl   A color in HSLA colorspace
              */
-            void set(hsl_t hsl);
+            void set (hsl_t hsl);
 
             /**
              * Set the value of the color with a CMYK(A) specification
              *
              * @param cmyk  A color in CMYKA colorspace
              */
-            void set(cmyk_t cmyk);
+            void set (cmyk_t cmyk);
 
             /**
              * Set the value of the color using a hexstring, as in #FFFFFF
              *
              * @param hexstring A color specification in a RGB hexstring format
              */
-            void set(Glib::ustring hexstring);
+            void set (Glib::ustring hexstring);
+
+            void shift_hue (hsv_t::value_type hue_delta);
 
             /**
              * Get value of the color in RGBA format
              */
-            rgb_t as_rgb(void) const;
+            rgb_t as_rgb () const;
 
             /**
              * Get value of the color in HSV(A) format
              */
-            hsv_t as_hsv(void) const;
+            hsv_t as_hsv () const;
 
             /**
              * Get value of the color in HSL(A) format
              */
-            hsl_t as_hsl(void) const;
+            hsl_t as_hsl () const;
 
             /**
              * Get value of the color in CMYK(A) format
              */
-            cmyk_t as_cmyk(void) const;
+            cmyk_t as_cmyk () const;
 
             /**
              * Get value of the color in hexstring format
              */
-            Glib::ustring as_hexstring(void) const;
+            Glib::ustring as_hexstring () const;
 
             /**
              * Get the luminance of the color
              */
-            inline double luminance(void) const
-            {
-                return (m_data.r * m_red_luminance +
-                        m_data.g * m_green_luminance +
-                        m_data.b * m_blue_luminance);
-            }
+            double luminance () const;
+
+            /**
+             * signal emitted whenever the color is changed
+             */
+            const sigc::signal<void>& signal_changed () const { return m_signal_changed; }
 
             /**
              * Convert a color specification in RGB colorspace to one in HSV
@@ -208,7 +212,7 @@ namespace agave
              * @param rgb   A color in RGBA colorspace
              * @param hsv   A color in HSVA colorspace
              */
-            static void rgb_to_hsv(const rgb_t& rgb, hsv_t& hsv);
+            static hsv_t rgb_to_hsv (const rgb_t& rgb);
 
             /**
              * Convert a color specification in RGB colorspace to one in HSL
@@ -217,7 +221,7 @@ namespace agave
              * @param rgb   A color in RGBA colorspace
              * @param hsl   A color in HSLA colorspace
              */
-            static void rgb_to_hsl(const rgb_t& rgb, hsl_t& hsl);
+            static hsl_t rgb_to_hsl (const rgb_t& rgb);
 
             /**
              * Convert a color specification in RGB colorspace to one in CMYK
@@ -225,8 +229,10 @@ namespace agave
              *
              * @param rgb   A color in RGBA colorspace
              * @param cmyk  A color in CMYKA colorspace
+             * @param pullout  A scaling value (0-1) indicating how much black
+             * should be pulled out
              */
-            static void rgb_to_cmyk(const rgb_t& rgb, cmyk_t& cmyk);
+            static cmyk_t rgb_to_cmyk (const rgb_t& rgb, double pullout = 0.0);
 
             /**
              * Convert a color specification in HSV colorspace to one in RGB
@@ -235,7 +241,7 @@ namespace agave
              * @param hsv   A color in HSVA colorspace
              * @param rgb   A color in RGBA colorspace
              */
-            static void hsv_to_rgb(const hsv_t& hsv, rgb_t& rgb);
+            static rgb_t hsv_to_rgb (const hsv_t& hsv);
 
             /**
              * Convert a color specification in HSL colorspace to one in RGB
@@ -244,7 +250,7 @@ namespace agave
              * @param hsl   A color in HSLA colorspace
              * @param rgb   A color in RGBA colorspace
              */
-            static void hsl_to_rgb(const hsl_t& hsl, rgb_t& rgb);
+            static rgb_t hsl_to_rgb (const hsl_t& hsl);
 
             /**
              * Convert a color specification in CMYK colorspace to one in RGB
@@ -253,10 +259,10 @@ namespace agave
              * @param cmyk  A color in CMYKA colorspace
              * @param rgb   A color in RGBA colorspace
              */
-            static void cmyk_to_rgb(const cmyk_t& cmyk, rgb_t& rgb);
+            static rgb_t cmyk_to_rgb (const cmyk_t& cmyk);
 
         private:
-            void clamp();
+            void clamp ();
 
             /** Internal data representation is RGBA.  This is converted to
              * other colorspaces as needed
@@ -268,6 +274,8 @@ namespace agave
             static const double m_red_luminance;
             static const double m_green_luminance;
             static const double m_blue_luminance;
+
+            sigc::signal<void> m_signal_changed;
     };
 
 } // namespace agave
