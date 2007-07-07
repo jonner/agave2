@@ -22,44 +22,44 @@
  *    Boston, MA  02111-1307  USA
  *
  *******************************************************************************/
-#ifndef __SCHEME_H
-#define __SCHEME_H
 
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include "color.h"
+#include "scheme-generators.h"
 
 namespace agave
 {
-    typedef enum
+
+    std::vector<Color>::iterator AnalogousSchemeGenerator::generate (const Color& c,
+            std::vector<Color>& generated_scheme)
     {
-        SCHEME_TYPE_ANALOGOUS,
-        SCHEME_TYPE_MONOCHROMATIC,
-        SCHEME_TYPE_TRIAD,
-        SCHEME_TYPE_COMPLEMENTARY,
-        SCHEME_TYPE_COMPOUND,
-        SCHEME_TYPE_SHADES,
-        SCHEME_TYPE_TETRAD, // not used by kuler
-        SCHEME_TYPE_CUSTOM
-    } scheme_type_t;
+    }
 
-    class Scheme
+    std::vector<Color>::iterator MonochromaticSchemeGenerator::generate (const Color& c,
+            std::vector<Color>& generated_scheme)
     {
-        public:
-            Scheme ();
-            explicit Scheme (scheme_type_t scheme_type);
+    }
 
-            std::vector<Color>& colors ();
-            const std::vector<Color>& colors () const;
-            void set_base_color (const Color& color);
-            Color get_base_color () const;
-            void set_scheme_type (scheme_type_t scheme_type);
-            scheme_type_t get_scheme_type () const;
+    std::vector<Color>::iterator TriadSchemeGenerator::generate (const Color& c,
+            std::vector<Color>& generated_scheme)
+    {
+    }
 
-        private:
-            struct Priv;
-            boost::shared_ptr<Priv> m_priv;
-    };
+    std::vector<Color>::iterator ComplementarySchemeGenerator::generate (const Color& c,
+            std::vector<Color>& generated_scheme)
+    {
+    }
+
+    std::vector<Color>::iterator CompoundSchemeGenerator::generate (const Color& c,
+            std::vector<Color>& generated_scheme)
+    {
+    }
+
+    std::vector<Color>::iterator ShadesSchemeGenerator::generate (const Color& c,
+            std::vector<Color>& generated_scheme)
+    {
+    }
+
+    std::vector<Color>::iterator TetradSchemeGenerator::generate (const Color& c,
+            std::vector<Color>& generated_scheme)
+    {
+    }
 }
-
-#endif // __SCHEME_H

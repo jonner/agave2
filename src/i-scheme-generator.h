@@ -22,44 +22,39 @@
  *    Boston, MA  02111-1307  USA
  *
  *******************************************************************************/
-#ifndef __SCHEME_H
-#define __SCHEME_H
+#ifndef __I_SCHEME_GENERATOR_H
+#define __I_SCHEME_GENERATOR_H
 
 #include <vector>
-#include <boost/shared_ptr.hpp>
 #include "color.h"
 
 namespace agave
 {
-    typedef enum
-    {
-        SCHEME_TYPE_ANALOGOUS,
-        SCHEME_TYPE_MONOCHROMATIC,
-        SCHEME_TYPE_TRIAD,
-        SCHEME_TYPE_COMPLEMENTARY,
-        SCHEME_TYPE_COMPOUND,
-        SCHEME_TYPE_SHADES,
-        SCHEME_TYPE_TETRAD, // not used by kuler
-        SCHEME_TYPE_CUSTOM
-    } scheme_type_t;
-
-    class Scheme
+    class ISchemeGenerator
     {
         public:
-            Scheme ();
-            explicit Scheme (scheme_type_t scheme_type);
+            /** Gets the number of colors that will be generated for this scheme
+             */
+            virtual unsigned int num_colors () const = 0;
 
-            std::vector<Color>& colors ();
-            const std::vector<Color>& colors () const;
-            void set_base_color (const Color& color);
-            Color get_base_color () const;
-            void set_scheme_type (scheme_type_t scheme_type);
-            scheme_type_t get_scheme_type () const;
+            /** Gets the display name for this scheme type (e.g. "Triads")
+             */
+            virtual Glib::ustring scheme_name () const = 0;
 
-        private:
-            struct Priv;
-            boost::shared_ptr<Priv> m_priv;
+            /** Generates a scheme from the provided color and returns an
+             * iterator that points to the base color element in the generated
+             * scheme
+             *
+             * @param c The base color for the color scheme
+             * @param generated_scheme  Output parameter for the generated
+             * scheme
+             * @returns pointer to base color in the generated scheme
+             */
+            virtual std::vector<Color>::iterator generate (const Color& c,
+                    std::vector<Color>& generated_scheme) = 0;
+
+            virtual ~ISchemeGenerator () {}
     };
 }
 
-#endif // __SCHEME_H
+#endif // __I_SCHEME_GENERATOR_H

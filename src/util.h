@@ -22,44 +22,40 @@
  *    Boston, MA  02111-1307  USA
  *
  *******************************************************************************/
-#ifndef __SCHEME_H
-#define __SCHEME_H
+#ifndef __UTIL_H
+#define __UTIL_H
 
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include "color.h"
+#include <cassert>
+#include <iostream>
+#include <stdexcept>
+#include <glibmm/ustring.h>
 
-namespace agave
-{
-    typedef enum
-    {
-        SCHEME_TYPE_ANALOGOUS,
-        SCHEME_TYPE_MONOCHROMATIC,
-        SCHEME_TYPE_TRIAD,
-        SCHEME_TYPE_COMPLEMENTARY,
-        SCHEME_TYPE_COMPOUND,
-        SCHEME_TYPE_SHADES,
-        SCHEME_TYPE_TETRAD, // not used by kuler
-        SCHEME_TYPE_CUSTOM
-    } scheme_type_t;
+#ifndef HERE
+#define HERE __ASSERT_FUNCTION << ":" <<__FILE__<< ":" << __LINE__ << ":"
+#endif
 
-    class Scheme
-    {
-        public:
-            Scheme ();
-            explicit Scheme (scheme_type_t scheme_type);
+#ifndef LOG_MARKER_INFO
+#define LOG_MARKER_INFO "|I|"
+#endif
 
-            std::vector<Color>& colors ();
-            const std::vector<Color>& colors () const;
-            void set_base_color (const Color& color);
-            Color get_base_color () const;
-            void set_scheme_type (scheme_type_t scheme_type);
-            scheme_type_t get_scheme_type () const;
+#ifndef LOG_MARKER_ERROR
+#define LOG_MARKER_ERROR "|E|"
+#endif
 
-        private:
-            struct Priv;
-            boost::shared_ptr<Priv> m_priv;
-    };
+#ifndef LOG_MARKER_EXCEPTION
+#define LOG_MARKER_EXCEPTION "|X|"
+#endif
+
+#ifndef LOG_EXCEPTION
+#define LOG_EXCEPTION(message) \
+    std::cerr << LOG_MARKER_EXCEPTION << HERE << message << std::endl
+#endif
+
+#define THROW_IF_FAIL(cond) \
+if (!(cond)) { \
+LOG_EXCEPTION ("condition (" << #cond << ") failed; raising exception\n" ) ;\
+throw std::logic_error \
+    (Glib::ustring ("Assertion failed: ") + #cond)  ;\
 }
 
-#endif // __SCHEME_H
+#endif // __UTIL_H
