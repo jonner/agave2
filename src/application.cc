@@ -28,6 +28,7 @@
 #include <glib/gutils.h>
 #include "config.h"
 #include "application.h"
+#include "application-window.h"
 #include "scheme.h"
 #include "util.h"
 
@@ -58,10 +59,13 @@ namespace agave
     {
         boost::shared_ptr<Scheme> m_current_scheme;
         boost::shared_ptr<Gtk::Main> m_main;
-        // TODO: saved schemes, AppWindow, history, prefs
+        boost::shared_ptr<ApplicationWindow> m_app_window;
+        // TODO: saved schemes, history, prefs
 
         Priv (int argc, char** argv) :
-            m_current_scheme (new Scheme ())
+            m_current_scheme (new Scheme ()),
+            m_main (),
+            m_app_window ()
         {
             bindtextdomain (GETTEXT_PACKAGE, AGAVE_LOCALEDIR);
             bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -93,7 +97,9 @@ namespace agave
             else
             {
                 //Gnome::Conf::init();
-                Gtk::Main::run ();
+                m_app_window.reset (new ApplicationWindow ());
+                THROW_IF_FAIL (m_app_window);
+                Gtk::Main::run (m_app_window->get_window ());
             }
             // FIXME: return actual response code
             return 0;
