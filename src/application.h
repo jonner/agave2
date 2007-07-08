@@ -22,25 +22,24 @@
  *    Boston, MA  02111-1307  USA
  *
  *******************************************************************************/
-#include <iostream>
-#include <glibmm/exception.h>
-#include "application.h"
+#ifndef __APPLICATION_H
+#define __APPLICATION_H
 
-int main (int argc, char** argv)
+#include <boost/shared_ptr.hpp>
+
+namespace agave
 {
-    int exit_code = 0;
-    try {
-        agave::Application app (argc, argv);
-        exit_code = app.run ();
-    } catch (const std::exception& e)
+    class Application
     {
-        std::cerr << "Unhandled exception: " << e.what () << std::endl;
-        exit_code = 1;
-    }
-    catch (const Glib::Exception& e)
-    {
-        std::cerr << "Unhandled exception: " << e.what () << std::endl;
-        exit_code = 1;
-    }
-    return exit_code;
+        public:
+            Application (int argc, char** argv);
+            ~Application ();
+            int run ();
+
+        private:
+            struct Priv;
+            boost::shared_ptr<Priv> m_priv;
+    };
 }
+
+#endif // __APPLICATION_H
