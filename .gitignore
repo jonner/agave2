@@ -25,3 +25,5 @@ mkinstalldirs
 /src/agave
 *.o
 stamp-h1
+tags
+test/test-scheme
