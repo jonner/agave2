@@ -45,7 +45,7 @@ namespace agave
             generator_map[SCHEME_TYPE_COMPOUND] = new CompoundSchemeGenerator ();
             generator_map[SCHEME_TYPE_SHADES] = new ShadesSchemeGenerator ();
             generator_map[SCHEME_TYPE_TETRAD] = new TetradSchemeGenerator ();
-            generator_map[SCHEME_TYPE_CUSTOM] = 0;
+            generator_map[SCHEME_TYPE_CUSTOM] = new CustomSchemeGenerator ();
             initialized = true;
         }
         return generator_map[scheme_type];
@@ -54,12 +54,13 @@ namespace agave
     struct Scheme::Priv
     {
         std::vector<Color> m_colors;
-        std::vector<Color>::iterator m_base_color;
+        Color m_base_color;
+        std::vector<Color>::const_iterator m_base_color_iter;
         ISchemeGenerator* m_generator;
         scheme_type_t m_scheme_type;
 
         Priv () :
-            m_base_color (m_colors.begin ()),
+            m_base_color_iter (m_colors.begin ()),
             m_generator (0)
         {
         }
@@ -70,10 +71,10 @@ namespace agave
     {
     }
 
-    Scheme::Scheme (scheme_type_t scheme_type) :
+    Scheme::Scheme (const Color& base_color, scheme_type_t scheme_type) :
         m_priv (new Priv())
     {
-        set_scheme_type (scheme_type);
+        set (base_color, scheme_type);
     }
 
     std::vector<Color>& Scheme::colors ()
@@ -88,42 +89,55 @@ namespace agave
         return m_priv->m_colors;
     }
 
-    void Scheme::set_base_color (const Color& color)
+    void Scheme::set (const Color& base_color, scheme_type_t scheme_type)
     {
         THROW_IF_FAIL (m_priv);
+        m_priv->m_scheme_type = scheme_type;
+        m_priv->m_generator = get_generator (scheme_type);
+        m_priv->m_base_color = base_color;
         if (m_priv->m_generator)
         {
-            m_priv->m_base_color = m_priv->m_generator->generate (color,
-                    m_priv->m_colors);
+            m_priv->m_base_color_iter = m_priv->m_generator->generate
+                (base_color, m_priv->m_colors);
         }
+    }
+
+    void Scheme::set_base_color (const Color& color)
+    {
+        set (color, get_scheme_type ());
     }
 
     Color Scheme::get_base_color () const
     {
         THROW_IF_FAIL (m_priv);
-        Color c;
-        if (m_priv->m_base_color != m_priv->m_colors.end ())
-        {
-            c = *m_priv->m_base_color;
-        }
-        return c;
+        return m_priv->m_base_color;
     }
 
     void Scheme::set_scheme_type (scheme_type_t scheme_type)
     {
-        THROW_IF_FAIL (m_priv);
-        m_priv->m_scheme_type = scheme_type;
-        m_priv->m_generator = get_generator (scheme_type);
-        if (m_priv->m_generator && (m_priv->m_base_color != m_priv->m_colors.end ()))
-        {
-            m_priv->m_base_color = m_priv->m_generator->generate
-                (*m_priv->m_base_color, m_priv->m_colors);
-        }
+        set (get_base_color (), scheme_type);
     }
 
     scheme_type_t Scheme::get_scheme_type () const
     {
         THROW_IF_FAIL (m_priv);
         return m_priv->m_scheme_type;
+    }
+
+    std::ostream& operator<<(std::ostream& out, const Scheme& s)
+    {
+        THROW_IF_FAIL (s.m_priv);
+        out << "<" << &s << "> {Scheme} " << s.m_priv->m_generator->scheme_name ();
+        for (std::vector<Color>::const_iterator it = s.colors ().begin ();
+                it != s.colors ().end (); ++it)
+        {
+            out << std::endl;
+            out << "  " << *it;
+            if (it == s.m_priv->m_base_color_iter)
+            {
+                out << "*";
+            }
+        }
+        return out;
     }
 }

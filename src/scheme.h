@@ -25,6 +25,7 @@
 #ifndef __SCHEME_H
 #define __SCHEME_H
 
+#include <iostream>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include "color.h"
@@ -47,14 +48,17 @@ namespace agave
     {
         public:
             Scheme ();
-            explicit Scheme (scheme_type_t scheme_type);
+            Scheme (const Color& base_color, scheme_type_t scheme_type);
 
             std::vector<Color>& colors ();
             const std::vector<Color>& colors () const;
+            void set (const Color& base_color, scheme_type_t scheme_type);
             void set_base_color (const Color& color);
             Color get_base_color () const;
             void set_scheme_type (scheme_type_t scheme_type);
             scheme_type_t get_scheme_type () const;
+
+            friend std::ostream& operator<<(std::ostream& out, const Scheme& s);
 
         private:
             struct Priv;

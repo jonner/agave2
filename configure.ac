@@ -66,6 +66,7 @@ AC_ARG_ENABLE(debug-mode, [AC_HELP_STRING([--enable-debug-mode],
 AC_MSG_CHECKING(whether to compile with debug settings)
 if test  "x$AGAVE_DEVEL" = "xon" ; then
     enable_debug_mode=yes
+    CXXFLAGS="$CXXFLAGS -Werror"
 fi
 if test "x$enable_debug_mode" = "xyes"; then
     AC_MSG_RESULT(yes)
@@ -134,6 +135,7 @@ AC_SUBST([AGAVE_PALETTEDIR])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
+                 test/Makefile
                  po/Makefile.in
                  ])
 

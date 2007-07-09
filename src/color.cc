@@ -25,6 +25,9 @@
 #include "color.h"
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <limits>
 
 namespace agave
 {
@@ -370,7 +373,7 @@ namespace agave
         clamp ();
     }
 
-    Color::Color (Glib::ustring hexstring)
+    Color::Color (std::string hexstring)
     {
         // FIXME
         clamp ();
@@ -391,6 +394,7 @@ namespace agave
         if (this == &rhs) return *this;
         m_data = rhs.m_data;
         clamp ();
+        return *this;
     }
 
     bool operator==(const rgb_t& lhs, const rgb_t& rhs)
@@ -465,8 +469,25 @@ namespace agave
 
     std::ostream& operator<< (std::ostream& out, const Color& c)
     {
-        return out << "<" << &c << "> " << "[R=" << c.m_data.r << " G=" <<
-            c.m_data.g << " B=" << c.m_data.b << " A=" << c.m_data.a << "]";
+        rgb_t rgb = c.as_rgb ();
+        out << std::fixed << std::setprecision (4);
+        out << "<" << &c << "> {Color} ";
+        /*
+        out << "[R=" << rgb.r
+            << " G=" << rgb.g
+            << " B=" << rgb.b
+            << " A=" << rgb.a
+            << "]";
+        */
+
+        hsv_t hsv = c.as_hsv ();
+        out << c.as_hexstring ();
+        out << " [H=" << hsv.h
+            << " S=" << hsv.s
+            << " V=" << hsv.v
+            << " A=" << hsv.a
+            << "]";
+        return out;
     }
 
 
@@ -474,6 +495,10 @@ namespace agave
     {
         hsv_t hsv = as_hsv ();
         hsv.h += hue_delta;
+        if (hsv.h < 0)
+        {
+            hsv.h += 1.0;
+        }
         set (hsv);
     }
 
@@ -498,7 +523,7 @@ namespace agave
         set (cmyk_to_rgb (cmyk));
     }
 
-    void Color::set (Glib::ustring hexstring)
+    void Color::set (std::string hexstring)
     {
         // FIXME: parse string to rgb color
     }
@@ -523,8 +548,17 @@ namespace agave
         return rgb_to_cmyk (m_data);
     }
 
-    Glib::ustring Color::as_hexstring () const
+    std::string Color::as_hexstring () const
     {
+        std::ostringstream ostream;
+        uint16_t x;
+        x = static_cast<uint16_t>((m_data.r) * static_cast<double>(255.0));
+        ostream << std::hex << std::setw (2) << std::setfill('0') << x;
+        x = static_cast<uint16_t>((m_data.g) * static_cast<double>(255.0));
+        ostream << std::hex << std::setw (2) << std::setfill('0') << x;
+        x = static_cast<uint16_t>((m_data.b) * static_cast<double>(255.0));
+        ostream << std::hex << std::setw (2) << std::setfill('0') << x;
+        return ostream.str ();
     }
 
     double Color::luminance () const

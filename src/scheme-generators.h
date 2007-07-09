@@ -34,7 +34,7 @@ namespace agave
         public:
             unsigned int num_colors () const { return 5; }
             Glib::ustring scheme_name () const { return "Analogous"; }
-            std::vector<Color>::iterator generate (const Color& c,
+            std::vector<Color>::const_iterator generate (const Color& c,
                     std::vector<Color>& generated_scheme);
     };
 
@@ -43,7 +43,7 @@ namespace agave
         public:
             unsigned int num_colors () const { return 5; }
             Glib::ustring scheme_name () const { return "Monochromatic"; }
-            std::vector<Color>::iterator generate (const Color& c,
+            std::vector<Color>::const_iterator generate (const Color& c,
                     std::vector<Color>& generated_scheme);
     };
 
@@ -52,7 +52,7 @@ namespace agave
         public:
             unsigned int num_colors () const { return 5; }
             Glib::ustring scheme_name () const { return "Triads"; }
-            std::vector<Color>::iterator generate (const Color& c,
+            std::vector<Color>::const_iterator generate (const Color& c,
                     std::vector<Color>& generated_scheme);
     };
 
@@ -61,7 +61,7 @@ namespace agave
         public:
             unsigned int num_colors () const { return 5; }
             Glib::ustring scheme_name () const { return "Complementary"; }
-            std::vector<Color>::iterator generate (const Color& c,
+            std::vector<Color>::const_iterator generate (const Color& c,
                     std::vector<Color>& generated_scheme);
     };
 
@@ -70,7 +70,7 @@ namespace agave
         public:
             unsigned int num_colors () const { return 5; }
             Glib::ustring scheme_name () const { return "Compound"; }
-            std::vector<Color>::iterator generate (const Color& c,
+            std::vector<Color>::const_iterator generate (const Color& c,
                     std::vector<Color>& generated_scheme);
     };
 
@@ -79,7 +79,7 @@ namespace agave
         public:
             unsigned int num_colors () const { return 5; }
             Glib::ustring scheme_name () const { return "Shades"; }
-            std::vector<Color>::iterator generate (const Color& c,
+            std::vector<Color>::const_iterator generate (const Color& c,
                     std::vector<Color>& generated_scheme);
     };
 
@@ -88,7 +88,16 @@ namespace agave
         public:
             unsigned int num_colors () const { return 5; }
             Glib::ustring scheme_name () const { return "Tetrads"; }
-            std::vector<Color>::iterator generate (const Color& c,
+            std::vector<Color>::const_iterator generate (const Color& c,
+                    std::vector<Color>& generated_scheme);
+    };
+
+    class CustomSchemeGenerator : public ISchemeGenerator
+    {
+        public:
+            unsigned int num_colors () const { return 5; }
+            Glib::ustring scheme_name () const { return "Custom"; }
+            std::vector<Color>::const_iterator generate (const Color& c,
                     std::vector<Color>& generated_scheme);
     };
 }

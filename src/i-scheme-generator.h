@@ -50,7 +50,7 @@ namespace agave
              * scheme
              * @returns pointer to base color in the generated scheme
              */
-            virtual std::vector<Color>::iterator generate (const Color& c,
+            virtual std::vector<Color>::const_iterator generate (const Color& c,
                     std::vector<Color>& generated_scheme) = 0;
 
             virtual ~ISchemeGenerator () {}

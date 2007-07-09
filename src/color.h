@@ -119,7 +119,7 @@ namespace agave
             Color (hsv_t hsv);
             Color (hsl_t hsl);
             Color (cmyk_t cmyk);
-            Color (Glib::ustring hexstring);
+            Color (std::string hexstring);
             Color (const Color& other);
             virtual ~Color ();
 
@@ -166,7 +166,7 @@ namespace agave
              *
              * @param hexstring A color specification in a RGB hexstring format
              */
-            void set (Glib::ustring hexstring);
+            void set (std::string hexstring);
 
             void shift_hue (hsv_t::value_type hue_delta);
 
@@ -193,7 +193,7 @@ namespace agave
             /**
              * Get value of the color in hexstring format
              */
-            Glib::ustring as_hexstring () const;
+            std::string as_hexstring () const;
 
             /**
              * Get the luminance of the color

@@ -22,30 +22,29 @@
  *    Boston, MA  02111-1307  USA
  *
  *******************************************************************************/
-#ifndef __APPLICATION_WINDOW_H
-#define __APPLICATION_WINDOW_H
+#include <iostream>
+#include "scheme.h"
 
-#include <boost/shared_ptr.hpp>
+using namespace agave;
 
-namespace Gtk
+int main ()
 {
-    class Window;
+    hsv_t hsv = {0.5, 1.0, 1.0, 1.0};
+    Color c (hsv);
+    Scheme s(c, SCHEME_TYPE_ANALOGOUS);
+    std::cout << s << std::endl;
+    s.set_scheme_type (SCHEME_TYPE_MONOCHROMATIC);
+    std::cout << s << std::endl;
+    s.set_scheme_type (SCHEME_TYPE_TRIAD);
+    std::cout << s << std::endl;
+    s.set_scheme_type (SCHEME_TYPE_COMPLEMENTARY);
+    std::cout << s << std::endl;
+    s.set_scheme_type (SCHEME_TYPE_COMPOUND);
+    std::cout << s << std::endl;
+    s.set_scheme_type (SCHEME_TYPE_SHADES);
+    std::cout << s << std::endl;
+    s.set_scheme_type (SCHEME_TYPE_TETRAD);
+    std::cout << s << std::endl;
+    s.set_scheme_type (SCHEME_TYPE_CUSTOM);
+    std::cout << s << std::endl;
 }
-
-namespace agave
-{
-
-    class ApplicationWindow
-    {
-        public:
-            ApplicationWindow ();
-            void set_subtitle (const Glib::ustring& subtitle);
-            Gtk::Window& get_window () const;
-
-        private:
-            struct Priv;
-            boost::shared_ptr<Priv> m_priv;
-    };
-}
-
-#endif // __APPLICATION_WINDOW_H

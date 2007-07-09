@@ -118,6 +118,6 @@ namespace agave
     int Application::run ()
     {
         THROW_IF_FAIL (m_priv);
-        m_priv->run ();
+        return m_priv->run ();
     }
 }
