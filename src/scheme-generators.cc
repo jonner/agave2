@@ -97,8 +97,8 @@ namespace agave
             hsv3.v += 0.30;
             hsv4.v += 0.60;
         }
-        generated_scheme[0] = Color (hsv2);
-        generated_scheme[1] = Color (hsv1);
+        generated_scheme[0] = Color (hsv1);
+        generated_scheme[1] = Color (hsv2);
 
         // add the base color to the scheme
         generated_scheme[2] = c;
@@ -119,7 +119,8 @@ namespace agave
         hsv_t hsv, hsv1, hsv2, hsv3, hsv4;
         hsv = hsv1 = hsv2 = hsv3 = hsv4 = c.as_hsv ();
         hsv1.h = hsv.h + 1./6.;
-        hsv3.h = hsv4.h = hsv.h + 200./360.;
+        hsv3.h = hsv.h + 0.56;
+        hsv4.h = hsv.h + 0.56;
 
         // set 'saturation'
         if (hsv.s > 0.1)
@@ -130,7 +131,7 @@ namespace agave
         }
         else
         {
-            hsv2.s = hsv.s + 0.1;
+            hsv1.s = hsv.s + 0.1;
             hsv2.s = hsv.s + 0.1;
             hsv3.s = hsv.s + 0.1;
         }
@@ -165,8 +166,8 @@ namespace agave
         generated_scheme[0] = Color (hsv1);
         generated_scheme[1] = Color (hsv2);
         generated_scheme[2] = c;
-        generated_scheme[1] = Color (hsv3);
-        generated_scheme[1] = Color (hsv4);
+        generated_scheme[3] = Color (hsv3);
+        generated_scheme[4] = Color (hsv4);
 
         return generated_scheme.begin () + 2;
     }
