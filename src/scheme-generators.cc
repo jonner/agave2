@@ -116,7 +116,59 @@ namespace agave
     {
         generated_scheme.resize (num_colors (), c);
         // FIXME: algorithm needs some work
-        return generated_scheme.begin ();
+        hsv_t hsv, hsv1, hsv2, hsv3, hsv4;
+        hsv = hsv1 = hsv2 = hsv3 = hsv4 = c.as_hsv ();
+        hsv1.h = hsv.h + 1./6.;
+        hsv3.h = hsv4.h = hsv.h + 200./360.;
+
+        // set 'saturation'
+        if (hsv.s > 0.1)
+        {
+            hsv1.s = hsv.s - 0.1;
+            hsv2.s = hsv.s - 0.1;
+            hsv3.s = hsv.s - 0.1;
+        }
+        else
+        {
+            hsv2.s = hsv.s + 0.1;
+            hsv2.s = hsv.s + 0.1;
+            hsv3.s = hsv.s + 0.1;
+        }
+        if (hsv.s > 0.95)
+        {
+            hsv4.s = hsv.s - 0.05;
+        }
+        else
+        {
+            hsv4.s = hsv.s + 0.05;
+        }
+        // set 'value'
+        if (hsv.v > 0.5)
+        {
+            hsv2.v = hsv.v - 0.3;
+            hsv3.v = hsv.v - 0.2;
+            hsv4.v = hsv.v - 0.3;
+        }
+        else if (hsv.v > 0.4)
+        {
+            hsv2.v = hsv.v + 0.3;
+            hsv3.v = hsv.v - 0.2;
+            hsv4.v = hsv.v + 0.3;
+        }
+        else
+        {
+            hsv2.v = hsv.v + 0.3;
+            hsv3.v = hsv.v + 0.2;
+            hsv4.v = hsv.v + 0.3;
+        }
+
+        generated_scheme[0] = Color (hsv1);
+        generated_scheme[1] = Color (hsv2);
+        generated_scheme[2] = c;
+        generated_scheme[1] = Color (hsv3);
+        generated_scheme[1] = Color (hsv4);
+
+        return generated_scheme.begin () + 2;
     }
 
     std::vector<Color>::const_iterator
