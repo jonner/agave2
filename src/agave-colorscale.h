@@ -62,6 +62,7 @@ namespace agave
             void render_scale (Cairo::RefPtr<Cairo::Context>& cr);
             void render_selectors (Cairo::RefPtr<Cairo::Context>& cr);
             void render_checks (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);
+            void render_stipple (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);
             void on_adjustment_value_changed ();
             void on_color_changed ();
             void update_adjustment (const Gdk::Color& c);

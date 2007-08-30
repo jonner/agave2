@@ -167,19 +167,16 @@ namespace agave
         queue_draw ();
     }
 
-    std::ostream& operator<< (std::ostream& out, const Gdk::Rectangle& rect)
-    {
-        return out << "(" << rect.get_x () << "," << rect.get_y ()
-            << ") " << rect.get_width () << "x" << rect.get_height ();
-    }
-
     bool
     ColorScale::on_motion_notify_event (GdkEventMotion* event)
     {
-        if (event && event->state & GDK_BUTTON1_MASK)
+        if (get_state () != Gtk::STATE_INSENSITIVE)
         {
-            // dragging with mouse button pressed
-            m_adj.set_value (get_value_from_coords (event->x, event->y));
+            if (event && event->state & GDK_BUTTON1_MASK)
+            {
+                // dragging with mouse button pressed
+                m_adj.set_value (get_value_from_coords (event->x, event->y));
+            }
         }
         return true;
     }
@@ -187,29 +184,32 @@ namespace agave
     bool
     ColorScale::on_button_press_event (GdkEventButton* event)
     {
-        if (event && event->type == GDK_BUTTON_PRESS)
+        if (get_state () != Gtk::STATE_INSENSITIVE)
         {
-            switch (event->button)
+            if (event && event->type == GDK_BUTTON_PRESS)
             {
-                case 1:
-                    m_adj.set_value (get_value_from_coords (event->x, event->y));
-                    break;
-                case 3:
-                    {
-                        double val = get_value_from_coords (event->x, event->y);
-                        if (val < m_adj.get_value ())
+                switch (event->button)
+                {
+                    case 1:
+                        m_adj.set_value (get_value_from_coords (event->x, event->y));
+                        break;
+                    case 3:
                         {
-                            m_adj.set_value (m_adj.get_value () - m_adj.get_page_increment ());
+                            double val = get_value_from_coords (event->x, event->y);
+                            if (val < m_adj.get_value ())
+                            {
+                                m_adj.set_value (m_adj.get_value () - m_adj.get_page_increment ());
+                            }
+                            else if (val > m_adj.get_value ())
+                            {
+                                m_adj.set_value (m_adj.get_value () + m_adj.get_page_increment ());
+                            }
                         }
-                        else if (val > m_adj.get_value ())
-                        {
-                            m_adj.set_value (m_adj.get_value () + m_adj.get_page_increment ());
-                        }
-                    }
-                    break;
-                default:
-                    // do nothing
-                    break;
+                        break;
+                    default:
+                        // do nothing
+                        break;
+                }
             }
         }
         return true;
@@ -218,19 +218,22 @@ namespace agave
     bool
     ColorScale::on_scroll_event (GdkEventScroll* event)
     {
-        if (event)
+        if (get_state () != Gtk::STATE_INSENSITIVE)
         {
-            switch (event->direction)
+            if (event)
             {
-                case GDK_SCROLL_UP:
-                    m_adj.set_value (m_adj.get_value () + m_adj.get_page_increment ());
-                    break;
-                case GDK_SCROLL_DOWN:
-                    m_adj.set_value (m_adj.get_value () - m_adj.get_page_increment ());
-                    break;
-                default:
-                    // do nothing
-                    break;
+                switch (event->direction)
+                {
+                    case GDK_SCROLL_UP:
+                        m_adj.set_value (m_adj.get_value () + m_adj.get_page_increment ());
+                        break;
+                    case GDK_SCROLL_DOWN:
+                        m_adj.set_value (m_adj.get_value () - m_adj.get_page_increment ());
+                        break;
+                    default:
+                        // do nothing
+                        break;
+                }
             }
         }
         return true;
@@ -239,19 +242,22 @@ namespace agave
     double
     ColorScale::get_value_from_coords (double x, double y)
     {
-            double new_val = (x - inside_x ()) / inside_width ();
-            //CLAMP (new_val, 0.0, 1.0);
-            return new_val;
+        double new_val = (x - inside_x ()) / inside_width ();
+        //CLAMP (new_val, 0.0, 1.0);
+        return new_val;
     }
 
     bool ColorScale::on_enter_notify_event (GdkEventCrossing* event)
     {
-        Glib::RefPtr<Gdk::Window> win = get_window();
-        if (win)
+        if (get_state () != Gtk::STATE_INSENSITIVE)
         {
-            Glib::RefPtr<Gdk::Display> dpy = Gdk::Display::get_default();
-            Gdk::Cursor cursor(dpy, Gdk::HAND2);
-            win->set_cursor(cursor);
+            Glib::RefPtr<Gdk::Window> win = get_window();
+            if (win)
+            {
+                Glib::RefPtr<Gdk::Display> dpy = Gdk::Display::get_default();
+                Gdk::Cursor cursor(dpy, Gdk::HAND2);
+                win->set_cursor(cursor);
+            }
         }
         return true;
     }
@@ -272,13 +278,16 @@ namespace agave
 
     bool ColorScale::on_leave_notify_event (GdkEventCrossing* event)
     {
+        if (get_state () != Gtk::STATE_INSENSITIVE)
+        {
             Glib::RefPtr<Gdk::Window> win = get_window();
             if (win)
             {
                 // return cursor to default
                 win->set_cursor();
             }
-            return true;
+        }
+        return true;
     }
 
 
@@ -359,6 +368,12 @@ namespace agave
         cr->set_source (gradient);
         cr->fill_preserve ();
 
+        if (get_state () == Gtk::STATE_INSENSITIVE)
+        {
+            render_stipple (cr, inside_x (), inside_y (),
+                    inside_width (), inside_height ());
+        }
+
         Gdk::Cairo::set_source_color (cr, get_style ()->get_fg (get_state ()));
         cr->stroke ();
 
@@ -418,6 +433,46 @@ namespace agave
 
         /* Fill the whole surface with the check */
         Cairo::RefPtr<Cairo::SurfacePattern> check_pattern = Cairo::SurfacePattern::create (check);
+        check_pattern->set_extend (Cairo::EXTEND_REPEAT);
+        cr->set_source (check_pattern);
+        cr->rectangle (x, y, w, h);
+        cr->fill ();
+
+        cr->restore ();
+    }
+
+    void ColorScale::render_stipple (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h)
+    {
+        const double CHECK_SIZE = 2.0;
+        cr->save ();
+
+        Cairo::RefPtr<Cairo::Surface> stipple = Cairo::Surface::create (cr->get_target (),
+                Cairo::CONTENT_COLOR,
+                static_cast<int>(2 * CHECK_SIZE), static_cast<int>(2 * CHECK_SIZE));
+
+        /* Draw a translucent alternating white/black stipple overlay */
+        {
+            Cairo::RefPtr<Cairo::Context> cr2 = Cairo::Context::create (stipple);
+
+            cr2->set_operator (Cairo::OPERATOR_SOURCE);
+
+            cr2->set_source_rgba (0.0, 0.0, 0.0, 0.4);
+
+            // draw black on the top-left and bottom-right
+            cr2->rectangle (0, 0, CHECK_SIZE, CHECK_SIZE);
+            cr2->rectangle (CHECK_SIZE, CHECK_SIZE, CHECK_SIZE, CHECK_SIZE);
+            cr2->fill ();
+
+            cr2->set_source_rgba (1.0, 1.0, 1.0, 0.4);
+
+            // draw white on the top-right and bottom-left
+            cr2->rectangle (CHECK_SIZE, 0.0, CHECK_SIZE, CHECK_SIZE);
+            cr2->rectangle (0.0, CHECK_SIZE, CHECK_SIZE, CHECK_SIZE);
+            cr2->fill ();
+        }
+
+        /* Fill the whole surface with the stipple */
+        Cairo::RefPtr<Cairo::SurfacePattern> check_pattern = Cairo::SurfacePattern::create (stipple);
         check_pattern->set_extend (Cairo::EXTEND_REPEAT);
         cr->set_source (check_pattern);
         cr->rectangle (x, y, w, h);
