@@ -26,7 +26,7 @@ AC_CONFIG_HEADER(config.h)
 dnl Set Language to C++ and make sure proper tools exist
 AC_LANG(C++)
 AC_PROG_CXX
-AC_PROG_RANLIB
+AC_PROG_LIBTOOL
 AC_CHECK_PROGS(SED, sed)
 
 dnl i18n
