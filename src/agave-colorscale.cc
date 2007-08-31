@@ -37,24 +37,14 @@ namespace agave
     const double min_height = 4.0 * selector_size;
 
     ColorScale::ColorScale (channel_t channel) :
-        m_channel (channel),
-        m_adj (0.0 /* initial value */,
-                0.0 /* lower */,
-                1.0 /* upper */,
-                0.05 /* step increment */,
-                0.1 /* page increment */)
+        m_channel (channel)
     {
         init ();
         set_model (ColorModel::pointer (new ColorModel ()));
     }
 
     ColorScale::ColorScale (ColorModel::pointer model, channel_t channel) :
-        m_channel (channel),
-        m_adj (0.0 /* initial value */,
-                0.0 /* lower */,
-                1.0 /* upper */,
-                0.05 /* step increment */,
-                0.1 /* page increment */)
+        m_channel (channel)
     {
         init ();
         set_model (model);
@@ -62,14 +52,19 @@ namespace agave
 
     void ColorScale::init ()
     {
-        m_adj.signal_value_changed ().connect (sigc::mem_fun (this,
-                    &ColorScale::on_adjustment_value_changed));
         add_events (Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
                 Gdk::POINTER_MOTION_MASK | Gdk::BUTTON_MOTION_MASK |
                 Gdk::ENTER_NOTIFY_MASK | Gdk::LEAVE_NOTIFY_MASK |
                 Gdk::FOCUS_CHANGE_MASK);
         set_size_request (static_cast<int>(2.0 * x_padding + min_width),
                 static_cast<int>(2.0 * y_padding + min_height));
+        m_adj.reset (new Gtk::Adjustment (0.0 /* initial value */,
+                    0.0 /* lower */,
+                    1.0 /* upper */,
+                    0.05 /* step increment */,
+                    0.1 /* page increment */));
+        m_adj->signal_value_changed ().connect (sigc::mem_fun (this,
+                    &ColorScale::on_adjustment_value_changed));
     }
 
     double ColorScale::inside_x () const
@@ -139,7 +134,7 @@ namespace agave
             case CHANNEL_RED:
                 {
                     Gdk::Color c;
-                    c.set_rgb_p ( m_adj.get_value (),
+                    c.set_rgb_p ( m_adj->get_value (),
                             m_model->get_color ().get_green_p (),
                             m_model->get_color ().get_blue_p ());
                     m_model->set_color (c);
@@ -149,7 +144,7 @@ namespace agave
                 {
                     Gdk::Color c;
                     c.set_rgb_p (m_model->get_color ().get_red_p (),
-                            m_adj.get_value (),
+                            m_adj->get_value (),
                             m_model->get_color ().get_blue_p ());
                     m_model->set_color (c);
                 }
@@ -159,7 +154,7 @@ namespace agave
                     Gdk::Color c;
                     c.set_rgb_p (m_model->get_color ().get_red_p (),
                             m_model->get_color ().get_green_p (),
-                            m_adj.get_value ());
+                            m_adj->get_value ());
                     m_model->set_color (c);
                 }
                 break;
@@ -181,7 +176,7 @@ namespace agave
             if (event && event->state & GDK_BUTTON1_MASK)
             {
                 // dragging with mouse button pressed
-                m_adj.set_value (get_value_from_coords (event->x, event->y));
+                m_adj->set_value (get_value_from_coords (event->x, event->y));
             }
         }
         return true;
@@ -197,18 +192,18 @@ namespace agave
                 switch (event->button)
                 {
                     case 1:
-                        m_adj.set_value (get_value_from_coords (event->x, event->y));
+                        m_adj->set_value (get_value_from_coords (event->x, event->y));
                         break;
                     case 3:
                         {
                             double val = get_value_from_coords (event->x, event->y);
-                            if (val < m_adj.get_value ())
+                            if (val < m_adj->get_value ())
                             {
-                                m_adj.set_value (m_adj.get_value () - m_adj.get_page_increment ());
+                                m_adj->set_value (m_adj->get_value () - m_adj->get_page_increment ());
                             }
-                            else if (val > m_adj.get_value ())
+                            else if (val > m_adj->get_value ())
                             {
-                                m_adj.set_value (m_adj.get_value () + m_adj.get_page_increment ());
+                                m_adj->set_value (m_adj->get_value () + m_adj->get_page_increment ());
                             }
                         }
                         break;
@@ -231,10 +226,10 @@ namespace agave
                 switch (event->direction)
                 {
                     case GDK_SCROLL_UP:
-                        m_adj.set_value (m_adj.get_value () + m_adj.get_page_increment ());
+                        m_adj->set_value (m_adj->get_value () + m_adj->get_page_increment ());
                         break;
                     case GDK_SCROLL_DOWN:
-                        m_adj.set_value (m_adj.get_value () - m_adj.get_page_increment ());
+                        m_adj->set_value (m_adj->get_value () - m_adj->get_page_increment ());
                         break;
                     default:
                         // do nothing
@@ -399,7 +394,7 @@ namespace agave
         cr->save ();
         //cr->rectangle (inside_x (), inside_y (), inside_width (), inside_height ());
         //cr->clip ();
-        double value_x = inside_x () + m_adj.get_value () * inside_width ();
+        double value_x = inside_x () + m_adj->get_value () * inside_width ();
         double mid_y = get_allocation ().get_height () / 2.0;
 
         cr->move_to (value_x, mid_y + 2.0 * selector_size);
@@ -514,13 +509,13 @@ namespace agave
                 // FIXME
                 break;
             case CHANNEL_RED:
-                m_adj.set_value (c.get_red_p ());
+                m_adj->set_value (c.get_red_p ());
                 break;
             case CHANNEL_GREEN:
-                m_adj.set_value (c.get_green_p ());
+                m_adj->set_value (c.get_green_p ());
                 break;
             case CHANNEL_BLUE:
-                m_adj.set_value (c.get_blue_p ());
+                m_adj->set_value (c.get_blue_p ());
                 break;
             case CHANNEL_ALPHA:
             default:
@@ -542,7 +537,7 @@ namespace agave
         {
             case CHANNEL_ALPHA:
                 g_return_if_fail (new_alpha >= 0.0 && new_alpha <= 1.0);
-                m_adj.set_value (new_alpha);
+                m_adj->set_value (new_alpha);
                 break;
             default:
                 //do nothing

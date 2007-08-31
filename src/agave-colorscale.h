@@ -27,6 +27,7 @@
 
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/adjustment.h>
+#include <boost/shared_ptr.hpp>
 #include "agave-colormodel.h"
 
 namespace agave
@@ -81,7 +82,7 @@ namespace agave
             double  get_value_from_coords (double x, double y);
             void init ();
             channel_t m_channel;
-            Gtk::Adjustment m_adj;
+            boost::shared_ptr<Gtk::Adjustment> m_adj;
             ColorModel::pointer m_model;
             bool m_draw_value;
     };
