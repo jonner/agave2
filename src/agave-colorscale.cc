@@ -26,6 +26,7 @@
 #include <gdkmm/general.h>  // cairo integration
 #include <gdkmm/cursor.h>  // cairo integration
 #include <cairomm/surface.h>
+#include <gdk/gdkkeysyms.h>
 
 namespace agave
 {
@@ -55,7 +56,7 @@ namespace agave
         add_events (Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
                 Gdk::POINTER_MOTION_MASK | Gdk::BUTTON_MOTION_MASK |
                 Gdk::ENTER_NOTIFY_MASK | Gdk::LEAVE_NOTIFY_MASK |
-                Gdk::FOCUS_CHANGE_MASK);
+                Gdk::KEY_PRESS_MASK | Gdk::FOCUS_CHANGE_MASK);
         set_size_request (static_cast<int>(2.0 * x_padding + min_width),
                 static_cast<int>(2.0 * y_padding + min_height));
         m_adj.reset (new Gtk::Adjustment (0.0 /* initial value */,
@@ -199,11 +200,11 @@ namespace agave
                             double val = get_value_from_coords (event->x, event->y);
                             if (val < m_adj->get_value ())
                             {
-                                m_adj->set_value (m_adj->get_value () - m_adj->get_page_increment ());
+                                decrement_page ();
                             }
                             else if (val > m_adj->get_value ())
                             {
-                                m_adj->set_value (m_adj->get_value () + m_adj->get_page_increment ());
+                                increment_page ();
                             }
                         }
                         break;
@@ -214,6 +215,15 @@ namespace agave
             }
         }
         return true;
+    }
+    void ColorScale::increment_page ()
+    {
+        m_adj->set_value (m_adj->get_value () + m_adj->get_page_increment ());
+    }
+
+    void ColorScale::decrement_page ()
+    {
+        m_adj->set_value (m_adj->get_value () - m_adj->get_page_increment ());
     }
 
     bool
@@ -291,6 +301,26 @@ namespace agave
         return true;
     }
 
+    bool ColorScale::on_key_press_event (GdkEventKey* event)
+    {
+        if (event)
+        {
+            switch (event->keyval)
+            {
+                case GDK_Up:
+                case GDK_Left:
+                    increment_page ();
+                    break;
+                case GDK_Down:
+                case GDK_Right:
+                    decrement_page ();
+                default:
+                    // nothing
+                    break;
+            }
+        }
+        return true;
+    }
 
     bool
     ColorScale::on_expose_event (GdkEventExpose* event)

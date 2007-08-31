@@ -62,6 +62,7 @@ namespace agave
             virtual bool on_leave_notify_event (GdkEventCrossing* event);
             virtual bool on_focus_in_event (GdkEventFocus* event);
             virtual bool on_focus_out_event (GdkEventFocus* event);
+            virtual bool on_key_press_event (GdkEventKey* event);
             void render_scale (Cairo::RefPtr<Cairo::Context>& cr);
             void render_selectors (Cairo::RefPtr<Cairo::Context>& cr);
             void render_checks (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);
@@ -79,7 +80,9 @@ namespace agave
             double outside_height () const;
 
         private:
-            double  get_value_from_coords (double x, double y);
+            double get_value_from_coords (double x, double y);
+            void increment_page ();
+            void decrement_page ();
             void init ();
             channel_t m_channel;
             boost::shared_ptr<Gtk::Adjustment> m_adj;
