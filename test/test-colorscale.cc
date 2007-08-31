@@ -51,6 +51,7 @@ int main (int argc, char** argv)
     w.add (vbox);
     vbox.show ();
     w.show_all_children ();
+    w.set_default_size (200, 200);
     Gtk::Main::run (w);
     return 0;
 }

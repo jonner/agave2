@@ -30,9 +30,11 @@
 namespace agave
 {
     const double border_width = 1.0;
-    const double x_padding = 3.0;
-    const double y_padding = 2.0;
     const double selector_size = 6.0;
+    const double x_padding = 3.0 + selector_size;
+    const double y_padding = 2.0;
+    const double min_width = 4.0 * selector_size;
+    const double min_height = 4.0 * selector_size;
 
     ColorScale::ColorScale (channel_t channel) :
         m_channel (channel),
@@ -66,6 +68,8 @@ namespace agave
                 Gdk::POINTER_MOTION_MASK | Gdk::BUTTON_MOTION_MASK |
                 Gdk::ENTER_NOTIFY_MASK | Gdk::LEAVE_NOTIFY_MASK |
                 Gdk::FOCUS_CHANGE_MASK);
+        set_size_request (static_cast<int>(2.0 * x_padding + min_width),
+                static_cast<int>(2.0 * y_padding + min_height));
     }
 
     double ColorScale::inside_x () const
