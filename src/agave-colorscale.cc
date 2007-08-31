@@ -32,6 +32,7 @@ namespace agave
     const double border_width = 1.0;
     const double x_padding = 3.0;
     const double y_padding = 2.0;
+    const double selector_size = 6.0;
 
     ColorScale::ColorScale (channel_t channel) :
         m_channel (channel),
@@ -392,15 +393,15 @@ namespace agave
     ColorScale::render_selectors (Cairo::RefPtr<Cairo::Context>& cr)
     {
         cr->save ();
-        cr->rectangle (outside_x (), outside_y (), outside_width (), outside_height ());
-        cr->clip ();
-        const double side_length = inside_height () / 4.0;
+        //cr->rectangle (inside_x (), inside_y (), inside_width (), inside_height ());
+        //cr->clip ();
         double value_x = inside_x () + m_adj.get_value () * inside_width ();
+        double mid_y = get_allocation ().get_height () / 2.0;
 
-        cr->move_to (value_x, inside_y ());
-        cr->line_to (value_x + side_length, inside_y () + inside_height () / 2.0);
-        cr->line_to (value_x, inside_y () + inside_height ());
-        cr->line_to (value_x - side_length, inside_y () + inside_height () / 2.0);
+        cr->move_to (value_x, mid_y + 2.0 * selector_size);
+        cr->line_to (value_x + selector_size, mid_y);
+        cr->line_to (value_x, mid_y - 2.0 * selector_size);
+        cr->line_to (value_x - selector_size, mid_y);
         cr->close_path ();
         Gdk::Cairo::set_source_color (cr, get_style ()->get_bg (get_state ()));
         cr->fill_preserve ();

@@ -33,7 +33,7 @@ int main (int argc, char** argv)
     Gtk::Main kit (argc, argv);
     Gtk::Window w;
     ColorModel::pointer model (new ColorModel ());
-    model->set_color (Gdk::Color ("orange"));
+    model->set_color (Gdk::Color ("purple"));
     ColorScale r_scale (model, ColorScale::CHANNEL_RED);
     ColorScale g_scale (model, ColorScale::CHANNEL_GREEN);
     ColorScale b_scale (model, ColorScale::CHANNEL_BLUE);
