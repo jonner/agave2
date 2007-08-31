@@ -29,8 +29,9 @@
 
 namespace agave
 {
-    const double border_width = 2.0;
-    const double padding = 2.0;
+    const double border_width = 1.0;
+    const double x_padding = 3.0;
+    const double y_padding = 2.0;
 
     ColorScale::ColorScale (channel_t channel) :
         m_channel (channel),
@@ -68,42 +69,42 @@ namespace agave
 
     double ColorScale::inside_x () const
     {
-        return padding + border_width;
+        return x_padding + border_width;
     }
 
     double ColorScale::inside_y () const
     {
-        return padding + border_width;
+        return y_padding + border_width;
     }
 
     double ColorScale::inside_width () const
     {
-        return get_allocation ().get_width () - 2 * padding - 2 * border_width;
+        return get_allocation ().get_width () - 2 * x_padding - 2 * border_width;
     }
 
     double ColorScale::inside_height () const
     {
-        return get_allocation ().get_height () - 2 * padding - 2 * border_width;
+        return get_allocation ().get_height () - 2 * y_padding - 2 * border_width;
     }
 
     double ColorScale::outside_x () const
     {
-        return padding;
+        return x_padding;
     }
 
     double ColorScale::outside_y () const
     {
-        return padding;
+        return y_padding;
     }
 
     double ColorScale::outside_width () const
     {
-        return get_allocation ().get_width () - 2 * padding;
+        return get_allocation ().get_width () - 2 * x_padding;
     }
 
     double ColorScale::outside_height () const
     {
-        return get_allocation ().get_height () - 2 * padding;
+        return get_allocation ().get_height () - 2 * y_padding;
     }
 
     void
@@ -301,6 +302,10 @@ namespace agave
         cr->set_line_width (border_width);
         render_scale (cr);
         render_selectors (cr);
+        if (m_draw_value)
+        {
+            // FIXME: draw the current value on the widget
+        }
         return true;
     }
 
@@ -309,16 +314,18 @@ namespace agave
     {
         g_return_if_fail (m_model);
         cr->save ();
+        double x, y, w, h;
+        x = outside_x () + border_width / 2.0;
+        y = outside_y () + border_width / 2.0;
+        w = outside_width () - border_width;
+        h = outside_height () - border_width;
 
         // print some check marks in the background so that if there is any
         // alpha opacity, the check marks will show through
         render_checks (cr, inside_x (), inside_y (),
                 inside_width (), inside_height ());
 
-        cr->rectangle (outside_x () + border_width / 2.0,
-                outside_y () + border_width / 2.0,
-                outside_width () - border_width,
-                outside_height () - border_width);
+        cr->rectangle (x, y, w, h);
         Cairo::RefPtr<Cairo::LinearGradient> gradient =
             Cairo::LinearGradient::create (outside_x () + border_width,
                     0.0,
@@ -366,7 +373,7 @@ namespace agave
                 break;
         }
         cr->set_source (gradient);
-        cr->fill_preserve ();
+        cr->fill();
 
         if (get_state () == Gtk::STATE_INSENSITIVE)
         {
@@ -375,6 +382,7 @@ namespace agave
         }
 
         Gdk::Cairo::set_source_color (cr, get_style ()->get_fg (get_state ()));
+        cr->rectangle (x, y, w, h);
         cr->stroke ();
 
         cr->restore ();
@@ -447,25 +455,20 @@ namespace agave
         cr->save ();
 
         Cairo::RefPtr<Cairo::Surface> stipple = Cairo::Surface::create (cr->get_target (),
-                Cairo::CONTENT_COLOR,
+                Cairo::CONTENT_COLOR_ALPHA,
                 static_cast<int>(2 * CHECK_SIZE), static_cast<int>(2 * CHECK_SIZE));
 
-        /* Draw a translucent alternating white/black stipple overlay */
+        /* Draw a translucent stipple overlay */
         {
             Cairo::RefPtr<Cairo::Context> cr2 = Cairo::Context::create (stipple);
 
             cr2->set_operator (Cairo::OPERATOR_SOURCE);
 
-            cr2->set_source_rgba (0.0, 0.0, 0.0, 0.4);
+            Gdk::Cairo::set_source_color (cr2, get_style ()->get_bg (Gtk::STATE_INSENSITIVE));
 
-            // draw black on the top-left and bottom-right
-            cr2->rectangle (0, 0, CHECK_SIZE, CHECK_SIZE);
-            cr2->rectangle (CHECK_SIZE, CHECK_SIZE, CHECK_SIZE, CHECK_SIZE);
-            cr2->fill ();
+            Gdk::Cairo::set_source_color (cr2, get_style ()->get_bg (Gtk::STATE_INSENSITIVE));
 
-            cr2->set_source_rgba (1.0, 1.0, 1.0, 0.4);
-
-            // draw white on the top-right and bottom-left
+            // draw on the top-right and bottom-left
             cr2->rectangle (CHECK_SIZE, 0.0, CHECK_SIZE, CHECK_SIZE);
             cr2->rectangle (0.0, CHECK_SIZE, CHECK_SIZE, CHECK_SIZE);
             cr2->fill ();
@@ -476,7 +479,7 @@ namespace agave
         check_pattern->set_extend (Cairo::EXTEND_REPEAT);
         cr->set_source (check_pattern);
         cr->rectangle (x, y, w, h);
-        cr->fill ();
+        cr->paint_with_alpha (0.5);
 
         cr->restore ();
     }
@@ -541,4 +544,16 @@ namespace agave
                 break;
         }
     }
+
+    void ColorScale::set_draw_value (bool enable)
+    {
+        m_draw_value = enable;
+        queue_draw ();
+    }
+
+    bool ColorScale::get_draw_value ()
+    {
+        return m_draw_value;
+    }
+
 }

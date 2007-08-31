@@ -49,6 +49,8 @@ namespace agave
             void set_model (const ColorModel::pointer& model);
             ColorModel::pointer get_model ();
             void set_alpha (double new_alpha);
+            void set_draw_value (bool enable=true);
+            bool get_draw_value ();
 
         protected:
             virtual bool on_expose_event (GdkEventExpose* event);
@@ -81,6 +83,7 @@ namespace agave
             channel_t m_channel;
             Gtk::Adjustment m_adj;
             ColorModel::pointer m_model;
+            bool m_draw_value;
     };
 }
 #endif // __COLORSCALE_H__
