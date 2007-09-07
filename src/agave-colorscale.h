@@ -69,7 +69,7 @@ namespace agave
             void render_stipple (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);
             void on_adjustment_value_changed ();
             void on_color_changed ();
-            void update_adjustment (const Gdk::Color& c);
+            void update_adjustment (const Color& c);
             double inside_x () const;
             double inside_y () const;
             double inside_width () const;

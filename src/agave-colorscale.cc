@@ -124,38 +124,50 @@ namespace agave
         switch (m_channel)
         {
             case CHANNEL_HUE:
-                // FIXME: implement
+                {
+                    hsv_t hsv = m_model->get_color ().as_hsv ();
+                    hsv.h = m_adj->get_value ();
+                    Color c (hsv);
+                    m_model->set_color (c);
+                }
                 break;
             case CHANNEL_SATURATION:
-                // FIXME: implement
+                {
+                    hsv_t hsv = m_model->get_color ().as_hsv ();
+                    hsv.s = m_adj->get_value ();
+                    Color c (hsv);
+                    m_model->set_color (c);
+                }
                 break;
             case CHANNEL_VALUE:
-                // FIXME: implement
+                {
+                    hsv_t hsv = m_model->get_color ().as_hsv ();
+                    hsv.v = m_adj->get_value ();
+                    Color c (hsv);
+                    m_model->set_color (c);
+                }
                 break;
             case CHANNEL_RED:
                 {
-                    Gdk::Color c;
-                    c.set_rgb_p ( m_adj->get_value (),
-                            m_model->get_color ().get_green_p (),
-                            m_model->get_color ().get_blue_p ());
+                    rgb_t rgb = m_model->get_color ().as_rgb ();
+                    rgb.r = m_adj->get_value ();
+                    Color c (rgb);
                     m_model->set_color (c);
                 }
                 break;
             case CHANNEL_GREEN:
                 {
-                    Gdk::Color c;
-                    c.set_rgb_p (m_model->get_color ().get_red_p (),
-                            m_adj->get_value (),
-                            m_model->get_color ().get_blue_p ());
+                    rgb_t rgb = m_model->get_color ().as_rgb ();
+                    rgb.g = m_adj->get_value ();
+                    Color c (rgb);
                     m_model->set_color (c);
                 }
                 break;
             case CHANNEL_BLUE:
                 {
-                    Gdk::Color c;
-                    c.set_rgb_p (m_model->get_color ().get_red_p (),
-                            m_model->get_color ().get_green_p (),
-                            m_adj->get_value ());
+                    rgb_t rgb = m_model->get_color ().as_rgb ();
+                    rgb.b = m_adj->get_value ();
+                    Color c (rgb);
                     m_model->set_color (c);
                 }
                 break;
@@ -371,16 +383,32 @@ namespace agave
                 gradient->add_color_stop_rgb (1.0, 0.0, 0.0, 1.0);
                 break;
             case CHANNEL_SATURATION:
-                // FIXME
-                gradient->add_color_stop_rgb (0.0, 1.0, 0.0, 0.0);
-                gradient->add_color_stop_rgb (0.5, 0.0, 1.0, 0.0);
-                gradient->add_color_stop_rgb (1.0, 0.0, 0.0, 1.0);
+                {
+                    Color c = m_model->get_color ();
+                    hsv_t hsv = c.as_hsv ();
+                    hsv.s = 0.0;
+                    Color low (hsv);
+                    rgb_t low_rgb = low.as_rgb ();
+                    gradient->add_color_stop_rgb (0.0, low_rgb.r, low_rgb.g, low_rgb.b);
+                    hsv.s = 1.0;
+                    Color high (hsv);
+                    rgb_t high_rgb = high.as_rgb ();
+                    gradient->add_color_stop_rgb (1.0, high_rgb.r, high_rgb.g, high_rgb.b);
+                }
                 break;
             case CHANNEL_VALUE:
-                // FIXME
-                gradient->add_color_stop_rgb (0.0, 1.0, 0.0, 0.0);
-                gradient->add_color_stop_rgb (0.5, 0.0, 1.0, 0.0);
-                gradient->add_color_stop_rgb (1.0, 0.0, 0.0, 1.0);
+                {
+                    Color c = m_model->get_color ();
+                    hsv_t hsv = c.as_hsv ();
+                    hsv.v = 0.0;
+                    Color low (hsv);
+                    rgb_t low_rgb = low.as_rgb ();
+                    gradient->add_color_stop_rgb (0.0, low_rgb.r, low_rgb.g, low_rgb.b);
+                    hsv.v = 1.0;
+                    Color high (hsv);
+                    rgb_t high_rgb = high.as_rgb ();
+                    gradient->add_color_stop_rgb (1.0, high_rgb.r, high_rgb.g, high_rgb.b);
+                }
                 break;
             case CHANNEL_RED:
                 gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
@@ -396,9 +424,10 @@ namespace agave
                 break;
             case CHANNEL_ALPHA:
                 {
-                    Gdk::Color c = m_model->get_color ();
-                    gradient->add_color_stop_rgba (0.0, c.get_red_p (), c.get_green_p (), c.get_blue_p (), 0.0);
-                    gradient->add_color_stop_rgba (1.0, c.get_red_p (), c.get_green_p (), c.get_blue_p (), 1.0);
+                    Color c = m_model->get_color ();
+                    rgb_t rgb = c.as_rgb ();
+                    gradient->add_color_stop_rgba (0.0, rgb.r, rgb.g, rgb.b, 0.0);
+                    gradient->add_color_stop_rgba (1.0, rgb.r, rgb.g, rgb.b, 1.0);
                 }
                 break;
         }
@@ -525,27 +554,27 @@ namespace agave
         }
     }
 
-    void ColorScale::update_adjustment (const Gdk::Color& c)
+    void ColorScale::update_adjustment (const Color& c)
     {
         switch (m_channel)
         {
             case CHANNEL_HUE:
-                // FIXME
+                m_adj->set_value (c.as_hsv ().h);
                 break;
             case CHANNEL_SATURATION:
-                // FIXME
+                m_adj->set_value (c.as_hsv ().s);
                 break;
             case CHANNEL_VALUE:
-                // FIXME
+                m_adj->set_value (c.as_hsv ().v);
                 break;
             case CHANNEL_RED:
-                m_adj->set_value (c.get_red_p ());
+                m_adj->set_value (c.as_rgb ().r);
                 break;
             case CHANNEL_GREEN:
-                m_adj->set_value (c.get_green_p ());
+                m_adj->set_value (c.as_rgb ().g);
                 break;
             case CHANNEL_BLUE:
-                m_adj->set_value (c.get_blue_p ());
+                m_adj->set_value (c.as_rgb ().b);
                 break;
             case CHANNEL_ALPHA:
             default:

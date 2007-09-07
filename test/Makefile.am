@@ -7,10 +7,10 @@ test_swatch_SOURCES = test-swatch.cc
 test_swatch_LDADD = $(AGAVE_LIBS) ../src/libagavecore.la ../src/libagavewidgets.la
 
 test_colorscale_rgb_SOURCES = test-colorscale-rgb.cc
-test_colorscale_rgb_LDADD=$(AGAVE_LIBS) ../src/libagavewidgets.la
+test_colorscale_rgb_LDADD=$(AGAVE_LIBS) ../src/libagavewidgets.la ../src/libagavecore.la
 
 test_colorscale_hsv_SOURCES = test-colorscale-hsv.cc
-test_colorscale_hsv_LDADD=$(AGAVE_LIBS) ../src/libagavewidgets.la
+test_colorscale_hsv_LDADD=$(AGAVE_LIBS) ../src/libagavewidgets.la ../src/libagavecore.la
 
 INCLUDES=-I$(top_srcdir)/src
 AM_CPPFLAGS = -DAGAVE_LOCALEDIR=\"${AGAVE_LOCALEDIR}\"

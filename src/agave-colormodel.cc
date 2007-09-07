@@ -30,13 +30,13 @@ namespace agave
     {
     }
 
-    void ColorModel::set_color (const Gdk::Color& c)
+    void ColorModel::set_color (const Color& c)
     {
         m_color = c;
         signal_color_changed ().emit ();
     }
 
-    Gdk::Color ColorModel::get_color ()
+    Color ColorModel::get_color ()
     {
         return m_color;
     }

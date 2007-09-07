@@ -25,7 +25,7 @@
 #ifndef __COLORMODEL_H__
 #define __COLORMODEL_H__
 
-#include <gdkmm/color.h>
+#include <color.h>
 #include <boost/shared_ptr.hpp>
 #include <sigc++/signal.h>
 #include <sigc++/trackable.h>
@@ -37,14 +37,14 @@ namespace agave
         public:
             typedef boost::shared_ptr<ColorModel> pointer;
             ColorModel ();
-            void set_color (const Gdk::Color& c);
-            Gdk::Color get_color ();
+            void set_color (const Color& c);
+            Color get_color ();
 
             sigc::signal<void>& signal_color_changed () { return m_signal_color_changed; }
 
         private:
             sigc::signal<void> m_signal_color_changed;
-            Gdk::Color m_color;
+            Color m_color;
     };
 }
 
