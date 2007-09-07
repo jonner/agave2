@@ -40,7 +40,6 @@ int main (int argc, char** argv)
     ColorScale s_scale (model, ColorScale::CHANNEL_SATURATION);
     ColorScale v_scale (model, ColorScale::CHANNEL_VALUE);
     ColorScale a_scale (model, ColorScale::CHANNEL_ALPHA);
-    v_scale.set_sensitive (false);
     Gtk::VBox vbox;
     vbox.pack_start (h_scale);
     h_scale.show ();

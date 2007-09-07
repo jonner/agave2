@@ -172,7 +172,12 @@ namespace agave
                 }
                 break;
             case CHANNEL_ALPHA:
-                // FIXME: implement
+                {
+                    rgb_t rgb = m_model->get_color ().as_rgb ();
+                    rgb.a = m_adj->get_value ();
+                    Color c (rgb);
+                    m_model->set_color (c);
+                }
                 break;
             default:
                 // NOTHING
@@ -577,6 +582,8 @@ namespace agave
                 m_adj->set_value (c.as_rgb ().b);
                 break;
             case CHANNEL_ALPHA:
+                m_adj->set_value (c.as_rgb ().a);
+                break;
             default:
                 // do nothing
                 break;
