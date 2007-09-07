@@ -38,12 +38,15 @@ namespace agave
             typedef boost::shared_ptr<ColorModel> pointer;
             ColorModel ();
             void set_color (const Color& c);
-            Color get_color ();
+            Color& get_color ();
 
-            sigc::signal<void>& signal_color_changed () { return m_signal_color_changed; }
+            sigc::signal<void>& signal_color_changed () const { return m_signal_color_changed; }
+
+        protected:
+            void on_color_changed ();
 
         private:
-            sigc::signal<void> m_signal_color_changed;
+            mutable sigc::signal<void> m_signal_color_changed;
             Color m_color;
     };
 }

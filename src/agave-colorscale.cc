@@ -124,60 +124,25 @@ namespace agave
         switch (m_channel)
         {
             case CHANNEL_HUE:
-                {
-                    hsv_t hsv = m_model->get_color ().as_hsv ();
-                    hsv.h = m_adj->get_value ();
-                    Color c (hsv);
-                    m_model->set_color (c);
-                }
+                m_model->get_color ().set_hue (m_adj->get_value ());
                 break;
             case CHANNEL_SATURATION:
-                {
-                    hsv_t hsv = m_model->get_color ().as_hsv ();
-                    hsv.s = m_adj->get_value ();
-                    Color c (hsv);
-                    m_model->set_color (c);
-                }
+                m_model->get_color ().set_saturation (m_adj->get_value ());
                 break;
             case CHANNEL_VALUE:
-                {
-                    hsv_t hsv = m_model->get_color ().as_hsv ();
-                    hsv.v = m_adj->get_value ();
-                    Color c (hsv);
-                    m_model->set_color (c);
-                }
+                m_model->get_color ().set_value (m_adj->get_value ());
                 break;
             case CHANNEL_RED:
-                {
-                    rgb_t rgb = m_model->get_color ().as_rgb ();
-                    rgb.r = m_adj->get_value ();
-                    Color c (rgb);
-                    m_model->set_color (c);
-                }
+                m_model->get_color ().set_red (m_adj->get_value ());
                 break;
             case CHANNEL_GREEN:
-                {
-                    rgb_t rgb = m_model->get_color ().as_rgb ();
-                    rgb.g = m_adj->get_value ();
-                    Color c (rgb);
-                    m_model->set_color (c);
-                }
+                m_model->get_color ().set_green (m_adj->get_value ());
                 break;
             case CHANNEL_BLUE:
-                {
-                    rgb_t rgb = m_model->get_color ().as_rgb ();
-                    rgb.b = m_adj->get_value ();
-                    Color c (rgb);
-                    m_model->set_color (c);
-                }
+                m_model->get_color ().set_blue (m_adj->get_value ());
                 break;
             case CHANNEL_ALPHA:
-                {
-                    rgb_t rgb = m_model->get_color ().as_rgb ();
-                    rgb.a = m_adj->get_value ();
-                    Color c (rgb);
-                    m_model->set_color (c);
-                }
+                m_model->get_color ().set_alpha (m_adj->get_value ());
                 break;
             default:
                 // NOTHING
@@ -389,30 +354,22 @@ namespace agave
                 break;
             case CHANNEL_SATURATION:
                 {
-                    Color c = m_model->get_color ();
-                    hsv_t hsv = c.as_hsv ();
-                    hsv.s = 0.0;
-                    Color low (hsv);
-                    rgb_t low_rgb = low.as_rgb ();
-                    gradient->add_color_stop_rgb (0.0, low_rgb.r, low_rgb.g, low_rgb.b);
-                    hsv.s = 1.0;
-                    Color high (hsv);
-                    rgb_t high_rgb = high.as_rgb ();
-                    gradient->add_color_stop_rgb (1.0, high_rgb.r, high_rgb.g, high_rgb.b);
+                    Color low = m_model->get_color ();
+                    low.set_saturation (0.0);     // min
+                    gradient->add_color_stop_rgb (0.0, low.get_red (), low.get_green (), low.get_blue ());
+                    Color high = m_model->get_color ();
+                    high.set_saturation (1.0);     // max
+                    gradient->add_color_stop_rgb (1.0, high.get_red (), high.get_green (), high.get_blue ());
                 }
                 break;
             case CHANNEL_VALUE:
                 {
-                    Color c = m_model->get_color ();
-                    hsv_t hsv = c.as_hsv ();
-                    hsv.v = 0.0;
-                    Color low (hsv);
-                    rgb_t low_rgb = low.as_rgb ();
-                    gradient->add_color_stop_rgb (0.0, low_rgb.r, low_rgb.g, low_rgb.b);
-                    hsv.v = 1.0;
-                    Color high (hsv);
-                    rgb_t high_rgb = high.as_rgb ();
-                    gradient->add_color_stop_rgb (1.0, high_rgb.r, high_rgb.g, high_rgb.b);
+                    Color low = m_model->get_color ();
+                    low.set_value (0.0);  // min
+                    gradient->add_color_stop_rgb (0.0, low.get_red (), low.get_green (), low.get_blue ());
+                    Color high = m_model->get_color ();
+                    high.set_value (1.0);  // max
+                    gradient->add_color_stop_rgb (1.0, high.get_red (), high.get_green (), high.get_blue ());
                 }
                 break;
             case CHANNEL_RED:

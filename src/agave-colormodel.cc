@@ -34,10 +34,16 @@ namespace agave
     {
         m_color = c;
         signal_color_changed ().emit ();
+        m_color.signal_changed ().connect (sigc::mem_fun (this, &ColorModel::on_color_changed));
     }
 
-    Color ColorModel::get_color ()
+    Color& ColorModel::get_color ()
     {
         return m_color;
+    }
+
+    void ColorModel::on_color_changed ()
+    {
+        signal_color_changed ().emit ();
     }
 }

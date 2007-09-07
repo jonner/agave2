@@ -33,8 +33,8 @@ int main (int argc, char** argv)
     Gtk::Main kit (argc, argv);
     Gtk::Window w;
     ColorModel::pointer model (new ColorModel ());
-    rgb_t rgb = {0.8, 0.6, 0.3};
-    Color c (rgb);
+    hsv_t hsv = {0.2, 0.8, 0.7, 0.4};
+    Color c (hsv);
     model->set_color (c);
     ColorScale h_scale (model, ColorScale::CHANNEL_HUE);
     ColorScale s_scale (model, ColorScale::CHANNEL_SATURATION);
