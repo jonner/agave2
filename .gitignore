@@ -23,7 +23,14 @@ mkinstalldirs
 .deps
 .libs
 /src/agave
+/libtool
+/ltmain.sh
 *.o
+*.lo
+*.la
 stamp-h1
 tags
 test/test-scheme
+test/test-swatch
+test/test-colorscale-rgb
+test/test-colorscale-hsv
