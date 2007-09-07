@@ -45,24 +45,12 @@ namespace agave
 
     bool operator==(const rgb_t& lhs, const rgb_t& rhs);
 
-    struct rgb_int_t
-    {
-        typedef unsigned int value_type;
-        value_type r, g, b, a;
-    };
-
     /************************************************************
      * HSV
      ***********************************************************/
     struct hsv_t
     {
         typedef double value_type;
-        value_type h, s, v, a;
-    };
-
-    struct hsv_int_t
-    {
-        typedef unsigned int value_type;
         value_type h, s, v, a;
     };
 
@@ -75,24 +63,12 @@ namespace agave
         value_type h, s, l, a;
     };
 
-    struct hsl_int_t
-    {
-        typedef unsigned int value_type;
-        value_type h, s, l, a;
-    };
-
     /************************************************************
      * CMYK
      ***********************************************************/
     struct cmyk_t
     {
         typedef double value_type;
-        value_type c, m, y, k, a;
-    };
-
-    struct cmyk_int_t
-    {
-        typedef unsigned int value_type;
         value_type c, m, y, k, a;
     };
 
@@ -133,33 +109,78 @@ namespace agave
 
             friend std::ostream& operator<<(std::ostream& out, const Color& c);
 
+            /// \name rgb operations
+            /// @{
             /**
              * Set the value of the color with a RGBA specification
-             *
-             * @param rgb   A color in RGBA colorspace
              */
             void set (rgb_t rgb);
+            void set_rgb (double r, double g, double b, double a=1.0);
+            void set_red (double r);
+            void set_green (double g);
+            void set_blue (double b);
+            double get_red () const;
+            double get_green () const;
+            double get_blue () const;
+            /**
+             * Get value of the color in RGBA format
+             */
+            rgb_t as_rgb () const;
+            /// @}
 
+            /// \name hsv operations
+            /// @{
             /**
              * set the value of the color with an HSV(A) specification
-             *
-             * @param hsv   A color in HSVA colorspace
              */
             void set (hsv_t hsv);
+            void set_hsv (double h, double s, double v, double a=1.0);
+            void set_hue (double h);
+            void shift_hue (hsv_t::value_type hue_delta);
+            void set_saturation (double s);
+            void set_value (double v);
+            double get_hue () const;
+            double get_saturation () const;
+            double get_value () const;
+            /**
+             * Get value of the color in HSV(A) format
+             */
+            hsv_t as_hsv () const;
+            /// @}
 
+            /// \name hsl operations
+            /// @{
             /**
              * Set the value of the color with an HSL(A) specification
-             *
-             * @param hsl   A color in HSLA colorspace
              */
             void set (hsl_t hsl);
+            void set_hsl (double h, double s, double l, double a=1.0);
+            /**
+             * Get value of the color in HSL(A) format
+             */
+            hsl_t as_hsl () const;
+            /// @}
 
+            /// \name cmyk operations
+            /// @{
             /**
              * Set the value of the color with a CMYK(A) specification
-             *
-             * @param cmyk  A color in CMYKA colorspace
              */
             void set (cmyk_t cmyk);
+            void set_cmyk (double c, double m, double y, double k, double a=1.0);
+            void set_cyan (double c);
+            void set_magenta (double m);
+            void set_yellow (double y);
+            void set_black (double k);
+            /**
+             * Get value of the color in CMYK(A) format
+             */
+            cmyk_t as_cmyk () const;
+            double get_cyan () const;
+            double get_magenta () const;
+            double get_yellow () const;
+            double get_black () const;
+            /// @}
 
             /**
              * Set the value of the color using a hexstring, as in #FFFFFF
@@ -168,32 +189,13 @@ namespace agave
              */
             void set (std::string hexstring);
 
-            void shift_hue (hsv_t::value_type hue_delta);
-
-            /**
-             * Get value of the color in RGBA format
-             */
-            rgb_t as_rgb () const;
-
-            /**
-             * Get value of the color in HSV(A) format
-             */
-            hsv_t as_hsv () const;
-
-            /**
-             * Get value of the color in HSL(A) format
-             */
-            hsl_t as_hsl () const;
-
-            /**
-             * Get value of the color in CMYK(A) format
-             */
-            cmyk_t as_cmyk () const;
-
             /**
              * Get value of the color in hexstring format
              */
             std::string as_hexstring () const;
+
+            void set_alpha (double a);
+            double get_alpha () const;
 
             /**
              * Get the luminance of the color
@@ -203,8 +205,10 @@ namespace agave
             /**
              * signal emitted whenever the color is changed
              */
-            const sigc::signal<void>& signal_changed () const { return m_signal_changed; }
+            sigc::signal<void>& signal_changed () const { return m_signal_changed; }
 
+            /// \name Conversion helper functions
+            /// @{
             /**
              * Convert a color specification in RGB colorspace to one in HSV
              * colorspace
@@ -260,6 +264,7 @@ namespace agave
              * @param rgb   A color in RGBA colorspace
              */
             static rgb_t cmyk_to_rgb (const cmyk_t& cmyk);
+            /// @}
 
         private:
             void clamp ();
@@ -275,7 +280,7 @@ namespace agave
             static const double m_green_luminance;
             static const double m_blue_luminance;
 
-            sigc::signal<void> m_signal_changed;
+            mutable sigc::signal<void> m_signal_changed;
     };
 
 } // namespace agave

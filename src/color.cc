@@ -508,9 +508,96 @@ namespace agave
         m_signal_changed.emit ();
     }
 
+    void Color::set_rgb (double r, double g, double b, double a)
+    {
+        rgb_t rgb = {r, g, b, a};
+        set (rgb);
+    }
+
+    void Color::set_red (double r)
+    {
+        rgb_t new_rgb = m_data;
+        new_rgb.r = r;
+        set (new_rgb);
+    }
+
+    void Color::set_green (double g)
+    {
+        rgb_t new_rgb = m_data;
+        new_rgb.g = g;
+        set (new_rgb);
+    }
+
+    void Color::set_blue (double b)
+    {
+        rgb_t new_rgb = m_data;
+        new_rgb.b = b;
+        set (new_rgb);
+    }
+
+    double Color::get_red () const
+    {
+        return m_data.r;
+    }
+
+    double Color::get_green () const
+    {
+        return m_data.g;
+    }
+
+    double Color::get_blue () const
+    {
+        return m_data.b;
+    }
+
     void Color::set (hsv_t hsv)
     {
         set (hsv_to_rgb (hsv));
+    }
+
+    void Color::set_hsv (double h, double s, double v, double a)
+    {
+        hsv_t new_hsv = {h, s, v, a};
+        set (new_hsv);
+    }
+
+    void Color::set_hue (double h)
+    {
+        hsv_t new_hsv = as_hsv ();
+        new_hsv.h = h;
+        set (new_hsv);
+    }
+
+    void Color::set_saturation (double s)
+    {
+        hsv_t new_hsv = as_hsv ();
+        new_hsv.s = s;
+        set (new_hsv);
+    }
+
+    void Color::set_value (double v)
+    {
+        hsv_t new_hsv = as_hsv ();
+        new_hsv.v = v;
+        set (new_hsv);
+    }
+
+    double Color::get_hue () const
+    {
+        hsv_t hsv = as_hsv ();
+        return hsv.h;
+    }
+
+    double Color::get_saturation () const
+    {
+        hsv_t hsv = as_hsv ();
+        return hsv.s;
+    }
+
+    double Color::get_value () const
+    {
+        hsv_t hsv = as_hsv ();
+        return hsv.v;
     }
 
     void Color::set (hsl_t hsl)
@@ -521,6 +608,76 @@ namespace agave
     void Color::set (cmyk_t cmyk)
     {
         set (cmyk_to_rgb (cmyk));
+    }
+
+    void Color::set_cmyk (double c, double m, double y, double k, double a)
+    {
+        cmyk_t new_cmyk = {c, m, y, k, a};
+        set (new_cmyk);
+    }
+
+    void Color::set_cyan (double c)
+    {
+        cmyk_t new_cmyk = as_cmyk ();
+        new_cmyk.c = c;
+        set (new_cmyk);
+    }
+
+    void Color::set_magenta (double m)
+    {
+        cmyk_t new_cmyk = as_cmyk ();
+        new_cmyk.m = m;
+        set (new_cmyk);
+    }
+
+    void Color::set_yellow (double y)
+    {
+        cmyk_t new_cmyk = as_cmyk ();
+        new_cmyk.y = y;
+        set (new_cmyk);
+    }
+
+    void Color::set_black (double k)
+    {
+        cmyk_t new_cmyk = as_cmyk ();
+        new_cmyk.k = k;
+        set (new_cmyk);
+    }
+
+    double Color::get_cyan () const
+    {
+        cmyk_t cmyk = as_cmyk ();
+        return cmyk.c;
+    }
+
+    double Color::get_magenta () const
+    {
+        cmyk_t cmyk = as_cmyk ();
+        return cmyk.m;
+    }
+
+    double Color::get_yellow () const
+    {
+        cmyk_t cmyk = as_cmyk ();
+        return cmyk.y;
+    }
+
+    double Color::get_black () const
+    {
+        cmyk_t cmyk = as_cmyk ();
+        return cmyk.k;
+    }
+
+    void Color::set_alpha (double a)
+    {
+        rgb_t new_rgb = m_data;
+        new_rgb.a = a;
+        set (new_rgb);
+    }
+
+    double Color::get_alpha () const
+    {
+        return m_data.a;
     }
 
     void Color::set (std::string hexstring)
