@@ -481,7 +481,7 @@ namespace agave
 
     void ColorScale::render_stipple (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h)
     {
-        const double CHECK_SIZE = 2.0;
+        const double CHECK_SIZE = 1.0;
         cr->save ();
 
         Cairo::RefPtr<Cairo::Surface> stipple = Cairo::Surface::create (cr->get_target (),
