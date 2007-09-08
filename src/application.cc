@@ -35,8 +35,7 @@
 namespace agave
 {
     static bool version_requested = false;
-    static Glib::ustring PACKAGE_SUMMARY = _("Agave - A Colorscheme Designer");
-    static Glib::ustring PACKAGE_DESCRIPTION = _("Copyright 2007, Jonathon Jongsma <jjongsma@gnome.org>");
+    static Glib::ustring PACKAGE_FOOTER = _("Copyright 2007, Jonathon Jongsma <jjongsma@gnome.org>");
 
     class OptionGroup : public Glib::OptionGroup
     {
@@ -49,7 +48,6 @@ namespace agave
             {
                 Glib::OptionEntry version_option;
                 version_option.set_long_name ("version");
-                version_option.set_short_name ('V');
                 version_option.set_description (_("Print application version"));
                 add_entry (version_option, version_requested);
             }
@@ -75,8 +73,8 @@ namespace agave
 
 #if GLIB_CHECK_VERSION (2, 12, 0)
             // FIXME: change these to glibmm functions when 2.14 is released
-            g_option_context_set_summary (context.gobj (), PACKAGE_SUMMARY.c_str ());
-            g_option_context_set_description (context.gobj (), PACKAGE_DESCRIPTION.c_str ());
+            g_option_context_set_summary (context.gobj (), PACKAGE_DESCRIPTION);
+            g_option_context_set_description (context.gobj (), PACKAGE_FOOTER.c_str ());
 #endif
 
             OptionGroup option_group;
@@ -90,8 +88,8 @@ namespace agave
         {
             if (version_requested)
             {
-                std::cout << PACKAGE_NAME << " " << PACKAGE_VERSION << " - " <<
-                    PACKAGE_SUMMARY << std::endl;
+                std::cout << PACKAGE_NAME << " " << PACKAGE_VERSION << std::endl
+                    << PACKAGE_DESCRIPTION << std::endl;
                 std::cout << "For more information, see " << PACKAGE_WEBSITE << std::endl;
             }
             else

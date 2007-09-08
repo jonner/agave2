@@ -20,6 +20,10 @@ PACKAGE_WEBSITE=[http://home.gna.org/colorscheme/]
 AC_DEFINE_UNQUOTED([PACKAGE_WEBSITE], ["$PACKAGE_WEBSITE"],
                    [The website of Agave])
 AC_SUBST([PACKAGE_WEBSITE])
+PACKAGE_DESCRIPTION=["A Colorscheme Designer for the GNOME Desktop"]
+AC_DEFINE_UNQUOTED([PACKAGE_DESCRIPTION], ["$PACKAGE_DESCRIPTION"],
+                   [Description of Agave])
+AC_SUBST([PACKAGE_DESCRIPTION])
 
 AC_CONFIG_HEADER(config.h)
 
