@@ -26,11 +26,11 @@
 #include <gtkmm/main.h>
 #include <glib/gi18n.h>
 #include <glib/gutils.h>
+#include <glibmm-utils/exception.hh>
 #include "config.h"
 #include "application.h"
 #include "application-window.h"
 #include "scheme.h"
-#include "util.h"
 
 namespace agave
 {

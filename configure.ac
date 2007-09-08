@@ -43,6 +43,7 @@ AM_GLIB_GNU_GETTEXT
 
 PKG_CHECK_MODULES(GTKMM, [
                           gtkmm-2.4 >= 2.10.0
+                          glibmm-utils
                           ])
 PKG_CHECK_MODULES(LIBGLADEMM, [
                                libglademm-2.4

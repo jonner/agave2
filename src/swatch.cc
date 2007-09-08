@@ -24,8 +24,8 @@
  *******************************************************************************/
 
 #include <gdkmm/general.h>  // cairo helpers
+#include <glibmm-utils/exception.hh>
 #include "swatch.h"
-#include "util.h"
 
 namespace agave
 {

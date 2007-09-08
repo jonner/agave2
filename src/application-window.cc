@@ -32,9 +32,9 @@
 #include <gtkmm/stock.h>
 #include <gtkmm/aboutdialog.h>
 #include <glib/gi18n.h>
+#include <glibmm-utils/exception.hh>
 #include "config.h"
 #include "application-window.h"
-#include "util.h"
 
 namespace agave
 {

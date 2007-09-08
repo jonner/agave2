@@ -24,7 +24,7 @@
  *******************************************************************************/
 
 #include <map>
-#include "util.h"
+#include <glibmm-utils/exception.hh>
 #include "scheme.h"
 #include "color.h"
 #include "scheme-generators.h"
