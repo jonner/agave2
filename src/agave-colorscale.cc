@@ -34,7 +34,7 @@ namespace agave
     const double selector_size = 6.0;
     const double x_padding = 3.0 + selector_size;
     const double y_padding = 2.0;
-    const double min_width = 4.0 * selector_size;
+    const double min_width = 8.0 * selector_size;
     const double min_height = 4.0 * selector_size;
 
     ColorScale::ColorScale (channel_t channel) :
