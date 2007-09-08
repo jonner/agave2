@@ -1,4 +1,4 @@
-SUBDIRS=src test
+SUBDIRS=src data test
 
 doc :
 	(cd src && $(MAKE) $(AM_MAKEFLAGS) doc)

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Type=Application
+_Name=Agave
+_Comment=Generate color schemes
+Icon=agave
+Exec=agave
+Categories=GNOME;Application;Graphics
