@@ -135,6 +135,7 @@ AC_SUBST([AGAVE_PALETTEDIR])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
+                 src/Doxyfile
                  test/Makefile
                  po/Makefile.in
                  ])

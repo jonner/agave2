@@ -29,3 +29,11 @@ AM_CPPFLAGS = -DAGAVE_LOCALEDIR=\"${AGAVE_LOCALEDIR}\"
 
 AM_CXXFLAGS=$(AGAVE_CFLAGS)
 agave_LDADD=$(AGAVE_LIBS) libagavecore.la libagavewidgets.la
+
+doc : Doxyfile.in $(libagavewidgets_la_SOURCES) $(libagavecore_la_SOURCES)
+	doxygen Doxyfile
+
+doc-clean :
+	rm -rf doc
+
+.PHONY: doc doc-clean

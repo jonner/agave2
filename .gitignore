@@ -34,3 +34,5 @@ test/test-scheme
 test/test-swatch
 test/test-colorscale-rgb
 test/test-colorscale-hsv
+src/Doxyfile
+src/doc
