@@ -214,7 +214,7 @@ namespace agave
              * colorspace
              *
              * @param rgb   A color in RGBA colorspace
-             * @param hsv   A color in HSVA colorspace
+             * @return   A color in HSVA colorspace
              */
             static hsv_t rgb_to_hsv (const rgb_t& rgb);
 
@@ -223,7 +223,7 @@ namespace agave
              * colorspace
              *
              * @param rgb   A color in RGBA colorspace
-             * @param hsl   A color in HSLA colorspace
+             * @return   A color in HSLA colorspace
              */
             static hsl_t rgb_to_hsl (const rgb_t& rgb);
 
@@ -232,9 +232,9 @@ namespace agave
              * colorspace
              *
              * @param rgb   A color in RGBA colorspace
-             * @param cmyk  A color in CMYKA colorspace
              * @param pullout  A scaling value (0-1) indicating how much black
              * should be pulled out
+             * @return  A color in CMYKA colorspace
              */
             static cmyk_t rgb_to_cmyk (const rgb_t& rgb, double pullout = 0.0);
 
@@ -243,7 +243,7 @@ namespace agave
              * colorspace
              *
              * @param hsv   A color in HSVA colorspace
-             * @param rgb   A color in RGBA colorspace
+             * @return   A color in RGBA colorspace
              */
             static rgb_t hsv_to_rgb (const hsv_t& hsv);
 
@@ -252,7 +252,7 @@ namespace agave
              * colorspace
              *
              * @param hsl   A color in HSLA colorspace
-             * @param rgb   A color in RGBA colorspace
+             * @return   A color in RGBA colorspace
              */
             static rgb_t hsl_to_rgb (const hsl_t& hsl);
 
@@ -261,7 +261,7 @@ namespace agave
              * colorspace
              *
              * @param cmyk  A color in CMYKA colorspace
-             * @param rgb   A color in RGBA colorspace
+             * @return   A color in RGBA colorspace
              */
             static rgb_t cmyk_to_rgb (const cmyk_t& cmyk);
             /// @}
