@@ -30,27 +30,50 @@ namespace agave
 {
     struct Swatch::Priv
     {
-        Color m_color;
-        sigc::signal<void, const Color&> m_signal_color_changed;
+        ColorModel::pointer m_model;
     };
+
+    Swatch::Swatch () :
+        m_priv (new Priv())
+    {
+        ColorModel::pointer model (new ColorModel());
+        set_model (model);
+    }
+
+    Swatch::Swatch (const ColorModel::pointer& model) :
+        m_priv (new Priv())
+    {
+        set_model (model);
+    }
 
     Swatch::Swatch (const Color& c) :
         m_priv (new Priv())
     {
-        set_color (c);
+        ColorModel::pointer model (new ColorModel(c));
+        set_model (model);
+    }
+
+    void Swatch::set_model (const ColorModel::pointer& model)
+    {
+        THROW_IF_FAIL (m_priv);
+        m_priv->m_model = model;
+        if (m_priv->m_model)
+        {
+            m_priv->m_model->signal_color_changed ().connect (sigc::mem_fun
+                    (this, &Swatch::on_color_changed));
+        }
     }
 
     void Swatch::set_color (const Color& c)
     {
-        THROW_IF_FAIL (m_priv);
-        m_priv->m_color = c;
-        m_priv->m_signal_color_changed.emit (c);
+        THROW_IF_FAIL (m_priv && m_priv->m_model);
+        m_priv->m_model->set_color (c);
     }
 
-    sigc::signal<void, const Color&> Swatch::signal_color_changed ()
+    ColorModel::pointer Swatch::get_model ()
     {
         THROW_IF_FAIL (m_priv);
-        return m_priv->m_signal_color_changed;
+        return m_priv->m_model;
     }
 
     bool Swatch::on_expose_event (GdkEventExpose* event)
@@ -64,9 +87,15 @@ namespace agave
                     event->area.height);
             cr->clip ();
         }
-        rgb_t rgb = m_priv->m_color.as_rgb ();
-        cr->set_source_rgba (rgb.r, rgb.g, rgb.b, rgb.a);
+        Color c = m_priv->m_model->get_color ();
+        cr->set_source_rgba (c.get_red (), c.get_green (), c.get_blue (),
+                c.get_alpha ());
         cr->paint ();
         return false;
+    }
+
+    void Swatch::on_color_changed ()
+    {
+        queue_draw ();
     }
 }

@@ -28,17 +28,23 @@
 #include <boost/shared_ptr.hpp>
 #include <gtkmm/drawingarea.h>
 #include <sigc++/signal.h>
-#include "color.h"
+#include "colormodel.h"
 
 namespace agave
 {
     class Swatch : public Gtk::DrawingArea
     {
         public:
-            Swatch (const Color& c = Color(0.0, 0.0, 0.0, 1.0));
+            Swatch ();
+            Swatch (const ColorModel::pointer& model);
+            Swatch (const Color& c);
+            void set_model (const ColorModel::pointer& model);
             void set_color (const Color& c);
-            sigc::signal<void, const Color&> signal_color_changed ();
+            ColorModel::pointer get_model ();
             virtual bool on_expose_event (GdkEventExpose* event);
+
+        protected:
+            void on_color_changed ();
 
         private:
             struct Priv;
