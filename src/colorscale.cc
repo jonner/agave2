@@ -44,7 +44,7 @@ namespace agave
         set_model (ColorModel::pointer (new ColorModel ()));
     }
 
-    ColorScale::ColorScale (ColorModel::pointer model, channel_t channel) :
+    ColorScale::ColorScale (const ColorModel::pointer& model, channel_t channel) :
         m_channel (channel)
     {
         init ();
