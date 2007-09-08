@@ -32,8 +32,8 @@ stamp-h1
 tags
 test/test-scheme
 test/test-swatch
-test/test-colorscale-rgb
-test/test-colorscale-hsv
+test/test-colorscale
+test/test-all
 src/Doxyfile
 src/doc
 po/agave.pot
