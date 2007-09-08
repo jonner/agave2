@@ -51,6 +51,33 @@ namespace agave
         "</menubar>"
         "</ui>";
 
+    class AboutDialog : public Gtk::AboutDialog
+    {
+        public:
+            AboutDialog ()
+            {
+                set_name (PACKAGE_NAME);
+                set_version (PACKAGE_VERSION);
+                set_comments (_(PACKAGE_DESCRIPTION));
+                //dialog.set_logo_icon_name ("agave-icon");
+                std::vector<Glib::ustring> authors;
+                authors.push_back ("Jonathon Jongsma");
+                set_authors (authors);
+                set_translator_credits ("translator-credits");
+                set_website (PACKAGE_WEBSITE);
+            }
+
+            virtual void on_response(int response_id)
+            {
+                if (response_id == Gtk::RESPONSE_DELETE_EVENT ||
+                        response_id == Gtk::RESPONSE_CANCEL ||
+                        response_id == Gtk::RESPONSE_CLOSE)
+                {
+                    hide();
+                }
+            }
+    };
+
     struct ApplicationWindow::Priv : public Gtk::Window
     {
         Glib::RefPtr<Gtk::UIManager> m_ui_manager;
@@ -110,15 +137,7 @@ namespace agave
 
         void on_action_help_about ()
         {
-            Gtk::AboutDialog dialog;
-            dialog.set_name (PACKAGE_NAME);
-            dialog.set_version (PACKAGE_VERSION);
-            dialog.set_comments (_(PACKAGE_DESCRIPTION));
-            //dialog.set_logo_icon_name ("agave-icon");
-            std::vector<Glib::ustring> authors;
-            authors.push_back ("Jonathon Jongsma");
-            dialog.set_authors (authors);
-            dialog.set_translator_credits ("translator-credits");
+            static AboutDialog dialog;
             dialog.run ();
         }
     };
