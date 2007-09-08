@@ -89,6 +89,7 @@ namespace agave
             double last_adj_val;
             ColorModel::pointer m_model;
             bool m_draw_value;
+            Cairo::RefPtr<Cairo::ImageSurface> m_hue_surface;
     };
 }
 #endif // __COLORSCALE_H

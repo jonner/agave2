@@ -344,24 +344,23 @@ namespace agave
         {
             case CHANNEL_HUE:
                 {
-                    static Cairo::RefPtr<Cairo::ImageSurface> surface;
-                    if (!(surface
-                                && surface->get_width () == w
-                                && surface->get_height () == h))
+                    if (!(m_hue_surface
+                                && m_hue_surface->get_width () == w
+                                && m_hue_surface->get_height () == h))
                     {
-                        surface =
+                        m_hue_surface =
                             Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
                                     static_cast<int>(w), static_cast<int>(h));
-                        unsigned char *data = surface->get_data ();
+                        unsigned char *data = m_hue_surface->get_data ();
                         g_return_if_fail (data);
 
-                        for (int row = 0; row < surface->get_height (); ++row)
+                        for (int row = 0; row < m_hue_surface->get_height (); ++row)
                         {
-                            for (int px = 0; px < surface->get_width (); ++px)
+                            for (int px = 0; px < m_hue_surface->get_width (); ++px)
                             {
                                 hsv_t hsv;
                                 hsv.h = static_cast<double>(px) /
-                                    static_cast<double>(surface->get_width ());
+                                    static_cast<double>(m_hue_surface->get_width ());
                                 hsv.s = 1.0;
                                 hsv.v = 1.0;
                                 Color c (hsv);
@@ -377,9 +376,9 @@ namespace agave
                                 *data++ = std::numeric_limits<unsigned char>::max ();
                             }
                         }
-                        surface->flush ();
+                        m_hue_surface->flush ();
                     }
-                    pattern = Cairo::SurfacePattern::create (surface);
+                    pattern = Cairo::SurfacePattern::create (m_hue_surface);
                 }
                 break;
             case CHANNEL_SATURATION:
