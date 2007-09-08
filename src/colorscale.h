@@ -86,6 +86,7 @@ namespace agave
             void init ();
             const channel_t m_channel;
             boost::shared_ptr<Gtk::Adjustment> m_adj;
+            double last_adj_val;
             ColorModel::pointer m_model;
             bool m_draw_value;
     };

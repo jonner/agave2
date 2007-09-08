@@ -66,6 +66,7 @@ namespace agave
                     0.1 /* page increment */));
         m_adj->signal_value_changed ().connect (sigc::mem_fun (this,
                     &ColorScale::on_adjustment_value_changed));
+        last_adj_val = NAN;
     }
 
     double ColorScale::inside_x () const
@@ -603,7 +604,19 @@ namespace agave
                 // do nothing
                 break;
         }
-        queue_draw ();
+
+        // only queue a redraw if the adjustment has been changed since last
+        // update so that we don't do any unnecessary redraws
+        // ALPHA, SATURATION, and VALUE channels need to be re-drawn with any
+        // change since their background depends on the current color selection
+        if ((m_adj->get_value () != last_adj_val)
+                || m_channel == CHANNEL_SATURATION
+                || m_channel == CHANNEL_VALUE
+                || m_channel == CHANNEL_ALPHA)
+        {
+            queue_draw ();
+            last_adj_val = m_adj->get_value ();
+        }
     }
 
     ColorModel::pointer ColorScale::get_model ()
