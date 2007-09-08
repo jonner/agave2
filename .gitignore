@@ -39,3 +39,4 @@ src/doc
 po/agave.pot
 data/agave.desktop
 data/agave.schemas
+po/.intltool*
