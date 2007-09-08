@@ -13,10 +13,10 @@ scheme-generators.cc
 libagavewidgets_la_SOURCES = \
 swatch.h \
 swatch.cc \
-agave-colorscale.h \
-agave-colorscale.cc \
-agave-colormodel.h \
-agave-colormodel.cc
+colorscale.h \
+colorscale.cc \
+colormodel.h \
+colormodel.cc
 
 agave_SOURCES = \
 agave.cc \

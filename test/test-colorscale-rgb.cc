@@ -24,7 +24,7 @@
  *******************************************************************************/
 
 #include <gtkmm.h>
-#include "agave-colorscale.h"
+#include "colorscale.h"
 
 using namespace agave;
 

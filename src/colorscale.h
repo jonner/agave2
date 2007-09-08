@@ -28,7 +28,7 @@
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/adjustment.h>
 #include <boost/shared_ptr.hpp>
-#include "agave-colormodel.h"
+#include "colormodel.h"
 
 namespace agave
 {

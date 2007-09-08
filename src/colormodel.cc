@@ -22,7 +22,7 @@
  *    Boston, MA  02111-1307  USA
  *
  *******************************************************************************/
-#include "agave-colormodel.h"
+#include "colormodel.h"
 
 namespace agave
 {

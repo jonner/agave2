@@ -22,7 +22,7 @@
  *    Boston, MA  02111-1307  USA
  *
  *******************************************************************************/
-#include "agave-colorscale.h"
+#include "colorscale.h"
 #include <gdkmm/general.h>  // cairo integration
 #include <gdkmm/cursor.h>  // cairo integration
 #include <cairomm/surface.h>
