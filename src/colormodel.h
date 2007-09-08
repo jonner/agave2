@@ -22,8 +22,8 @@
  *    Boston, MA  02111-1307  USA
  *
  *******************************************************************************/
-#ifndef __COLORMODEL_H__
-#define __COLORMODEL_H__
+#ifndef __COLORMODEL_H
+#define __COLORMODEL_H
 
 #include <color.h>
 #include <boost/shared_ptr.hpp>
@@ -51,4 +51,4 @@ namespace agave
     };
 }
 
-#endif // __COLORMODEL_H__
+#endif // __COLORMODEL_H

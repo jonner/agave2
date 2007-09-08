@@ -22,8 +22,8 @@
  *    Boston, MA  02111-1307  USA
  *
  *******************************************************************************/
-#ifndef __COLORSCALE_H__
-#define __COLORSCALE_H__
+#ifndef __COLORSCALE_H
+#define __COLORSCALE_H
 
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/adjustment.h>
@@ -90,4 +90,4 @@ namespace agave
             bool m_draw_value;
     };
 }
-#endif // __COLORSCALE_H__
+#endif // __COLORSCALE_H
