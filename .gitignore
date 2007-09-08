@@ -36,3 +36,6 @@ test/test-colorscale-rgb
 test/test-colorscale-hsv
 src/Doxyfile
 src/doc
+po/agave.pot
+data/agave.desktop
+data/agave.schemas
