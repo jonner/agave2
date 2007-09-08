@@ -84,7 +84,7 @@ namespace agave
             void increment_page ();
             void decrement_page ();
             void init ();
-            channel_t m_channel;
+            const channel_t m_channel;
             boost::shared_ptr<Gtk::Adjustment> m_adj;
             ColorModel::pointer m_model;
             bool m_draw_value;
