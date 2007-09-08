@@ -26,8 +26,9 @@
 
 namespace agave
 {
-    ColorModel::ColorModel ()
+    ColorModel::ColorModel (const Color& c)
     {
+        set_color (c);
     }
 
     void ColorModel::set_color (const Color& c)

@@ -36,7 +36,7 @@ namespace agave
     {
         public:
             typedef boost::shared_ptr<ColorModel> pointer;
-            ColorModel ();
+            ColorModel (const Color& c = Color ());
             void set_color (const Color& c);
             Color& get_color ();
 
