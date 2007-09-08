@@ -35,7 +35,7 @@
 namespace agave
 {
     static bool version_requested = false;
-    static Glib::ustring PACKAGE_FOOTER = _("Copyright 2007, Jonathon Jongsma <jjongsma@gnome.org>");
+    static Glib::ustring HELP_FOOTER = _("Copyright 2007, Jonathon Jongsma <jjongsma@gnome.org>");
 
     class OptionGroup : public Glib::OptionGroup
     {
@@ -74,7 +74,7 @@ namespace agave
 #if GLIB_CHECK_VERSION (2, 12, 0)
             // FIXME: change these to glibmm functions when 2.14 is released
             g_option_context_set_summary (context.gobj (), _(PACKAGE_DESCRIPTION));
-            g_option_context_set_description (context.gobj (), PACKAGE_FOOTER.c_str ());
+            g_option_context_set_description (context.gobj (), HELP_FOOTER.c_str ());
 #endif
 
             OptionGroup option_group;
