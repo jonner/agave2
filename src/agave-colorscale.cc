@@ -337,64 +337,118 @@ namespace agave
         render_checks (cr, inside_x (), inside_y (),
                 inside_width (), inside_height ());
 
-        cr->rectangle (x, y, w, h);
-        Cairo::RefPtr<Cairo::LinearGradient> gradient =
-            Cairo::LinearGradient::create (outside_x () + border_width,
-                    0.0,
-                    inside_x () + inside_width (),
-                    0.0);
+        Cairo::RefPtr<Cairo::Pattern> pattern;
         // fill with correct stuff
         switch (m_channel)
         {
             case CHANNEL_HUE:
-                // FIXME
-                gradient->add_color_stop_rgb (0.0, 1.0, 0.0, 0.0);
-                gradient->add_color_stop_rgb (0.5, 0.0, 1.0, 0.0);
-                gradient->add_color_stop_rgb (1.0, 0.0, 0.0, 1.0);
+                {
+                    Cairo::RefPtr<Cairo::ImageSurface> surface =
+                        Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
+                                static_cast<int>(w), static_cast<int>(h));
+                    unsigned char *data = surface->get_data ();
+                    g_return_if_fail (data);
+
+                    for (int row = 0; row < surface->get_height (); ++row)
+                    {
+                        for (int px = 0; px < surface->get_width (); ++px)
+                        {
+                            hsv_t hsv;
+                            hsv.h = static_cast<double>(px) /
+                                static_cast<double>(surface->get_width ());
+                            hsv.s = 1.0;
+                            hsv.v = 1.0;
+                            Color c (hsv);
+                            *data++ =
+                                static_cast<unsigned char>(
+                                        c.get_blue () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
+                            *data++ =
+                                static_cast<unsigned char>(
+                                        c.get_green () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
+                            *data++ =
+                                static_cast<unsigned char>(
+                                        c.get_red () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
+                            *data++ = std::numeric_limits<unsigned char>::max ();
+                        }
+                    }
+                    surface->flush ();
+                    pattern = Cairo::SurfacePattern::create (surface);
+                }
                 break;
             case CHANNEL_SATURATION:
                 {
+                    Cairo::RefPtr<Cairo::LinearGradient> gradient =
+                        Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     Color low = m_model->get_color ();
                     low.set_saturation (0.0);     // min
                     gradient->add_color_stop_rgb (0.0, low.get_red (), low.get_green (), low.get_blue ());
                     Color high = m_model->get_color ();
                     high.set_saturation (1.0);     // max
                     gradient->add_color_stop_rgb (1.0, high.get_red (), high.get_green (), high.get_blue ());
+                    pattern = gradient;
                 }
                 break;
             case CHANNEL_VALUE:
                 {
+                    Cairo::RefPtr<Cairo::LinearGradient> gradient =
+                        Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     Color low = m_model->get_color ();
                     low.set_value (0.0);  // min
                     gradient->add_color_stop_rgb (0.0, low.get_red (), low.get_green (), low.get_blue ());
                     Color high = m_model->get_color ();
                     high.set_value (1.0);  // max
                     gradient->add_color_stop_rgb (1.0, high.get_red (), high.get_green (), high.get_blue ());
+                    pattern = gradient;
                 }
                 break;
             case CHANNEL_RED:
-                gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
-                gradient->add_color_stop_rgb (1.0, 1.0, 0.0, 0.0);
+                {
+                    Cairo::RefPtr<Cairo::LinearGradient> gradient =
+                        Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
+                    gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
+                    gradient->add_color_stop_rgb (1.0, 1.0, 0.0, 0.0);
+                    pattern = gradient;
+                }
                 break;
             case CHANNEL_GREEN:
-                gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
-                gradient->add_color_stop_rgb (1.0, 0.0, 1.0, 0.0);
+                {
+                    Cairo::RefPtr<Cairo::LinearGradient> gradient =
+                        Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
+                    gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
+                    gradient->add_color_stop_rgb (1.0, 0.0, 1.0, 0.0);
+                    pattern = gradient;
+                }
                 break;
             case CHANNEL_BLUE:
-                gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
-                gradient->add_color_stop_rgb (1.0, 0.0, 0.0, 1.0);
+                {
+                    Cairo::RefPtr<Cairo::LinearGradient> gradient =
+                        Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
+                    gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
+                    gradient->add_color_stop_rgb (1.0, 0.0, 0.0, 1.0);
+                    pattern = gradient;
+                }
                 break;
             case CHANNEL_ALPHA:
                 {
+                    Cairo::RefPtr<Cairo::LinearGradient> gradient =
+                        Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     Color c = m_model->get_color ();
                     rgb_t rgb = c.as_rgb ();
                     gradient->add_color_stop_rgba (0.0, rgb.r, rgb.g, rgb.b, 0.0);
                     gradient->add_color_stop_rgba (1.0, rgb.r, rgb.g, rgb.b, 1.0);
+                    pattern = gradient;
                 }
                 break;
         }
-        cr->set_source (gradient);
+        cr->rectangle (x, y, w, h);
+
+        // this translation is necessary to get the surface pattern (for the hue
+        // selector) to paint inside the borders correctly
+        cr->save ();
+        cr->translate (x, y);
+        cr->set_source (pattern);
         cr->fill();
+        cr->restore ();
 
         if (get_state () == Gtk::STATE_INSENSITIVE)
         {
@@ -413,8 +467,6 @@ namespace agave
     ColorScale::render_selectors (Cairo::RefPtr<Cairo::Context>& cr)
     {
         cr->save ();
-        //cr->rectangle (inside_x (), inside_y (), inside_width (), inside_height ());
-        //cr->clip ();
         double value_x = inside_x () + m_adj->get_value () * inside_width ();
         double mid_y = get_allocation ().get_height () / 2.0;
 
