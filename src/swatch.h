@@ -42,11 +42,16 @@ namespace agave
             void set_color (const Color& c);
             ColorModel::pointer get_model ();
             virtual bool on_expose_event (GdkEventExpose* event);
+            void set_draw_border (bool draw_border = true);
+            void set_padding (int padding);
 
         protected:
             void on_color_changed ();
+            void render_checks (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);
 
         private:
+            void init (const ColorModel::pointer& model);
+            void request_size ();
             struct Priv;
             boost::shared_ptr<Priv> m_priv;
     };

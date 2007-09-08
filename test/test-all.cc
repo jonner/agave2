@@ -33,7 +33,7 @@ class TestWindow : public Gtk::Window
 {
     public:
         TestWindow () :
-            m_model (new ColorModel ()),
+            m_model (new ColorModel (Color (0.8, 0.1, 0.1, 0.8))),
             m_rscale (m_model, ColorScale::CHANNEL_RED),
             m_gscale (m_model, ColorScale::CHANNEL_GREEN),
             m_bscale (m_model, ColorScale::CHANNEL_BLUE),
@@ -48,8 +48,9 @@ class TestWindow : public Gtk::Window
             m_hbox.pack_start (m_box_selection);
             m_hbox.pack_start (m_box_rgb);
             m_hbox.pack_start (m_box_hsv);
-            m_hbox.pack_start (m_box_scheme);
+            //m_hbox.pack_start (m_box_scheme);
 
+            m_swatch.set_draw_border ();
             m_box_selection.pack_start (m_swatch);
 
             m_box_rgb.pack_start (m_rscale);
@@ -61,6 +62,8 @@ class TestWindow : public Gtk::Window
             m_box_hsv.pack_start (m_sscale);
             m_box_hsv.pack_start (m_vscale);
             m_box_hsv.pack_start (m_ascale_hsv);
+
+            set_default_size (750, 150);
 
             add (m_hbox);
             show_all ();
