@@ -343,35 +343,41 @@ namespace agave
         {
             case CHANNEL_HUE:
                 {
-                    Cairo::RefPtr<Cairo::ImageSurface> surface =
-                        Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
-                                static_cast<int>(w), static_cast<int>(h));
-                    unsigned char *data = surface->get_data ();
-                    g_return_if_fail (data);
-
-                    for (int row = 0; row < surface->get_height (); ++row)
+                    static Cairo::RefPtr<Cairo::ImageSurface> surface;
+                    if (!(surface
+                                && surface->get_width () == w
+                                && surface->get_height () == h))
                     {
-                        for (int px = 0; px < surface->get_width (); ++px)
+                        surface =
+                            Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
+                                    static_cast<int>(w), static_cast<int>(h));
+                        unsigned char *data = surface->get_data ();
+                        g_return_if_fail (data);
+
+                        for (int row = 0; row < surface->get_height (); ++row)
                         {
-                            hsv_t hsv;
-                            hsv.h = static_cast<double>(px) /
-                                static_cast<double>(surface->get_width ());
-                            hsv.s = 1.0;
-                            hsv.v = 1.0;
-                            Color c (hsv);
-                            *data++ =
-                                static_cast<unsigned char>(
-                                        c.get_blue () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
-                            *data++ =
-                                static_cast<unsigned char>(
-                                        c.get_green () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
-                            *data++ =
-                                static_cast<unsigned char>(
-                                        c.get_red () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
-                            *data++ = std::numeric_limits<unsigned char>::max ();
+                            for (int px = 0; px < surface->get_width (); ++px)
+                            {
+                                hsv_t hsv;
+                                hsv.h = static_cast<double>(px) /
+                                    static_cast<double>(surface->get_width ());
+                                hsv.s = 1.0;
+                                hsv.v = 1.0;
+                                Color c (hsv);
+                                *data++ =
+                                    static_cast<unsigned char>(
+                                            c.get_blue () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
+                                *data++ =
+                                    static_cast<unsigned char>(
+                                            c.get_green () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
+                                *data++ =
+                                    static_cast<unsigned char>(
+                                            c.get_red () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
+                                *data++ = std::numeric_limits<unsigned char>::max ();
+                            }
                         }
+                        surface->flush ();
                     }
-                    surface->flush ();
                     pattern = Cairo::SurfacePattern::create (surface);
                 }
                 break;
