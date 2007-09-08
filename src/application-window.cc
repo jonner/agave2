@@ -113,11 +113,12 @@ namespace agave
             Gtk::AboutDialog dialog;
             dialog.set_name (PACKAGE_NAME);
             dialog.set_version (PACKAGE_VERSION);
-            dialog.set_comments (_("A Colorscheme Designer for the GNOME Desktop"));
+            dialog.set_comments (_(PACKAGE_DESCRIPTION));
             //dialog.set_logo_icon_name ("agave-icon");
             std::vector<Glib::ustring> authors;
             authors.push_back ("Jonathon Jongsma");
             dialog.set_authors (authors);
+            dialog.set_translator_credits ("translator-credits");
             dialog.run ();
         }
     };

@@ -73,7 +73,7 @@ namespace agave
 
 #if GLIB_CHECK_VERSION (2, 12, 0)
             // FIXME: change these to glibmm functions when 2.14 is released
-            g_option_context_set_summary (context.gobj (), PACKAGE_DESCRIPTION);
+            g_option_context_set_summary (context.gobj (), _(PACKAGE_DESCRIPTION));
             g_option_context_set_description (context.gobj (), PACKAGE_FOOTER.c_str ());
 #endif
 
@@ -89,7 +89,7 @@ namespace agave
             if (version_requested)
             {
                 std::cout << PACKAGE_NAME << " " << PACKAGE_VERSION << std::endl
-                    << PACKAGE_DESCRIPTION << std::endl;
+                    << _(PACKAGE_DESCRIPTION) << std::endl;
                 std::cout << "For more information, see " << PACKAGE_WEBSITE << std::endl;
             }
             else
