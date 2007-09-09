@@ -344,6 +344,8 @@ namespace agave
         {
             case CHANNEL_HUE:
                 {
+                    // first check if we already have a cached hue surface of
+                    // the right size
                     if (!(m_hue_surface
                                 && m_hue_surface->get_width () == w
                                 && m_hue_surface->get_height () == h))
