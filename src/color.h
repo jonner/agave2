@@ -269,10 +269,15 @@ namespace agave
         private:
             void clamp ();
 
-            /** Internal data representation is RGBA.  This is converted to
-             * other colorspaces as needed
+            /** Internal data representation in RGBA.
              */
-            rgb_t m_data;
+            rgb_t m_rgb;
+            /** Internal representation in HSV.  We keep a cached copy of this
+             * around since it reduces conversions on demand, and since
+             * converting to rgb and back is lossy (e.g. if VALUE reaches 0,
+             * then HUE and SATURATION get set to 0 automatically)
+             */
+            hsv_t m_hsv;
 
             // constants for determining the luminance of a particular color
             // borrowed from the GIMP

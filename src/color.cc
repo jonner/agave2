@@ -333,32 +333,23 @@ namespace agave
 
     Color::Color ()
     {
-        // initialize to opaque black
-        m_data.r = 0.;
-        m_data.g = 0.;
-        m_data.b = 0.;
-        m_data.a = 1.;
+        // initialize to opaque white
+        set_hsv (0.0, 1.0, 1.0, 1.0);
     }
 
     Color::Color (rgb_t rgb)
     {
-        m_data = rgb;
-        clamp ();
+        set (rgb);
     }
 
     Color::Color (double r, double g, double b, double a)
     {
-        m_data.r = r;
-        m_data.g = g;
-        m_data.b = b;
-        m_data.a = a;
-        clamp ();
+        set_rgb (r, g, b, a);
     }
 
     Color::Color (hsv_t hsv)
     {
-        set (hsv_to_rgb (hsv));
-        clamp ();
+        set (hsv);
     }
 
     Color::Color (hsl_t hsl)
@@ -392,7 +383,8 @@ namespace agave
     Color& Color::operator=(const Color& rhs)
     {
         if (this == &rhs) return *this;
-        m_data = rhs.m_data;
+        m_rgb = rhs.m_rgb;
+        m_hsv = rhs.m_hsv;
         clamp ();
         return *this;
     }
@@ -407,7 +399,7 @@ namespace agave
 
     bool Color::operator==(const Color& rhs) const
     {
-        return (m_data == rhs.m_data);
+        return (m_rgb == rhs.m_rgb);
     }
 
     bool Color::operator!=(const Color& rhs) const
@@ -418,10 +410,10 @@ namespace agave
     Color Color::operator-(const Color& rhs) const
     {
         Color result;
-        result.m_data.r = m_data.r - rhs.m_data.r;
-        result.m_data.g = m_data.g - rhs.m_data.g;
-        result.m_data.b = m_data.b - rhs.m_data.b;
-        result.m_data.a = m_data.a;
+        result.m_rgb.r = m_rgb.r - rhs.m_rgb.r;
+        result.m_rgb.g = m_rgb.g - rhs.m_rgb.g;
+        result.m_rgb.b = m_rgb.b - rhs.m_rgb.b;
+        result.m_rgb.a = m_rgb.a;
         result.clamp ();
         return result;
     }
@@ -429,10 +421,10 @@ namespace agave
     Color Color::operator+(const Color& rhs) const
     {
         Color result;
-        result.m_data.r = m_data.r + rhs.m_data.r;
-        result.m_data.g = m_data.g + rhs.m_data.g;
-        result.m_data.b = m_data.b + rhs.m_data.b;
-        result.m_data.a = m_data.a;
+        result.m_rgb.r = m_rgb.r + rhs.m_rgb.r;
+        result.m_rgb.g = m_rgb.g + rhs.m_rgb.g;
+        result.m_rgb.b = m_rgb.b + rhs.m_rgb.b;
+        result.m_rgb.a = m_rgb.a;
         result.clamp ();
         return result;
     }
@@ -445,25 +437,37 @@ namespace agave
     Color Color::operator*(double factor) const
     {
         Color result;
-        result.m_data.r = m_data.r * factor;
-        result.m_data.g = m_data.g * factor;
-        result.m_data.b = m_data.b * factor;
-        result.m_data.a = m_data.a * factor;
+        result.m_rgb.r = m_rgb.r * factor;
+        result.m_rgb.g = m_rgb.g * factor;
+        result.m_rgb.b = m_rgb.b * factor;
+        result.m_rgb.a = m_rgb.a * factor;
         result.clamp ();
         return result;
     }
 
     void Color::clamp ()
     {
-        m_data.r = std::min (m_data.r, MAX_VALUE);
-        m_data.g = std::min (m_data.g, MAX_VALUE);
-        m_data.b = std::min (m_data.b, MAX_VALUE);
-        m_data.a = std::min (m_data.a, MAX_VALUE);
+        // clamp rgb
+        m_rgb.r = std::min (m_rgb.r, MAX_VALUE);
+        m_rgb.g = std::min (m_rgb.g, MAX_VALUE);
+        m_rgb.b = std::min (m_rgb.b, MAX_VALUE);
+        m_rgb.a = std::min (m_rgb.a, MAX_VALUE);
 
-        m_data.r = std::max (m_data.r, MIN_VALUE);
-        m_data.g = std::max (m_data.g, MIN_VALUE);
-        m_data.b = std::max (m_data.b, MIN_VALUE);
-        m_data.a = std::max (m_data.a, MIN_VALUE);
+        m_rgb.r = std::max (m_rgb.r, MIN_VALUE);
+        m_rgb.g = std::max (m_rgb.g, MIN_VALUE);
+        m_rgb.b = std::max (m_rgb.b, MIN_VALUE);
+        m_rgb.a = std::max (m_rgb.a, MIN_VALUE);
+
+        // clamp hsv
+        m_hsv.h = std::min (m_hsv.h, MAX_VALUE);
+        m_hsv.s = std::min (m_hsv.s, MAX_VALUE);
+        m_hsv.v = std::min (m_hsv.v, MAX_VALUE);
+        m_hsv.a = std::min (m_hsv.a, MAX_VALUE);
+
+        m_hsv.h = std::max (m_hsv.h, MIN_VALUE);
+        m_hsv.s = std::max (m_hsv.s, MIN_VALUE);
+        m_hsv.v = std::max (m_hsv.v, MIN_VALUE);
+        m_hsv.a = std::max (m_hsv.a, MIN_VALUE);
     }
 
 
@@ -504,7 +508,9 @@ namespace agave
 
     void Color::set (rgb_t rgb)
     {
-        m_data = rgb;
+        m_rgb = rgb;
+        m_hsv = rgb_to_hsv (rgb);
+        clamp ();
         m_signal_changed.emit ();
     }
 
@@ -516,43 +522,46 @@ namespace agave
 
     void Color::set_red (double r)
     {
-        rgb_t new_rgb = m_data;
+        rgb_t new_rgb = m_rgb;
         new_rgb.r = r;
         set (new_rgb);
     }
 
     void Color::set_green (double g)
     {
-        rgb_t new_rgb = m_data;
+        rgb_t new_rgb = m_rgb;
         new_rgb.g = g;
         set (new_rgb);
     }
 
     void Color::set_blue (double b)
     {
-        rgb_t new_rgb = m_data;
+        rgb_t new_rgb = m_rgb;
         new_rgb.b = b;
         set (new_rgb);
     }
 
     double Color::get_red () const
     {
-        return m_data.r;
+        return m_rgb.r;
     }
 
     double Color::get_green () const
     {
-        return m_data.g;
+        return m_rgb.g;
     }
 
     double Color::get_blue () const
     {
-        return m_data.b;
+        return m_rgb.b;
     }
 
     void Color::set (hsv_t hsv)
     {
-        set (hsv_to_rgb (hsv));
+        m_hsv = hsv;
+        m_rgb = hsv_to_rgb (hsv);
+        clamp ();
+        m_signal_changed.emit ();
     }
 
     void Color::set_hsv (double h, double s, double v, double a)
@@ -670,14 +679,14 @@ namespace agave
 
     void Color::set_alpha (double a)
     {
-        rgb_t new_rgb = m_data;
+        rgb_t new_rgb = m_rgb;
         new_rgb.a = a;
         set (new_rgb);
     }
 
     double Color::get_alpha () const
     {
-        return m_data.a;
+        return m_rgb.a;
     }
 
     void Color::set (std::string hexstring)
@@ -687,41 +696,41 @@ namespace agave
 
     rgb_t Color::as_rgb () const
     {
-        return m_data;
+        return m_rgb;
     }
 
     hsv_t Color::as_hsv () const
     {
-        return rgb_to_hsv (m_data);
+        return m_hsv;
     }
 
     hsl_t Color::as_hsl () const
     {
-        return rgb_to_hsl (m_data);
+        return rgb_to_hsl (m_rgb);
     }
 
     cmyk_t Color::as_cmyk () const
     {
-        return rgb_to_cmyk (m_data);
+        return rgb_to_cmyk (m_rgb);
     }
 
     std::string Color::as_hexstring () const
     {
         std::ostringstream ostream;
         uint16_t x;
-        x = static_cast<uint16_t>((m_data.r) * static_cast<double>(255.0));
+        x = static_cast<uint16_t>((m_rgb.r) * static_cast<double>(255.0));
         ostream << std::hex << std::setw (2) << std::setfill('0') << x;
-        x = static_cast<uint16_t>((m_data.g) * static_cast<double>(255.0));
+        x = static_cast<uint16_t>((m_rgb.g) * static_cast<double>(255.0));
         ostream << std::hex << std::setw (2) << std::setfill('0') << x;
-        x = static_cast<uint16_t>((m_data.b) * static_cast<double>(255.0));
+        x = static_cast<uint16_t>((m_rgb.b) * static_cast<double>(255.0));
         ostream << std::hex << std::setw (2) << std::setfill('0') << x;
         return ostream.str ();
     }
 
     double Color::luminance () const
     {
-        return (m_data.r * m_red_luminance +
-                m_data.g * m_green_luminance +
-                m_data.b * m_blue_luminance);
+        return (m_rgb.r * m_red_luminance +
+                m_rgb.g * m_green_luminance +
+                m_rgb.b * m_blue_luminance);
     }
 }
