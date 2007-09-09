@@ -64,8 +64,8 @@ namespace agave
                     1.0 /* upper */,
                     0.05 /* step increment */,
                     0.1 /* page increment */));
-        m_adj->signal_value_changed ().connect (sigc::mem_fun (this,
-                    &ColorScale::on_adjustment_value_changed));
+        m_adjustment_signal_connection = m_adj->signal_value_changed ().connect
+            (sigc::mem_fun (this, &ColorScale::on_adjustment_value_changed));
         last_adj_val = NAN;
     }
 
@@ -114,7 +114,9 @@ namespace agave
     {
         if (m_model)
         {
+            m_adjustment_signal_connection.block ();
             update_adjustment (m_model->get_color ());
+            m_adjustment_signal_connection.unblock ();
         }
     }
 
@@ -122,6 +124,7 @@ namespace agave
     ColorScale::on_adjustment_value_changed ()
     {
         g_return_if_fail (m_model);
+        m_color_signal_connection.block ();
         switch (m_channel)
         {
             case CHANNEL_HUE:
@@ -150,6 +153,7 @@ namespace agave
                 break;
         }
         queue_draw ();
+        m_color_signal_connection.unblock ();
     }
 
     bool
@@ -571,7 +575,8 @@ namespace agave
         m_model = model;
         if (m_model)
         {
-            m_model->signal_color_changed ().connect (sigc::mem_fun (this, &ColorScale::on_color_changed));
+            m_color_signal_connection = m_model->signal_color_changed ().connect
+                (sigc::mem_fun (this, &ColorScale::on_color_changed));
             update_adjustment (m_model->get_color ());
         }
     }

@@ -90,6 +90,8 @@ namespace agave
             ColorModel::pointer m_model;
             bool m_draw_value;
             Cairo::RefPtr<Cairo::ImageSurface> m_hue_surface;
+            mutable sigc::connection m_color_signal_connection;
+            mutable sigc::connection m_adjustment_signal_connection;
     };
 }
 #endif // __COLORSCALE_H
