@@ -43,15 +43,10 @@ AM_GLIB_GNU_GETTEXT
 
 PKG_CHECK_MODULES(GTKMM, [
                           gtkmm-2.4 >= 2.10.0
+                          ])
+PKG_CHECK_MODULES(GLIBMM_UTILS, [
                           glibmm-utils
                           ])
-PKG_CHECK_MODULES(LIBGLADEMM, [
-                               libglademm-2.4
-                               ])
-
-PKG_CHECK_MODULES([GNOME], [libgnomeui-2.0])
-
-PKG_CHECK_MODULES([GCONFMM], [gconfmm-2.6])
 
 dnl ***************
 dnl gconf tool and path info
@@ -120,8 +115,8 @@ AC_CHECK_HEADER([boost/shared_ptr.hpp], ,AC_MSG_ERROR(dnl
                 [Boost header shared_ptr.hpp not found]))
 
 dnl Consolidate all libraries and flags into one variable
-AGAVE_LIBS="$GTKMM_LIBS $LIBGLADEMM_LIBS $GCONFMM_LIBS $GNOME_LIBS"
-AGAVE_CFLAGS="$GTKMM_CFLAGS $LIBGLADEMM_CFLAGS $GCONFMM_CFLAGS $GNOME_CFLAGS"
+AGAVE_LIBS="$GTKMM_LIBS $GLIBMM_UTILS_LIBS"
+AGAVE_CFLAGS="$GTKMM_CFLAGS $GLIBMM_UTILS_CFLAGS"
 
 AC_SUBST(AGAVE_LIBS)
 AC_SUBST(AGAVE_CFLAGS)
