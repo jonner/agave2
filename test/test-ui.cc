@@ -25,6 +25,7 @@
 
 #include <gtkmm.h>
 #include <boost/shared_ptr.hpp>
+#include <glibmm-utils/exception.hh>
 #include "colorscale.h"
 #include "swatch.h"
 
@@ -65,6 +66,12 @@ class ColorEditBox : public Gtk::VBox
             set_spacing (6);
         }
 
+        void set_color (const Color& c)
+        {
+            THROW_IF_FAIL (m_model);
+            m_model->set_color (c);
+        }
+
     private:
         ColorModel::pointer m_model;
         Swatch m_swatch;
@@ -84,6 +91,9 @@ int main (int argc, char** argv)
     win.add (hbox);
     for (int i = 0; i < NUM_BOXES; ++i)
     {
+        hsv_t hsv = { static_cast<double>(i) / static_cast<double>(NUM_BOXES), 1.0, 1.0, 1.0 };
+        Color c (hsv);
+        boxes[i].set_color (c);
         hbox.pack_start (boxes[i]);
     }
     win.show_all ();
