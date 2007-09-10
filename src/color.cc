@@ -333,7 +333,7 @@ namespace agave
 
     Color::Color ()
     {
-        // initialize to opaque white
+        // initialize to opaque red
         set_hsv (0.0, 1.0, 1.0, 1.0);
     }
 
@@ -386,6 +386,7 @@ namespace agave
         m_rgb = rhs.m_rgb;
         m_hsv = rhs.m_hsv;
         clamp ();
+        m_signal_changed.emit ();
         return *this;
     }
 
