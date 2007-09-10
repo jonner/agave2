@@ -27,6 +27,7 @@
 #include <gdkmm/cursor.h>  // cairo integration
 #include <cairomm/surface.h>
 #include <gdk/gdkkeysyms.h>
+#include <glibmm-utils/log-stream-utils.hh>
 
 namespace agave
 {
@@ -348,12 +349,14 @@ namespace agave
         {
             case CHANNEL_HUE:
                 {
+                    LOG_DD ("rendering HUE scale");
                     // first check if we already have a cached hue surface of
                     // the right size
                     if (!(m_hue_surface
                                 && m_hue_surface->get_width () == w
                                 && m_hue_surface->get_height () == h))
                     {
+                        LOG_DD ("Creating HUE surface -- no valid cache");
                         m_hue_surface =
                             Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
                                     static_cast<int>(w), static_cast<int>(h));
@@ -389,6 +392,7 @@ namespace agave
                 break;
             case CHANNEL_SATURATION:
                 {
+                    LOG_DD ("rendering SATURATION scale");
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     Color low = m_model->get_color ();
@@ -402,6 +406,7 @@ namespace agave
                 break;
             case CHANNEL_VALUE:
                 {
+                    LOG_DD ("rendering VALUE scale");
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     Color low = m_model->get_color ();
@@ -415,6 +420,7 @@ namespace agave
                 break;
             case CHANNEL_RED:
                 {
+                    LOG_DD ("rendering RED scale");
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
@@ -424,6 +430,7 @@ namespace agave
                 break;
             case CHANNEL_GREEN:
                 {
+                    LOG_DD ("rendering GREEN scale");
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
@@ -433,6 +440,7 @@ namespace agave
                 break;
             case CHANNEL_BLUE:
                 {
+                    LOG_DD ("rendering BLUE scale");
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
@@ -442,6 +450,7 @@ namespace agave
                 break;
             case CHANNEL_ALPHA:
                 {
+                    LOG_DD ("rendering ALPHA scale");
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     Color c = m_model->get_color ();
