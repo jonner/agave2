@@ -64,6 +64,7 @@ namespace agave
         m_adjustment_signal_connection = m_adj->signal_value_changed ().connect
             (sigc::mem_fun (this, &ColorScale::on_adjustment_value_changed));
         last_adj_val = NAN;
+        m_drag_started = false;
     }
 
     double ColorScale::inside_x () const
@@ -168,7 +169,9 @@ namespace agave
     {
         if (get_state () != Gtk::STATE_INSENSITIVE)
         {
-            if (event && event->state & GDK_BUTTON1_MASK)
+            if (event
+                    && (event->state & GDK_BUTTON1_MASK)
+                    && m_drag_started)
             {
                 // dragging with mouse button pressed
                 m_adj->set_value (get_value_from_coords (event->x, event->y));
@@ -182,11 +185,14 @@ namespace agave
     {
         if (get_state () != Gtk::STATE_INSENSITIVE)
         {
-            if (event && event->type == GDK_BUTTON_PRESS)
+            if (event
+                    && is_inside_scale (event->x, event->y)
+                    && event->type == GDK_BUTTON_PRESS)
             {
                 switch (event->button)
                 {
                     case 1:
+                        m_drag_started = true;
                         m_adj->set_value (get_value_from_coords (event->x, event->y));
                         break;
                     case 3:
@@ -210,6 +216,13 @@ namespace agave
         }
         return true;
     }
+
+    bool ColorScale::on_button_release_event (GdkEventButton* event)
+    {
+        m_drag_started = false;
+        return true;
+    }
+
     void ColorScale::increment_page ()
     {
         m_adj->set_value (m_adj->get_value () + m_adj->get_page_increment ());
@@ -725,6 +738,12 @@ namespace agave
     bool ColorScale::get_draw_label ()
     {
         return static_cast<bool>(m_text_layout);
+    }
+
+    bool ColorScale::is_inside_scale (double x, double y) const
+    {
+        return (x > outside_x () && x < (outside_x () + outside_width ()) &&
+                y > outside_y () && y < (outside_y () + outside_height ()));
     }
 
 }

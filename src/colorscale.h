@@ -55,6 +55,7 @@ namespace agave
             virtual bool on_expose_event (GdkEventExpose* event);
             virtual bool on_motion_notify_event (GdkEventMotion* event);
             virtual bool on_button_press_event (GdkEventButton* event);
+            virtual bool on_button_release_event (GdkEventButton* event);
             virtual bool on_scroll_event (GdkEventScroll* event);
             virtual bool on_enter_notify_event (GdkEventCrossing* event);
             virtual bool on_leave_notify_event (GdkEventCrossing* event);
@@ -76,6 +77,7 @@ namespace agave
             double outside_y () const;
             double outside_width () const;
             double outside_height () const;
+            bool is_inside_scale (double x, double y) const;
 
         private:
             double get_value_from_coords (double x, double y);
@@ -87,6 +89,7 @@ namespace agave
             double last_adj_val;
             ColorModel::pointer m_model;
             bool m_draw_value;
+            bool m_drag_started;
             Cairo::RefPtr<Cairo::ImageSurface> m_hue_surface;
             Glib::RefPtr<Pango::Layout> m_text_layout;
             mutable sigc::connection m_color_signal_connection;
