@@ -48,6 +48,8 @@ namespace agave
             void set_alpha (double new_alpha);
             void set_draw_value (bool enable=true);
             bool get_draw_value ();
+            void set_draw_label (bool enable=true);
+            bool get_draw_label ();
 
         protected:
             virtual bool on_expose_event (GdkEventExpose* event);
@@ -86,6 +88,7 @@ namespace agave
             ColorModel::pointer m_model;
             bool m_draw_value;
             Cairo::RefPtr<Cairo::ImageSurface> m_hue_surface;
+            Glib::RefPtr<Pango::Layout> m_text_layout;
             mutable sigc::connection m_color_signal_connection;
             mutable sigc::connection m_adjustment_signal_connection;
     };

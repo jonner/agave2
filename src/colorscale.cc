@@ -68,27 +68,32 @@ namespace agave
 
     double ColorScale::inside_x () const
     {
-        return x_padding + border_width;
+        return outside_x () + border_width;
     }
 
     double ColorScale::inside_y () const
     {
-        return y_padding + border_width;
+        return outside_y () + border_width;
     }
 
     double ColorScale::inside_width () const
     {
-        return get_allocation ().get_width () - 2 * x_padding - 2 * border_width;
+        return outside_width () - 2.0 * border_width;
     }
 
     double ColorScale::inside_height () const
     {
-        return get_allocation ().get_height () - 2 * y_padding - 2 * border_width;
+        return outside_height () - 2.0 * border_width;
     }
 
     double ColorScale::outside_x () const
     {
-        return x_padding;
+        double x = x_padding;
+        if (m_text_layout)
+        {
+            x += m_text_layout->get_pixel_logical_extents ().get_width ();
+        }
+        return x;
     }
 
     double ColorScale::outside_y () const
@@ -98,12 +103,17 @@ namespace agave
 
     double ColorScale::outside_width () const
     {
-        return get_allocation ().get_width () - 2 * x_padding;
+        double x = get_allocation ().get_width () - 2.0 * x_padding;
+        if (m_text_layout)
+        {
+            x -= m_text_layout->get_pixel_logical_extents ().get_width ();
+        }
+        return x;
     }
 
     double ColorScale::outside_height () const
     {
-        return get_allocation ().get_height () - 2 * y_padding;
+        return get_allocation ().get_height () - 2.0 * y_padding;
     }
 
     void
@@ -327,17 +337,29 @@ namespace agave
     ColorScale::render_scale (Cairo::RefPtr<Cairo::Context> &cr)
     {
         g_return_if_fail (m_model);
-        cr->save ();
         double x, y, w, h;
-        x = outside_x () + border_width / 2.0;
+        cr->save ();
+        if (m_text_layout)
+        {
+            // draw the layout
+            Pango::Rectangle extents = m_text_layout->get_pixel_logical_extents ();
+            cr->move_to (0.0,
+            (static_cast<float>(get_allocation ().get_height ()) / 2.0) - (extents.get_height () / 2.0));
+            m_text_layout->add_to_cairo_context (cr);
+            cr->fill ();
+
+            LOG_D("Layout width: " << extents.get_width (), "pango");
+        }
         y = outside_y () + border_width / 2.0;
+        x = outside_x () + border_width / 2.0;
         w = outside_width () - border_width;
         h = outside_height () - border_width;
 
+
         // print some check marks in the background so that if there is any
         // alpha opacity, the check marks will show through
-        render_checks (cr, inside_x (), inside_y (),
-                inside_width (), inside_height ());
+        render_checks (cr, x, y,
+                w, h);
 
         Cairo::RefPtr<Cairo::Pattern> pattern;
         // fill with correct stuff
@@ -659,6 +681,50 @@ namespace agave
     bool ColorScale::get_draw_value ()
     {
         return m_draw_value;
+    }
+
+    void ColorScale::set_draw_label (bool enable)
+    {
+        if (enable)
+        {
+            switch (m_channel)
+            {
+                case CHANNEL_HUE:
+                    m_text_layout = create_pango_layout ("H");
+                    break;
+                case CHANNEL_SATURATION:
+                    m_text_layout = create_pango_layout ("S");
+                    break;
+                case CHANNEL_VALUE:
+                    m_text_layout = create_pango_layout ("V");
+                    break;
+                case CHANNEL_RED:
+                    m_text_layout = create_pango_layout ("R");
+                    break;
+                case CHANNEL_GREEN:
+                    m_text_layout = create_pango_layout ("G");
+                    break;
+                case CHANNEL_BLUE:
+                    m_text_layout = create_pango_layout ("B");
+                    break;
+                case CHANNEL_ALPHA:
+                    m_text_layout = create_pango_layout ("A");
+                    break;
+                default:
+                    LOG_ERROR ("Invalid Channel type");
+                    break;
+            }
+        }
+        else
+        {
+            m_text_layout.clear ();
+        }
+        queue_draw ();
+    }
+
+    bool ColorScale::get_draw_label ()
+    {
+        return static_cast<bool>(m_text_layout);
     }
 
 }
