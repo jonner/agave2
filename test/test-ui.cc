@@ -36,6 +36,8 @@ int main (int argc, char** argv)
     Gtk::Window win;
     ColorEditBox boxes[NUM_BOXES];
     Gtk::HBox hbox;
+    hbox.set_spacing (6);
+    hbox.set_border_width (6);
     win.add (hbox);
     for (int i = 0; i < NUM_BOXES; ++i)
     {
