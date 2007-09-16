@@ -1,4 +1,4 @@
-noinst_PROGRAMS=test-scheme test-swatch test-colorscale test-all test-ui
+noinst_PROGRAMS=test-scheme test-swatch test-colorscale test-all test-ui test-relations
 
 test_scheme_SOURCES = test-scheme.cc
 test_scheme_LDADD = $(AGAVE_LIBS) ../src/libagavecore.la ../src/libagavewidgets.la
@@ -14,6 +14,9 @@ test_all_LDADD=$(AGAVE_LIBS) ../src/libagavewidgets.la ../src/libagavecore.la
 
 test_ui_SOURCES = test-ui.cc
 test_ui_LDADD=$(AGAVE_LIBS) ../src/libagavewidgets.la ../src/libagavecore.la
+
+test_relations_SOURCES = test-relations.cc
+test_relations_LDADD=$(AGAVE_LIBS) ../src/libagavewidgets.la ../src/libagavecore.la
 
 INCLUDES=-I$(top_srcdir)/src
 AM_CPPFLAGS = -DAGAVE_LOCALEDIR=\"${AGAVE_LOCALEDIR}\"
