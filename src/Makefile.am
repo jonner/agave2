@@ -18,7 +18,9 @@ colorscale.cc \
 colormodel.h \
 colormodel.cc \
 color-relation.h \
-color-relation.cc
+color-relation.cc \
+color-edit-box.h \
+color-edit-box.cc
 
 agave_SOURCES = \
 agave.cc \
