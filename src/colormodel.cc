@@ -25,13 +25,13 @@ namespace agave
     ColorModel::ColorModel (const Color& c)
     {
         set_color (c);
+        m_color.signal_changed ().connect (sigc::mem_fun (this, &ColorModel::on_color_changed));
     }
 
     void ColorModel::set_color (const Color& c)
     {
         m_color = c;
         signal_color_changed ().emit ();
-        m_color.signal_changed ().connect (sigc::mem_fun (this, &ColorModel::on_color_changed));
     }
 
     Color& ColorModel::get_color ()
