@@ -51,7 +51,6 @@ namespace agave
         m_swatch.set_draw_border ();
         pack_start (m_swatch);
         pack_start (m_notebook, Gtk::PACK_SHRINK);
-        set_border_width (6);
         set_spacing (6);
     }
 
