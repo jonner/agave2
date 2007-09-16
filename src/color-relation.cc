@@ -22,6 +22,8 @@
 
 namespace agave
 {
+    Color generate_identity (const Color& src) { return src; };
+
     ColorRelation::ColorRelation(
             ColorModel::pointer src,
             ColorModel::pointer dest,

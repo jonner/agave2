@@ -29,7 +29,7 @@ namespace agave
     /// A functor type for generating one color from another one
     typedef Color (*color_generator_func)(const Color&);
 
-    Color generate_identity (const Color& src) { return src; };
+    Color generate_identity (const Color& src);
 
     class ColorRelation
     {
