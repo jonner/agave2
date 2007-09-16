@@ -20,8 +20,7 @@
  *******************************************************************************/
 #include <gtkmm.h>
 #include "color-relation.h"
-#include "swatch.h"
-#include "colorscale.h"
+#include "color-edit-box.h"
 
 using namespace agave;
 
@@ -32,27 +31,22 @@ class Window : public Gtk::Window
         {
             for (int i = 0; i < NUM_COLORS; ++i)
             {
-                ColorModel::pointer model = ColorModel::pointer (new ColorModel ());
-                m_models.push_back (model);
-                boost::shared_ptr<Swatch> swatch (new Swatch (model));
-                m_swatches.push_back (swatch);
-                boost::shared_ptr<ColorScale> scale (new ColorScale (model, ColorScale::CHANNEL_HUE));
-                m_scales.push_back (scale);
-                boost::shared_ptr<Gtk::VBox> vbox (new Gtk::VBox ());
-                m_vboxes.push_back (vbox);
-                vbox->pack_start (*swatch);
-                vbox->pack_start (*scale, Gtk::PACK_SHRINK);
-                hbox.pack_start (*vbox);
+                boost::shared_ptr<ColorEditBox> edit_box (new ColorEditBox ());
+                m_edit_boxes.push_back (edit_box);
+                hbox.pack_start (*edit_box);
 
                 if (i != 0)
                 {
-                    boost::shared_ptr<ColorRelation> relation (new ColorRelation(m_models[0], model));
+                    boost::shared_ptr<ColorRelation> relation (new
+                            ColorRelation(m_edit_boxes[0]->get_model (),
+                                edit_box->get_model ()));
                     m_relations.push_back (relation);
                 }
             }
 
+            hbox.set_spacing (6);
+            hbox.set_border_width (6);
             add (hbox);
-            set_size_request (500, 150);
             show_all ();
         }
 
@@ -60,10 +54,8 @@ class Window : public Gtk::Window
         static const int NUM_COLORS = 5;
         Gtk::HBox hbox;
         std::vector<ColorModel::pointer> m_models;
-        std::vector<boost::shared_ptr<Swatch> > m_swatches;
+        std::vector<boost::shared_ptr<ColorEditBox> > m_edit_boxes;
         std::vector<boost::shared_ptr<ColorRelation> > m_relations;
-        std::vector<boost::shared_ptr<ColorScale> > m_scales;
-        std::vector<boost::shared_ptr<Gtk::VBox> > m_vboxes;
 };
 
 int main (int argc, char** argv)
