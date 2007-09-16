@@ -36,7 +36,7 @@ namespace agave
 
         Priv () :
             m_draw_border (false),
-            m_padding (2)
+            m_padding (0)
         {}
     };
 
