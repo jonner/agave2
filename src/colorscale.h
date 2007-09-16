@@ -57,8 +57,6 @@ namespace agave
             virtual bool on_button_press_event (GdkEventButton* event);
             virtual bool on_button_release_event (GdkEventButton* event);
             virtual bool on_scroll_event (GdkEventScroll* event);
-            virtual bool on_enter_notify_event (GdkEventCrossing* event);
-            virtual bool on_leave_notify_event (GdkEventCrossing* event);
             virtual bool on_focus_in_event (GdkEventFocus* event);
             virtual bool on_focus_out_event (GdkEventFocus* event);
             virtual bool on_key_press_event (GdkEventKey* event);

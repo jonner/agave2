@@ -20,7 +20,7 @@
  *******************************************************************************/
 #include "colorscale.h"
 #include <gdkmm/general.h>  // cairo integration
-#include <gdkmm/cursor.h>  // cairo integration
+//#include <gdkmm/cursor.h>  // cairo integration
 #include <cairomm/surface.h>
 #include <gdk/gdkkeysyms.h>
 #include <glibmm-utils/log-stream-utils.hh>
@@ -52,7 +52,6 @@ namespace agave
     {
         add_events (Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
                 Gdk::POINTER_MOTION_MASK | Gdk::BUTTON_MOTION_MASK |
-                Gdk::ENTER_NOTIFY_MASK | Gdk::LEAVE_NOTIFY_MASK |
                 Gdk::KEY_PRESS_MASK | Gdk::FOCUS_CHANGE_MASK);
         set_size_request (static_cast<int>(2.0 * x_padding + min_width),
                 static_cast<int>(2.0 * y_padding + min_height));
@@ -265,21 +264,6 @@ namespace agave
         return new_val;
     }
 
-    bool ColorScale::on_enter_notify_event (GdkEventCrossing* event)
-    {
-        if (get_state () != Gtk::STATE_INSENSITIVE)
-        {
-            Glib::RefPtr<Gdk::Window> win = get_window();
-            if (win)
-            {
-                Glib::RefPtr<Gdk::Display> dpy = Gdk::Display::get_default();
-                Gdk::Cursor cursor(dpy, Gdk::HAND2);
-                win->set_cursor(cursor);
-            }
-        }
-        return true;
-    }
-
     bool
     ColorScale::on_focus_in_event (GdkEventFocus* event)
     {
@@ -291,20 +275,6 @@ namespace agave
     ColorScale::on_focus_out_event (GdkEventFocus* event)
     {
         set_state (Gtk::STATE_NORMAL);
-        return true;
-    }
-
-    bool ColorScale::on_leave_notify_event (GdkEventCrossing* event)
-    {
-        if (get_state () != Gtk::STATE_INSENSITIVE)
-        {
-            Glib::RefPtr<Gdk::Window> win = get_window();
-            if (win)
-            {
-                // return cursor to default
-                win->set_cursor();
-            }
-        }
         return true;
     }
 
