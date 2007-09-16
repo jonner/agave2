@@ -16,7 +16,9 @@ swatch.cc \
 colorscale.h \
 colorscale.cc \
 colormodel.h \
-colormodel.cc
+colormodel.cc \
+color-relation.h \
+color-relation.cc
 
 agave_SOURCES = \
 agave.cc \
