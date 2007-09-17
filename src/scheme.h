@@ -24,41 +24,27 @@
 #include <iostream>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include "color.h"
+#include "color-relation.h"
 
 namespace agave
 {
-    typedef enum
-    {
-        SCHEME_TYPE_ANALOGOUS,
-        SCHEME_TYPE_MONOCHROMATIC,
-        SCHEME_TYPE_TRIAD,
-        SCHEME_TYPE_COMPLEMENTARY,
-        SCHEME_TYPE_COMPOUND,
-        SCHEME_TYPE_SHADES,
-        SCHEME_TYPE_TETRAD, // not used by kuler
-        SCHEME_TYPE_CUSTOM
-    } scheme_type_t;
-
     class Scheme
     {
         public:
-            Scheme ();
-            Scheme (const Color& base_color, scheme_type_t scheme_type);
+            Scheme (const Glib::ustring& name,
+                    color_gen_func outer_left,
+                    color_gen_func inner_left,
+                    color_gen_func inner_right,
+                    color_gen_func outer_right);
 
-            std::vector<Color>& colors ();
-            const std::vector<Color>& colors () const;
-            void set (const Color& base_color, scheme_type_t scheme_type);
-            void set_base_color (const Color& color);
-            Color get_base_color () const;
-            void set_scheme_type (scheme_type_t scheme_type);
-            scheme_type_t get_scheme_type () const;
-
-            friend std::ostream& operator<<(std::ostream& out, const Scheme& s);
+            Glib::ustring get_name () const {return m_name;}
 
         private:
-            struct Priv;
-            boost::shared_ptr<Priv> m_priv;
+            Glib::ustring m_name;
+            color_gen_func m_outer_left_gen;
+            color_gen_func m_inner_left_gen;
+            color_gen_func m_inner_right_gen;
+            color_gen_func m_outer_right_gen;
     };
 }
 

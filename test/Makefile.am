@@ -1,7 +1,7 @@
-noinst_PROGRAMS=test-scheme test-swatch test-colorscale test-all test-ui test-relations
+noinst_PROGRAMS=test-swatch test-colorscale test-all test-ui test-relations
 
-test_scheme_SOURCES = test-scheme.cc
-test_scheme_LDADD = $(AGAVE_LIBS) ../src/libagavecore.la ../src/libagavewidgets.la
+#test_scheme_SOURCES = test-scheme.cc
+#test_scheme_LDADD = $(AGAVE_LIBS) ../src/libagavecore.la ../src/libagavewidgets.la
 
 test_swatch_SOURCES = test-swatch.cc
 test_swatch_LDADD = $(AGAVE_LIBS) ../src/libagavecore.la ../src/libagavewidgets.la

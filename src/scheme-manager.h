@@ -18,34 +18,31 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>
  *
  *******************************************************************************/
-#ifndef __COLOR_RELATION_H
-#define __COLOR_RELATION_H
+#ifndef __SCHEME_MANAGER_H
+#define __SCHEME_MANAGER_H
 
-#include "color.h"
-#include "colormodel.h"
+#include <vector>
+#include "scheme.h"
 
 namespace agave
 {
-    /// A functor type for generating one color from another one
-    typedef Color (*color_gen_func)(const Color&);
-
-    Color generate_identity (const Color& src);
-
-    class ColorRelation
+    class SchemeManager
     {
         public:
-            ColorRelation (ColorModel::pointer src, ColorModel::pointer dest, color_gen_func func = &generate_identity);
-            void connect (ColorModel::pointer src, ColorModel::pointer dest, color_gen_func func = &generate_identity);
-            void set_generator (color_gen_func);
+            static SchemeManager& instance ();
+            const std::vector<Scheme>& get_schemes ();
 
         private:
-            void on_source_color_changed ();
-            void on_dest_color_changed ();
-            ColorModel::pointer m_source;
-            ColorModel::pointer m_dest;
-            color_gen_func m_generator;
-            Color m_local_offset;
+            SchemeManager ();
+            virtual ~SchemeManager ();
+
+            // not copyable
+            SchemeManager (SchemeManager& other);
+            SchemeManager& operator= (SchemeManager& other);
+
+            std::vector<Scheme> m_schemes;
+            static SchemeManager* s_instance;
     };
 }
 
-#endif // __COLOR_RELATION_H
+#endif // __SCHEME_MANAGER_H

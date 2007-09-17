@@ -50,13 +50,13 @@ namespace agave
 
     struct Application::Priv
     {
-        boost::shared_ptr<Scheme> m_current_scheme;
+        //boost::shared_ptr<Scheme> m_current_scheme;
         boost::shared_ptr<Gtk::Main> m_main;
         boost::shared_ptr<ApplicationWindow> m_app_window;
         // TODO: saved schemes, history, prefs
 
         Priv (int argc, char** argv) :
-            m_current_scheme (new Scheme ()),
+            //m_current_scheme (new Scheme ()),
             m_main (),
             m_app_window ()
         {

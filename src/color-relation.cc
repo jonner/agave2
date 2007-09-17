@@ -27,7 +27,7 @@ namespace agave
     ColorRelation::ColorRelation(
             ColorModel::pointer src,
             ColorModel::pointer dest,
-            color_generator_func func) :
+            color_gen_func func) :
         m_local_offset (0.0, 0.0, 0.0)
     {
         connect (src, dest, func);
@@ -36,7 +36,7 @@ namespace agave
     void ColorRelation::connect (
             ColorModel::pointer src,
             ColorModel::pointer dest,
-            color_generator_func func)
+            color_gen_func func)
     {
         m_source = src;
         m_dest = dest;

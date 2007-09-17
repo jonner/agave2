@@ -7,8 +7,10 @@ color.cc \
 scheme.h \
 scheme.cc \
 i-scheme-generator.h \
-scheme-generators.h \
-scheme-generators.cc
+scheme-manager.h \
+scheme-manager.cc \
+scheme.h \
+scheme.cc
 
 libagavewidgets_la_SOURCES = \
 swatch.h \
