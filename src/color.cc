@@ -54,10 +54,6 @@ namespace agave
         new_hsv.s = lhs.s - rhs.s;
         new_hsv.v = lhs.v - rhs.v;
         new_hsv.a = lhs.a;
-        while (new_hsv.h < MIN_VALUE)
-        {
-            new_hsv.h += MAX_VALUE - MIN_VALUE;
-        }
         return new_hsv;
     }
 
@@ -68,10 +64,6 @@ namespace agave
         new_hsv.s = lhs.s + rhs.s;
         new_hsv.v = lhs.v + rhs.v;
         new_hsv.a = lhs.a;
-        while (new_hsv.h >= MAX_VALUE)
-        {
-            new_hsv.h -= MAX_VALUE - MIN_VALUE;
-        }
         return new_hsv;
     }
 
@@ -474,15 +466,23 @@ namespace agave
         m_rgb.a = std::max (m_rgb.a, MIN_VALUE);
 
         // clamp hsv
-        m_hsv.h = std::min (m_hsv.h, MAX_VALUE);
         m_hsv.s = std::min (m_hsv.s, MAX_VALUE);
         m_hsv.v = std::min (m_hsv.v, MAX_VALUE);
         m_hsv.a = std::min (m_hsv.a, MAX_VALUE);
 
-        m_hsv.h = std::max (m_hsv.h, MIN_VALUE);
         m_hsv.s = std::max (m_hsv.s, MIN_VALUE);
         m_hsv.v = std::max (m_hsv.v, MIN_VALUE);
         m_hsv.a = std::max (m_hsv.a, MIN_VALUE);
+
+        // hue is a special case -- it should wrap around, not be clamped
+        while (m_hsv.h < MIN_VALUE)
+        {
+            m_hsv.h += MAX_VALUE - MIN_VALUE;
+        }
+        while (m_hsv.h >= MAX_VALUE)
+        {
+            m_hsv.h -= MAX_VALUE - MIN_VALUE;
+        }
     }
 
 
@@ -574,8 +574,8 @@ namespace agave
     void Color::set (hsv_t hsv)
     {
         m_hsv = hsv;
-        m_rgb = hsv_to_rgb (hsv);
         clamp ();
+        m_rgb = hsv_to_rgb (m_hsv);
         m_signal_changed.emit ();
     }
 
