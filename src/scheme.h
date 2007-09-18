@@ -38,6 +38,10 @@ namespace agave
                     color_gen_func outer_right);
 
             Glib::ustring get_name () const {return m_name;}
+            color_gen_func get_outer_left () {return m_outer_left_gen;}
+            color_gen_func get_inner_left () {return m_inner_left_gen;}
+            color_gen_func get_inner_right () {return m_inner_right_gen;}
+            color_gen_func get_outer_right () {return m_outer_right_gen;}
 
         private:
             Glib::ustring m_name;
