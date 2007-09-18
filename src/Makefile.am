@@ -6,7 +6,6 @@ color.h \
 color.cc \
 scheme.h \
 scheme.cc \
-i-scheme-generator.h \
 scheme-manager.h \
 scheme-manager.cc \
 scheme.h \
