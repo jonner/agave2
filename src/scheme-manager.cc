@@ -50,6 +50,84 @@ namespace agave
         return Color (c.as_hsv () + shift);
     }
 
+    // MONOCHROMATIC COLOR SCHEME
+    static Color monochromatic_outer_left (const Color& c)
+    {
+        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
+        if (c.get_saturation () < 0.40)
+        {
+            shift.s = 0.30;
+        }
+        else
+        {
+            shift.s = -0.30;
+        }
+        return Color (c.as_hsv () + shift);
+    }
+
+    static Color monochromatic_inner_left (const Color& c)
+    {
+        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
+        if (c.get_value () > 0.70)
+        {
+            shift.v = -0.50;
+        }
+        else if (c.get_value () > 0.40)
+        {
+            shift.v = 0.30;
+        }
+        else
+        {
+            shift.v = 0.30;
+        }
+        return Color (c.as_hsv () + shift);
+    }
+
+    static Color monochromatic_inner_right (const Color& c)
+    {
+        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
+        if (c.get_saturation () < 0.40)
+        {
+            shift.s = 0.30;
+        }
+        else
+        {
+            shift.s = -0.30;
+        }
+        if (c.get_value () > 0.70)
+        {
+            shift.v = -0.50;
+        }
+        else if (c.get_value () > 0.40)
+        {
+            shift.v = 0.30;
+        }
+        else
+        {
+            shift.v = 0.30;
+        }
+        return Color (c.as_hsv () + shift);
+    }
+
+    static Color monochromatic_outer_right (const Color& c)
+    {
+        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
+        if (c.get_value () > 0.70)
+        {
+            shift.v = -0.20;
+        }
+        else if (c.get_value () > 0.40)
+        {
+            shift.v = -0.20;
+        }
+        else
+        {
+            shift.v = 0.60;
+        }
+        return Color (c.as_hsv () + shift);
+    }
+
+
     // NOTE: this is not thread-safe, don't use in multi-threaded apps
     SchemeManager& SchemeManager::instance ()
     {
@@ -69,6 +147,13 @@ namespace agave
                 analogous_inner_right,
                 analogous_outer_right);
         m_schemes.push_back (analogous);
+
+        Scheme monochromatic ("Monochromatic",
+                monochromatic_outer_left,
+                monochromatic_inner_left,
+                monochromatic_inner_right,
+                monochromatic_outer_right);
+        m_schemes.push_back (monochromatic);
 
         // theoretically this could now load user-defined schemes somewhere
         // (either as defined to-be-defined text format or as compiled plugins),
