@@ -22,6 +22,7 @@
 
 namespace agave
 {
+    SchemeManager* SchemeManager::s_instance = 0;
 
     // scheme functions
     // ANALOGOUS COLOR SCHEME
