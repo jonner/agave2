@@ -19,8 +19,10 @@
  *
  *******************************************************************************/
 #include <gtkmm.h>
+#include <glibmm-utils/exception.hh>
 #include "color-relation.h"
 #include "color-edit-box.h"
+#include "scheme-manager.h"
 
 using namespace agave;
 
@@ -34,15 +36,40 @@ class Window : public Gtk::Window
                 boost::shared_ptr<ColorEditBox> edit_box (new ColorEditBox ());
                 m_edit_boxes.push_back (edit_box);
                 hbox.pack_start (*edit_box);
-
-                if (i != 0)
-                {
-                    boost::shared_ptr<ColorRelation> relation (new
-                            ColorRelation(m_edit_boxes[0]->get_model (),
-                                edit_box->get_model ()));
-                    m_relations.push_back (relation);
-                }
             }
+            // assign relationships between the colors.  Color #2 is the
+            // 'control' color
+            std::vector<Scheme> schemes = SchemeManager::instance().get_schemes ();
+            THROW_IF_FAIL (!schemes.empty ());
+            Scheme first_scheme = *schemes.begin ();
+
+            boost::shared_ptr<ColorRelation> relation;
+            relation.reset (new
+                    ColorRelation(m_edit_boxes[2]->get_model (),
+                        m_edit_boxes[0]->get_model (),
+                        first_scheme.get_outer_left ()));
+            m_relations.push_back (relation);
+
+            relation.reset (new
+                    ColorRelation(m_edit_boxes[2]->get_model (),
+                        m_edit_boxes[1]->get_model (),
+                        first_scheme.get_inner_left ()));
+            m_relations.push_back (relation);
+
+            relation.reset (new
+                    ColorRelation(m_edit_boxes[2]->get_model (),
+                        m_edit_boxes[3]->get_model (),
+                        first_scheme.get_inner_right ()));
+            m_relations.push_back (relation);
+
+            relation.reset (new
+                    ColorRelation(m_edit_boxes[2]->get_model (),
+                        m_edit_boxes[4]->get_model (),
+                        first_scheme.get_outer_right ()));
+            m_relations.push_back (relation);
+
+            Color c (1.0, 1.0, 0.0);
+            m_edit_boxes[2]->get_model ()->set_color (c);
 
             hbox.set_spacing (6);
             hbox.set_border_width (6);
