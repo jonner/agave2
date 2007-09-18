@@ -50,6 +50,9 @@ namespace agave
         value_type h, s, v, a;
     };
 
+    hsv_t operator-(const hsv_t& lhs, const hsv_t& rhs);
+    hsv_t operator+(const hsv_t& lhs, const hsv_t& rhs);
+
     /************************************************************
      * HSL
      ***********************************************************/
@@ -86,12 +89,12 @@ namespace agave
     {
         public:
             Color ();
-            Color (rgb_t rgb);
             Color (double r, double g, double b, double a = 1.0);
-            Color (hsv_t hsv);
-            Color (hsl_t hsl);
-            Color (cmyk_t cmyk);
-            Color (std::string hexstring);
+            explicit Color (rgb_t rgb);
+            explicit Color (hsv_t hsv);
+            explicit Color (hsl_t hsl);
+            explicit Color (cmyk_t cmyk);
+            explicit Color (std::string hexstring);
             Color (const Color& other);
             virtual ~Color ();
 

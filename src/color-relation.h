@@ -44,7 +44,7 @@ namespace agave
             ColorModel::pointer m_source;
             ColorModel::pointer m_dest;
             color_gen_func m_generator;
-            Color m_local_offset;
+            hsv_t m_local_offset;
     };
 }
 

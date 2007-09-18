@@ -27,9 +27,12 @@ namespace agave
     ColorRelation::ColorRelation(
             ColorModel::pointer src,
             ColorModel::pointer dest,
-            color_gen_func func) :
-        m_local_offset (0.0, 0.0, 0.0)
+            color_gen_func func)
     {
+        m_local_offset.h = 0.0;
+        m_local_offset.s = 0.0;
+        m_local_offset.v = 0.0;
+        m_local_offset.a = 1.0;
         connect (src, dest, func);
     }
 
@@ -57,7 +60,8 @@ namespace agave
     {
         if (m_generator)
         {
-            m_dest->set_color (m_generator (m_source->get_color () + m_local_offset));
+            m_dest->set_color (m_generator (
+                        Color (m_source->get_color ().as_hsv () + m_local_offset)));
         }
     }
 
@@ -66,7 +70,7 @@ namespace agave
         if (m_generator)
         {
             Color expected = m_generator (m_source->get_color ());
-            m_local_offset = m_dest->get_color () - expected;
+            m_local_offset = (m_dest->get_color ().as_hsv ()) - expected.as_hsv ();
         }
     }
 }

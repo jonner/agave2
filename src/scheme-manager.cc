@@ -28,26 +28,26 @@ namespace agave
     // ANALOGOUS COLOR SCHEME
     static Color analogous_outer_left (const Color& c)
     {
-        hsv_t shift = {0.2, 0.0, 0.0, 0.0};
-        return c - shift;
+        hsv_t shift = {-0.2, 0.0, 0.0, 0.0};
+        return Color (c.as_hsv () + shift);
     }
 
     static Color analogous_inner_left (const Color& c)
     {
-        hsv_t shift = {0.1, 0.0, 0.0, 0.0};
-        return c - shift;
+        hsv_t shift = {-0.1, 0.0, 0.0, 0.0};
+        return Color (c.as_hsv () + shift);
     }
 
     static Color analogous_inner_right (const Color& c)
     {
         hsv_t shift = {0.1, 0.0, 0.0, 0.0};
-        return c + shift;
+        return Color (c.as_hsv () + shift);
     }
 
     static Color analogous_outer_right (const Color& c)
     {
         hsv_t shift = {0.2, 0.0, 0.0, 0.0};
-        return c + shift;
+        return Color (c.as_hsv () + shift);
     }
 
     // NOTE: this is not thread-safe, don't use in multi-threaded apps

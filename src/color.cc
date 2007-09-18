@@ -47,6 +47,34 @@ namespace agave
                 std::min (r, b));
     }
 
+    hsv_t operator-(const hsv_t& lhs, const hsv_t& rhs)
+    {
+        hsv_t new_hsv;
+        new_hsv.h = lhs.h - rhs.h;
+        new_hsv.s = lhs.s - rhs.s;
+        new_hsv.v = lhs.v - rhs.v;
+        new_hsv.a = lhs.a;
+        while (new_hsv.h < MIN_VALUE)
+        {
+            new_hsv.h += MAX_VALUE - MIN_VALUE;
+        }
+        return new_hsv;
+    }
+
+    hsv_t operator+(const hsv_t& lhs, const hsv_t& rhs)
+    {
+        hsv_t new_hsv;
+        new_hsv.h = lhs.h + rhs.h;
+        new_hsv.s = lhs.s + rhs.s;
+        new_hsv.v = lhs.v + rhs.v;
+        new_hsv.a = lhs.a;
+        while (new_hsv.h >= MAX_VALUE)
+        {
+            new_hsv.h -= MAX_VALUE - MIN_VALUE;
+        }
+        return new_hsv;
+    }
+
     hsv_t Color::rgb_to_hsv (const rgb_t& rgb)
     {
         hsv_t hsv;
@@ -406,29 +434,13 @@ namespace agave
 
     Color Color::operator-(const Color& rhs) const
     {
-        hsv_t hsv;
-        hsv.h = m_hsv.h - rhs.m_hsv.h;
-        hsv.s = m_hsv.s - rhs.m_hsv.s;
-        hsv.v = m_hsv.v - rhs.m_hsv.v;
-        hsv.a = m_hsv.a;
-        while (hsv.h < MIN_VALUE)
-        {
-            hsv.h += MAX_VALUE - MIN_VALUE;
-        }
+        hsv_t hsv = as_hsv () - rhs.as_hsv ();
         return Color (hsv);
     }
 
     Color Color::operator+(const Color& rhs) const
     {
-        hsv_t hsv;
-        hsv.h = m_hsv.h + rhs.m_hsv.h;
-        hsv.s = m_hsv.s + rhs.m_hsv.s;
-        hsv.v = m_hsv.v + rhs.m_hsv.v;
-        hsv.a = m_hsv.a;
-        while (hsv.h >= MAX_VALUE)
-        {
-            hsv.h -= MAX_VALUE - MIN_VALUE;
-        }
+        hsv_t hsv = as_hsv () + rhs.as_hsv ();
         return Color (hsv);
     }
 
