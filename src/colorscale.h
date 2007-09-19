@@ -60,6 +60,8 @@ namespace agave
             virtual bool on_focus_in_event (GdkEventFocus* event);
             virtual bool on_focus_out_event (GdkEventFocus* event);
             virtual bool on_key_press_event (GdkEventKey* event);
+            bool on_query_tooltip (int x, int y, bool keyboard_tooltip,
+                    const Glib::RefPtr<Gtk::Tooltip>& tooltip);
             void render_scale (Cairo::RefPtr<Cairo::Context>& cr);
             void render_selectors (Cairo::RefPtr<Cairo::Context>& cr);
             void render_checks (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);

@@ -42,10 +42,10 @@ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$GETTEXT_PACKAGE"],
 AM_GLIB_GNU_GETTEXT
 
 PKG_CHECK_MODULES(GTKMM, [
-                          gtkmm-2.4 >= 2.10.0
+                          gtkmm-2.4 >= 2.11.6
                           ])
 PKG_CHECK_MODULES(GLIBMM_UTILS, [
-                          glibmm-utils
+                          glibmm-utils >= 0.2
                           ])
 
 dnl ***************

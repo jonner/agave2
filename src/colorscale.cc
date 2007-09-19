@@ -23,7 +23,9 @@
 //#include <gdkmm/cursor.h>  // cairo integration
 #include <cairomm/surface.h>
 #include <gdk/gdkkeysyms.h>
+#include <gtkmm/tooltip.h>
 #include <glibmm-utils/log-stream-utils.hh>
+#include <boost/format.hpp>
 
 namespace agave
 {
@@ -64,6 +66,9 @@ namespace agave
             (sigc::mem_fun (this, &ColorScale::on_adjustment_value_changed));
         last_adj_val = NAN;
         m_drag_started = false;
+        set_has_tooltip ();
+        signal_query_tooltip ().connect (sigc::mem_fun (this,
+                    &ColorScale::on_query_tooltip));
     }
 
     double ColorScale::inside_x () const
@@ -716,4 +721,18 @@ namespace agave
                 y > outside_y () && y < (outside_y () + outside_height ()));
     }
 
+    bool ColorScale::on_query_tooltip (int x, int y, bool keyboard_tooltip,
+            const Glib::RefPtr<Gtk::Tooltip>& tooltip)
+    {
+        Gdk::Rectangle area (static_cast<int>(outside_x ()),
+                static_cast<int>(outside_y ()),
+                static_cast<int>(outside_width ()),
+                static_cast<int>(outside_height ()));
+        tooltip->set_tip_area (area);
+        boost::format tip_format("%1$.2f");
+        tip_format % m_adj->get_value ();
+        Glib::ustring tooltip_text = tip_format.str ();
+        tooltip->set_text (tooltip_text);
+        return true;
+    }
 }
