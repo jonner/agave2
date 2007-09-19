@@ -37,6 +37,11 @@ class Window : public Gtk::Window
                 m_edit_boxes.push_back (edit_box);
                 hbox.pack_start (*edit_box);
             }
+
+            // color #2 is the control color, so highlight it with a thicker
+            // border
+            m_edit_boxes[2]->get_swatch ().set_border_width (2.0);
+
             // assign relationships between the colors.  Color #2 is the
             // 'control' color
             std::vector<Scheme> schemes = SchemeManager::instance().get_schemes ();
