@@ -25,17 +25,17 @@
 namespace agave
 {
 
-    const double BORDER_WIDTH = 1.0;
+    const double DEFAULT_BORDER_WIDTH = 1.0;
     const int MIN_SIZE = 10;
 
     struct Swatch::Priv
     {
         ColorModel::pointer m_model;
-        bool m_draw_border;
+        double m_border_width;
         int m_padding;
 
         Priv () :
-            m_draw_border (false),
+            m_border_width (DEFAULT_BORDER_WIDTH),
             m_padding (0)
         {}
     };
@@ -70,9 +70,9 @@ namespace agave
     {
         THROW_IF_FAIL (m_priv);
         int sz = MIN_SIZE + 2 * m_priv->m_padding;
-        if (m_priv->m_draw_border)
+        if (m_priv->m_border_width > 0.0)
         {
-            sz += static_cast<int>(2.0 * BORDER_WIDTH);
+            sz += static_cast<int>(2.0 * m_priv->m_border_width);
         }
         set_size_request (sz, sz);
     }
@@ -119,19 +119,19 @@ namespace agave
         x = y = m_priv->m_padding;
         w = alloc.get_width () - 2 * m_priv->m_padding;
         h = alloc.get_height () - 2 * m_priv->m_padding;
-        if (m_priv->m_draw_border)
+        if (m_priv->m_border_width > 0.0)
         {
-            x += BORDER_WIDTH / 2.0;
-            y += BORDER_WIDTH / 2.0;
-            w -= BORDER_WIDTH;
-            h -= BORDER_WIDTH;
+            x += m_priv->m_border_width / 2.0;
+            y += m_priv->m_border_width / 2.0;
+            w -= m_priv->m_border_width;
+            h -= m_priv->m_border_width;
         }
         render_checks (cr, x, y, w, h);
         cr->rectangle (x, y, w, h);
-        if (m_priv->m_draw_border)
+        if (m_priv->m_border_width > 0.0)
         {
             cr->fill_preserve ();
-            cr->set_line_width (BORDER_WIDTH);
+            cr->set_line_width (m_priv->m_border_width);
             Gdk::Cairo::set_source_color (cr, get_style ()->get_fg (get_state ()));
             cr->stroke ();
         }
@@ -147,10 +147,10 @@ namespace agave
         queue_draw ();
     }
 
-    void Swatch::set_draw_border (bool draw_border)
+    void Swatch::set_border_width (double width)
     {
         THROW_IF_FAIL (m_priv);
-        m_priv->m_draw_border = draw_border;
+        m_priv->m_border_width = width;
         // redraw in case it changed
         queue_draw ();
     }

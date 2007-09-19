@@ -48,7 +48,6 @@ namespace agave
         m_notebook.append_page (m_rgb_box, "RGB", "Specify the color in RGB Colorspace");
 
         m_swatch.set_size_request (100, 100);
-        m_swatch.set_draw_border ();
         pack_start (m_swatch);
         pack_start (m_notebook, Gtk::PACK_SHRINK);
         set_spacing (6);

@@ -38,7 +38,7 @@ namespace agave
             void set_color (const Color& c);
             ColorModel::pointer get_model ();
             virtual bool on_expose_event (GdkEventExpose* event);
-            void set_draw_border (bool draw_border = true);
+            void set_border_width (double width);
             void set_padding (int padding);
 
         protected:
