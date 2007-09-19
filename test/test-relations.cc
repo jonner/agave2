@@ -46,7 +46,7 @@ class Window : public Gtk::Window
             // 'control' color
             std::vector<Scheme> schemes = SchemeManager::instance().get_schemes ();
             THROW_IF_FAIL (!schemes.size () < 3);
-            Scheme first_scheme = schemes[0];
+            Scheme first_scheme = schemes[1];
 
             boost::shared_ptr<ColorRelation> relation;
             relation.reset (new

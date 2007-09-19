@@ -138,7 +138,20 @@ namespace agave
         {
             shift.s = -0.30;
         }
-        return Color (c.as_hsv () + shift);
+        if (c.get_value () < 0.4)
+        {
+            shift.v = 0.1;
+        }
+        else
+        {
+            shift.v = 0.1 - (0.1 / 0.6) * (c.get_value () - 0.4);
+        }
+        hsv_t result = c.as_hsv () + shift;
+        if (result.v < 0.2)
+        {
+            result.v = 0.2;
+        }
+        return Color (result);
     }
 
     static Color monochromatic_inner_left (const Color& c)
