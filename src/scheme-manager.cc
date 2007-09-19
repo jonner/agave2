@@ -28,26 +28,102 @@ namespace agave
     // ANALOGOUS COLOR SCHEME
     static Color analogous_outer_left (const Color& c)
     {
-        hsv_t shift = {-0.2, 0.0, 0.0, 0.0};
-        return Color (c.as_hsv () + shift);
+        double s_shift = -0.05;
+        if (c.get_saturation () <= 0.95)
+        {
+            s_shift = 0.05;
+        }
+        double v_shift = -0.09;
+        if (c.get_value () <= 0.91)
+        {
+            v_shift = 0.09;
+        }
+        hsv_t shift = {0.05, s_shift, v_shift, 0.0};
+        hsv_t result = c.as_hsv () + shift;
+        if (result.s < 0.1)
+        {
+            result.s = 0.1;
+        }
+        if (result.v < 0.2)
+        {
+            result.v = 0.2;
+        }
+        return Color (result);
     }
 
     static Color analogous_inner_left (const Color& c)
     {
-        hsv_t shift = {-0.1, 0.0, 0.0, 0.0};
-        return Color (c.as_hsv () + shift);
+        double s_shift = -0.05;
+        if (c.get_saturation () <= 0.95)
+        {
+            s_shift = 0.05;
+        }
+        double v_shift = 0.0;
+        if (c.get_value () <= 0.95)
+        {
+            v_shift = 0.05;
+        }
+        hsv_t shift = {0.1, s_shift, v_shift, 0.0};
+        hsv_t result = c.as_hsv () + shift;
+        if (result.s < 0.1)
+        {
+            result.s = 0.1;
+        }
+        if (result.v < 0.2)
+        {
+            result.v = 0.2;
+        }
+        return Color (result);
     }
 
     static Color analogous_inner_right (const Color& c)
     {
-        hsv_t shift = {0.1, 0.0, 0.0, 0.0};
-        return Color (c.as_hsv () + shift);
+        double s_shift = -0.05;
+        if (c.get_saturation () <= 0.95)
+        {
+            s_shift = 0.05;
+        }
+        double v_shift = -0.09;
+        if (c.get_value () <= 0.91)
+        {
+            v_shift = 0.09;
+        }
+        hsv_t shift = {-0.05, s_shift, v_shift, 0.0};
+        hsv_t result = c.as_hsv () + shift;
+        if (result.s < 0.1)
+        {
+            result.s = 0.1;
+        }
+        if (result.v < 0.2)
+        {
+            result.v = 0.2;
+        }
+        return Color (result);
     }
 
     static Color analogous_outer_right (const Color& c)
     {
-        hsv_t shift = {0.2, 0.0, 0.0, 0.0};
-        return Color (c.as_hsv () + shift);
+        double s_shift = -0.05;
+        if (c.get_saturation () <= 0.95)
+        {
+            s_shift = 0.05;
+        }
+        double v_shift = 0.0;
+        if (c.get_value () <= 0.95)
+        {
+            v_shift = 0.05;
+        }
+        hsv_t shift = {-0.1, s_shift, v_shift, 0.0};
+        hsv_t result = c.as_hsv () + shift;
+        if (result.s < 0.1)
+        {
+            result.s = 0.1;
+        }
+        if (result.v < 0.2)
+        {
+            result.v = 0.2;
+        }
+        return Color (result);
     }
 
     // MONOCHROMATIC COLOR SCHEME
