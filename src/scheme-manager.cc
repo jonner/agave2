@@ -219,10 +219,9 @@ namespace agave
     // TRIADIC COLOR SCHEME
     static Color triad_outer_left (const Color& c)
     {
-        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
-        shift.h = 1.0 / 6.0;
+        hsv_t shift = {1.0 / 3.0, 0.0, 0.0, 0.0};
 
-        if (c.get_saturation () > 0.1)
+        if (c.get_saturation () > 0.2)
         {
             shift.s = -0.1;
         }
@@ -230,13 +229,30 @@ namespace agave
         {
             shift.s = 0.1;
         }
-        return Color (c.as_hsv () + shift);
+        if (c.get_value () > 0.7)
+        {
+            // value shift is 0 at 1.0 and 0.05 at 0.7, so make the shift change
+            // linearly between these points
+            shift.v = (c.get_value () - 0.7) * (0.05 / 0.3);
+        }
+        else
+        {
+            shift.v = 0.05;
+        }
+        hsv_t result = c.as_hsv () + shift;
+
+        // don't let the value get below 0.2
+        if (result.v < 0.2)
+        {
+            result.v = 0.2;
+        }
+        return Color (result);
     }
 
     static Color triad_inner_left (const Color& c)
     {
         hsv_t shift = {0.0, 0.0, 0.0, 0.0};
-        if (c.get_saturation () > 0.1)
+        if (c.get_saturation () > 0.9)
         {
             shift.s = -0.1;
         }
@@ -248,22 +264,18 @@ namespace agave
         {
             shift.v = -0.3;
         }
-        else if (c.get_value () > 0.4)
-        {
-            shift.v = 0.3;
-        }
         else
         {
             shift.v = 0.3;
         }
 
-        return Color (c.as_hsv () + shift);
+        hsv_t result = c.as_hsv () + shift;
+        return Color (result);
     }
 
     static Color triad_inner_right (const Color& c)
     {
-        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
-        shift.h = 0.56;
+        hsv_t shift = {-1.0 / 3.0, 0.0, 0.0, 0.0};
 
         if (c.get_saturation () > 0.1)
         {
@@ -277,22 +289,18 @@ namespace agave
         {
             shift.v = -0.2;
         }
-        else if (c.get_value () > 0.4)
-        {
-            shift.v = -0.2;
-        }
         else
         {
             shift.v = 0.2;
         }
 
-        return Color (c.as_hsv () + shift);
+        hsv_t result = c.as_hsv () + shift;
+        return Color (result);
     }
 
     static Color triad_outer_right (const Color& c)
     {
-        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
-        shift.h = 0.56;
+        hsv_t shift = {-1.0 / 3.0, 0.0, 0.0, 0.0};
 
         if (c.get_saturation () > 0.95)
         {
@@ -302,20 +310,17 @@ namespace agave
         {
             shift.s = 0.05;
         }
-        if (c.get_value () > 0.5)
+        if (c.get_value () > 0.7)
         {
             shift.v = -0.3;
-        }
-        else if (c.get_value () > 0.4)
-        {
-            shift.v = 0.3;
         }
         else
         {
             shift.v = 0.3;
         }
 
-        return Color (c.as_hsv () + shift);
+        hsv_t result = c.as_hsv () + shift;
+        return Color (result);
     }
 
     // NOTE: this is not thread-safe, don't use in multi-threaded apps
