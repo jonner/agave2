@@ -418,6 +418,98 @@ namespace agave
             }
     };
 
+    class ComplementaryScheme : public IScheme
+    {
+        public:
+            virtual Glib::ustring get_name () const {
+                return "Complementary";
+            }
+
+            virtual ColorRelation::SlotColorGen get_outer_left () const
+            { return sigc::mem_fun (this, &ComplementaryScheme::outer_left); }
+
+            virtual ColorRelation::SlotColorGen get_inner_left () const
+            { return sigc::mem_fun (this, &ComplementaryScheme::inner_left); }
+
+            virtual ColorRelation::SlotColorGen get_inner_right () const
+            { return sigc::mem_fun (this, &ComplementaryScheme::inner_right); }
+
+            virtual ColorRelation::SlotColorGen get_outer_right () const
+            { return sigc::mem_fun (this, &ComplementaryScheme::outer_right); }
+
+        private:
+            Color outer_left (const Color& c) const
+            {
+                hsv_t shift = {0.0, -0.1, 0.0, 0.0};
+                if (c.get_value () >= 0.7)
+                {
+                    shift.v = c.get_value () - 0.7;
+                }
+                else
+                {
+                    shift.v = 0.3;
+                }
+                hsv_t result = c.as_hsv () + shift;
+                return Color (result);
+            }
+
+            Color inner_left (const Color& c) const
+            {
+                hsv_t shift = {0.0, 0.0, 0.0, 0.0};
+                // saturation shift is 0 at 1.0 and 0.1 at 0.8, so make the
+                // shift change linearly between these points
+                if (c.get_saturation () > 0.8)
+                {
+                    shift.s = (c.get_saturation () - 0.8) * (0.1 / 0.2);
+                }
+                else
+                {
+                    shift.s = 0.1;
+                }
+                if (c.get_value () >= 0.5)
+                {
+                    shift.v = -0.3;
+                }
+                else
+                {
+                    shift.v = 0.3;
+                }
+                hsv_t result = c.as_hsv () + shift;
+                return Color (result);
+            }
+
+            Color inner_right (const Color& c) const
+            {
+                hsv_t shift = {0.5, 0.0, -0.3, 0.0};
+
+                if (c.get_saturation () > 0.8)
+                {
+                    shift.s = c.get_saturation () - 0.8;
+                }
+                else
+                {
+                    shift.s = 0.2;
+                }
+                if (c.get_value () >= 0.5)
+                {
+                    shift.v = -0.3;
+                }
+                else
+                {
+                    shift.v = 0.3;
+                }
+                hsv_t result = c.as_hsv () + shift;
+                return Color (result);
+            }
+
+            Color outer_right (const Color& c) const
+            {
+                hsv_t shift = {0.5, 0.0, 0.0, 0.0};
+                hsv_t result = c.as_hsv () + shift;
+                return Color (result);
+            }
+    };
+
     // NOTE: this is not thread-safe, don't use in multi-threaded apps
     SchemeManager& SchemeManager::instance ()
     {
@@ -439,6 +531,9 @@ namespace agave
 
         boost::shared_ptr<IScheme> triad (new TriadScheme ());
         m_schemes.push_back (triad);
+
+        boost::shared_ptr<IScheme> complementary (new ComplementaryScheme ());
+        m_schemes.push_back (complementary);
 
         // theoretically this could now load user-defined schemes somewhere
         // (either as defined to-be-defined text format or as compiled plugins),
