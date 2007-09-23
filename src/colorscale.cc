@@ -64,7 +64,6 @@ namespace agave
                     0.1 /* page increment */));
         m_adjustment_signal_connection = m_adj->signal_value_changed ().connect
             (sigc::mem_fun (this, &ColorScale::on_adjustment_value_changed));
-        last_adj_val = NAN;
         m_drag_started = false;
         set_has_tooltip ();
         signal_query_tooltip ().connect (sigc::mem_fun (this,
@@ -129,6 +128,14 @@ namespace agave
             m_adjustment_signal_connection.block ();
             update_adjustment (m_model->get_color ());
             m_adjustment_signal_connection.unblock ();
+
+            // only queue a redraw if the color has been changed since last
+            // update so that we don't do any unnecessary redraws
+            if (m_model->get_color () != last_color)
+            {
+                queue_draw ();
+                last_color = m_model->get_color ();
+            }
         }
     }
 
@@ -429,8 +436,9 @@ namespace agave
                     LOG_DD ("rendering RED scale");
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
-                    gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
-                    gradient->add_color_stop_rgb (1.0, 1.0, 0.0, 0.0);
+                    Color c = m_model->get_color ();
+                    gradient->add_color_stop_rgb (0.0, 0.0, c.get_green (), c.get_blue ());
+                    gradient->add_color_stop_rgb (1.0, 1.0, c.get_green (), c.get_blue ());
                     pattern = gradient;
                 }
                 break;
@@ -439,8 +447,9 @@ namespace agave
                     LOG_DD ("rendering GREEN scale");
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
-                    gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
-                    gradient->add_color_stop_rgb (1.0, 0.0, 1.0, 0.0);
+                    Color c = m_model->get_color ();
+                    gradient->add_color_stop_rgb (0.0, c.get_red (), 0.0, c.get_blue ());
+                    gradient->add_color_stop_rgb (1.0, c.get_red (), 1.0, c.get_blue ());
                     pattern = gradient;
                 }
                 break;
@@ -449,8 +458,9 @@ namespace agave
                     LOG_DD ("rendering BLUE scale");
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
-                    gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
-                    gradient->add_color_stop_rgb (1.0, 0.0, 0.0, 1.0);
+                    Color c = m_model->get_color ();
+                    gradient->add_color_stop_rgb (0.0, c.get_red (), c.get_green (), 0.0);
+                    gradient->add_color_stop_rgb (1.0, c.get_red (), c.get_green (), 1.0);
                     pattern = gradient;
                 }
                 break;
@@ -624,19 +634,6 @@ namespace agave
             default:
                 // do nothing
                 break;
-        }
-
-        // only queue a redraw if the adjustment has been changed since last
-        // update so that we don't do any unnecessary redraws
-        // ALPHA, SATURATION, and VALUE channels need to be re-drawn with any
-        // change since their background depends on the current color selection
-        if ((m_adj->get_value () != last_adj_val)
-                || m_channel == CHANNEL_SATURATION
-                || m_channel == CHANNEL_VALUE
-                || m_channel == CHANNEL_ALPHA)
-        {
-            queue_draw ();
-            last_adj_val = m_adj->get_value ();
         }
     }
 
