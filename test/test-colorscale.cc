@@ -99,7 +99,6 @@ int main (int argc, char** argv)
 
     // set up hsv scales
     h_scale = new ColorScale (model2, ColorScale::CHANNEL_HUE);
-    h_scale->set_draw_label ();
     s_scale = new ColorScale (model2, ColorScale::CHANNEL_SATURATION);
     v_scale = new ColorScale (model2, ColorScale::CHANNEL_VALUE);
     a_scale_hsv = new ColorScale (model2, ColorScale::CHANNEL_ALPHA);
