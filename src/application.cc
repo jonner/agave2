@@ -25,7 +25,7 @@
 #include "config.h"
 #include "application.h"
 #include "application-window.h"
-#include "scheme.h"
+#include "i-scheme.h"
 
 namespace agave
 {

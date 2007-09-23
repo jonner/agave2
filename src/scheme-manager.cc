@@ -24,304 +24,399 @@ namespace agave
 {
     SchemeManager* SchemeManager::s_instance = 0;
 
-    // scheme functions
-    // ANALOGOUS COLOR SCHEME
-    static Color analogous_outer_left (const Color& c)
+    class AnalogousScheme : public IScheme
     {
-        double s_shift = -0.05;
-        if (c.get_saturation () <= 0.95)
-        {
-            s_shift = 0.05;
-        }
-        double v_shift = -0.09;
-        if (c.get_value () <= 0.91)
-        {
-            v_shift = 0.09;
-        }
-        hsv_t shift = {0.05, s_shift, v_shift, 0.0};
-        hsv_t result = c.as_hsv () + shift;
-        if (result.s < 0.1)
-        {
-            result.s = 0.1;
-        }
-        if (result.v < 0.2)
-        {
-            result.v = 0.2;
-        }
-        return Color (result);
-    }
+        public:
+            virtual Glib::ustring get_name () const {
+                return "Analogous";
+            }
 
-    static Color analogous_inner_left (const Color& c)
+            virtual ColorRelation::SlotColorGen
+                get_outer_left () const
+                {
+                    return sigc::mem_fun (this, &AnalogousScheme::outer_left);
+                }
+
+            virtual ColorRelation::SlotColorGen
+                get_inner_left () const
+                {
+                    return sigc::mem_fun (this, &AnalogousScheme::inner_left);
+                }
+
+            virtual ColorRelation::SlotColorGen
+                get_inner_right () const
+                {
+                    return sigc::mem_fun (this, &AnalogousScheme::inner_right);
+                }
+
+            virtual ColorRelation::SlotColorGen
+                get_outer_right () const
+                {
+                    return sigc::mem_fun (this, &AnalogousScheme::outer_right);
+                }
+
+        private:
+            Color outer_left (const Color& c) const
+            {
+                double s_shift = -0.05;
+                if (c.get_saturation () <= 0.95)
+                {
+                    s_shift = 0.05;
+                }
+                double v_shift = -0.09;
+                if (c.get_value () <= 0.91)
+                {
+                    v_shift = 0.09;
+                }
+                hsv_t shift = {0.05, s_shift, v_shift, 0.0};
+                hsv_t result = c.as_hsv () + shift;
+                if (result.s < 0.1)
+                {
+                    result.s = 0.1;
+                }
+                if (result.v < 0.2)
+                {
+                    result.v = 0.2;
+                }
+                return Color (result);
+            }
+
+            Color inner_left (const Color& c) const
+            {
+                double s_shift = -0.05;
+                if (c.get_saturation () <= 0.95)
+                {
+                    s_shift = 0.05;
+                }
+                double v_shift = 0.0;
+                if (c.get_value () <= 0.95)
+                {
+                    v_shift = 0.05;
+                }
+                hsv_t shift = {0.1, s_shift, v_shift, 0.0};
+                hsv_t result = c.as_hsv () + shift;
+                if (result.s < 0.1)
+                {
+                    result.s = 0.1;
+                }
+                if (result.v < 0.2)
+                {
+                    result.v = 0.2;
+                }
+                return Color (result);
+            }
+
+            Color inner_right (const Color& c) const
+            {
+                double s_shift = -0.05;
+                if (c.get_saturation () <= 0.95)
+                {
+                    s_shift = 0.05;
+                }
+                double v_shift = -0.09;
+                if (c.get_value () <= 0.91)
+                {
+                    v_shift = 0.09;
+                }
+                hsv_t shift = {-0.05, s_shift, v_shift, 0.0};
+                hsv_t result = c.as_hsv () + shift;
+                if (result.s < 0.1)
+                {
+                    result.s = 0.1;
+                }
+                if (result.v < 0.2)
+                {
+                    result.v = 0.2;
+                }
+                return Color (result);
+            }
+
+            Color outer_right (const Color& c) const
+            {
+                double s_shift = -0.05;
+                if (c.get_saturation () <= 0.95)
+                {
+                    s_shift = 0.05;
+                }
+                double v_shift = 0.0;
+                if (c.get_value () <= 0.95)
+                {
+                    v_shift = 0.05;
+                }
+                hsv_t shift = {-0.1, s_shift, v_shift, 0.0};
+                hsv_t result = c.as_hsv () + shift;
+                if (result.s < 0.1)
+                {
+                    result.s = 0.1;
+                }
+                if (result.v < 0.2)
+                {
+                    result.v = 0.2;
+                }
+                return Color (result);
+            }
+    };
+
+    class MonochromaticScheme : public IScheme
     {
-        double s_shift = -0.05;
-        if (c.get_saturation () <= 0.95)
-        {
-            s_shift = 0.05;
-        }
-        double v_shift = 0.0;
-        if (c.get_value () <= 0.95)
-        {
-            v_shift = 0.05;
-        }
-        hsv_t shift = {0.1, s_shift, v_shift, 0.0};
-        hsv_t result = c.as_hsv () + shift;
-        if (result.s < 0.1)
-        {
-            result.s = 0.1;
-        }
-        if (result.v < 0.2)
-        {
-            result.v = 0.2;
-        }
-        return Color (result);
-    }
+        public:
+            virtual Glib::ustring get_name () const {
+                return "Monochromatic";
+            }
 
-    static Color analogous_inner_right (const Color& c)
+            virtual ColorRelation::SlotColorGen
+                get_outer_left () const
+                {
+                    return sigc::mem_fun (this, &MonochromaticScheme::outer_left);
+                }
+
+            virtual ColorRelation::SlotColorGen
+                get_inner_left () const
+                {
+                    return sigc::mem_fun (this, &MonochromaticScheme::inner_left);
+                }
+
+            virtual ColorRelation::SlotColorGen
+                get_inner_right () const
+                {
+                    return sigc::mem_fun (this, &MonochromaticScheme::inner_right);
+                }
+
+            virtual ColorRelation::SlotColorGen
+                get_outer_right () const
+                {
+                    return sigc::mem_fun (this, &MonochromaticScheme::outer_right);
+                }
+
+        private:
+            Color outer_left (const Color& c) const
+            {
+                hsv_t shift = {0.0, 0.0, 0.0, 0.0};
+                if (c.get_saturation () < 0.40)
+                {
+                    shift.s = 0.30;
+                }
+                else
+                {
+                    shift.s = -0.30;
+                }
+                if (c.get_value () < 0.4)
+                {
+                    shift.v = 0.1;
+                }
+                else
+                {
+                    shift.v = 0.1 - (0.1 / 0.6) * (c.get_value () - 0.4);
+                }
+                hsv_t result = c.as_hsv () + shift;
+                if (result.v < 0.2)
+                {
+                    result.v = 0.2;
+                }
+                return Color (result);
+            }
+
+            Color inner_left (const Color& c) const
+            {
+                hsv_t shift = {0.0, 0.0, 0.0, 0.0};
+                if (c.get_value () > 0.70)
+                {
+                    shift.v = -0.50;
+                }
+                else if (c.get_value () > 0.40)
+                {
+                    shift.v = 0.30;
+                }
+                else
+                {
+                    shift.v = 0.30;
+                }
+                return Color (c.as_hsv () + shift);
+            }
+
+            Color inner_right (const Color& c) const
+            {
+                hsv_t shift = {0.0, 0.0, 0.0, 0.0};
+                if (c.get_saturation () < 0.40)
+                {
+                    shift.s = 0.30;
+                }
+                else
+                {
+                    shift.s = -0.30;
+                }
+                if (c.get_value () > 0.70)
+                {
+                    shift.v = -0.50;
+                }
+                else if (c.get_value () > 0.40)
+                {
+                    shift.v = 0.30;
+                }
+                else
+                {
+                    shift.v = 0.30;
+                }
+                return Color (c.as_hsv () + shift);
+            }
+
+            Color outer_right (const Color& c) const
+            {
+                hsv_t shift = {0.0, 0.0, 0.0, 0.0};
+                if (c.get_value () > 0.70)
+                {
+                    shift.v = -0.20;
+                }
+                else if (c.get_value () > 0.40)
+                {
+                    shift.v = -0.20;
+                }
+                else
+                {
+                    shift.v = 0.60;
+                }
+                return Color (c.as_hsv () + shift);
+            }
+    };
+
+    class TriadScheme : public IScheme
     {
-        double s_shift = -0.05;
-        if (c.get_saturation () <= 0.95)
-        {
-            s_shift = 0.05;
-        }
-        double v_shift = -0.09;
-        if (c.get_value () <= 0.91)
-        {
-            v_shift = 0.09;
-        }
-        hsv_t shift = {-0.05, s_shift, v_shift, 0.0};
-        hsv_t result = c.as_hsv () + shift;
-        if (result.s < 0.1)
-        {
-            result.s = 0.1;
-        }
-        if (result.v < 0.2)
-        {
-            result.v = 0.2;
-        }
-        return Color (result);
-    }
+        public:
+            virtual Glib::ustring get_name () const {
+                return "Triadic";
+            }
 
-    static Color analogous_outer_right (const Color& c)
-    {
-        double s_shift = -0.05;
-        if (c.get_saturation () <= 0.95)
-        {
-            s_shift = 0.05;
-        }
-        double v_shift = 0.0;
-        if (c.get_value () <= 0.95)
-        {
-            v_shift = 0.05;
-        }
-        hsv_t shift = {-0.1, s_shift, v_shift, 0.0};
-        hsv_t result = c.as_hsv () + shift;
-        if (result.s < 0.1)
-        {
-            result.s = 0.1;
-        }
-        if (result.v < 0.2)
-        {
-            result.v = 0.2;
-        }
-        return Color (result);
-    }
+            virtual ColorRelation::SlotColorGen
+                get_outer_left () const
+                {
+                    return sigc::mem_fun (this, &TriadScheme::outer_left);
+                }
 
-    // MONOCHROMATIC COLOR SCHEME
-    static Color monochromatic_outer_left (const Color& c)
-    {
-        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
-        if (c.get_saturation () < 0.40)
-        {
-            shift.s = 0.30;
-        }
-        else
-        {
-            shift.s = -0.30;
-        }
-        if (c.get_value () < 0.4)
-        {
-            shift.v = 0.1;
-        }
-        else
-        {
-            shift.v = 0.1 - (0.1 / 0.6) * (c.get_value () - 0.4);
-        }
-        hsv_t result = c.as_hsv () + shift;
-        if (result.v < 0.2)
-        {
-            result.v = 0.2;
-        }
-        return Color (result);
-    }
+            virtual ColorRelation::SlotColorGen
+                get_inner_left () const
+                {
+                    return sigc::mem_fun (this, &TriadScheme::inner_left);
+                }
 
-    static Color monochromatic_inner_left (const Color& c)
-    {
-        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
-        if (c.get_value () > 0.70)
-        {
-            shift.v = -0.50;
-        }
-        else if (c.get_value () > 0.40)
-        {
-            shift.v = 0.30;
-        }
-        else
-        {
-            shift.v = 0.30;
-        }
-        return Color (c.as_hsv () + shift);
-    }
+            virtual ColorRelation::SlotColorGen
+                get_inner_right () const
+                {
+                    return sigc::mem_fun (this, &TriadScheme::inner_right);
+                }
 
-    static Color monochromatic_inner_right (const Color& c)
-    {
-        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
-        if (c.get_saturation () < 0.40)
-        {
-            shift.s = 0.30;
-        }
-        else
-        {
-            shift.s = -0.30;
-        }
-        if (c.get_value () > 0.70)
-        {
-            shift.v = -0.50;
-        }
-        else if (c.get_value () > 0.40)
-        {
-            shift.v = 0.30;
-        }
-        else
-        {
-            shift.v = 0.30;
-        }
-        return Color (c.as_hsv () + shift);
-    }
+            virtual ColorRelation::SlotColorGen
+                get_outer_right () const
+                {
+                    return sigc::mem_fun (this, &TriadScheme::outer_right);
+                }
 
-    static Color monochromatic_outer_right (const Color& c)
-    {
-        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
-        if (c.get_value () > 0.70)
-        {
-            shift.v = -0.20;
-        }
-        else if (c.get_value () > 0.40)
-        {
-            shift.v = -0.20;
-        }
-        else
-        {
-            shift.v = 0.60;
-        }
-        return Color (c.as_hsv () + shift);
-    }
+        private:
+            Color outer_left (const Color& c) const
+            {
+                hsv_t shift = {1.0 / 3.0, 0.0, 0.0, 0.0};
 
-    // TRIADIC COLOR SCHEME
-    static Color triad_outer_left (const Color& c)
-    {
-        hsv_t shift = {1.0 / 3.0, 0.0, 0.0, 0.0};
+                if (c.get_saturation () > 0.2)
+                {
+                    shift.s = -0.1;
+                }
+                else
+                {
+                    shift.s = 0.1;
+                }
+                if (c.get_value () > 0.7)
+                {
+                    // value shift is 0 at 1.0 and 0.05 at 0.7, so make the shift change
+                    // linearly between these points
+                    shift.v = (c.get_value () - 0.7) * (0.05 / 0.3);
+                }
+                else
+                {
+                    shift.v = 0.05;
+                }
+                hsv_t result = c.as_hsv () + shift;
 
-        if (c.get_saturation () > 0.2)
-        {
-            shift.s = -0.1;
-        }
-        else
-        {
-            shift.s = 0.1;
-        }
-        if (c.get_value () > 0.7)
-        {
-            // value shift is 0 at 1.0 and 0.05 at 0.7, so make the shift change
-            // linearly between these points
-            shift.v = (c.get_value () - 0.7) * (0.05 / 0.3);
-        }
-        else
-        {
-            shift.v = 0.05;
-        }
-        hsv_t result = c.as_hsv () + shift;
+                // don't let the value get below 0.2
+                if (result.v < 0.2)
+                {
+                    result.v = 0.2;
+                }
+                return Color (result);
+            }
 
-        // don't let the value get below 0.2
-        if (result.v < 0.2)
-        {
-            result.v = 0.2;
-        }
-        return Color (result);
-    }
+            Color inner_left (const Color& c) const
+            {
+                hsv_t shift = {0.0, 0.0, 0.0, 0.0};
+                if (c.get_saturation () > 0.9)
+                {
+                    shift.s = -0.1;
+                }
+                else
+                {
+                    shift.s = 0.1;
+                }
+                if (c.get_value () > 0.5)
+                {
+                    shift.v = -0.3;
+                }
+                else
+                {
+                    shift.v = 0.3;
+                }
 
-    static Color triad_inner_left (const Color& c)
-    {
-        hsv_t shift = {0.0, 0.0, 0.0, 0.0};
-        if (c.get_saturation () > 0.9)
-        {
-            shift.s = -0.1;
-        }
-        else
-        {
-            shift.s = 0.1;
-        }
-        if (c.get_value () > 0.5)
-        {
-            shift.v = -0.3;
-        }
-        else
-        {
-            shift.v = 0.3;
-        }
+                hsv_t result = c.as_hsv () + shift;
+                return Color (result);
+            }
 
-        hsv_t result = c.as_hsv () + shift;
-        return Color (result);
-    }
+            Color inner_right (const Color& c) const
+            {
+                hsv_t shift = {-1.0 / 3.0, 0.0, 0.0, 0.0};
 
-    static Color triad_inner_right (const Color& c)
-    {
-        hsv_t shift = {-1.0 / 3.0, 0.0, 0.0, 0.0};
+                if (c.get_saturation () > 0.1)
+                {
+                    shift.s = -0.1;
+                }
+                else
+                {
+                    shift.s = 0.1;
+                }
+                if (c.get_value () > 0.5)
+                {
+                    shift.v = -0.2;
+                }
+                else
+                {
+                    shift.v = 0.2;
+                }
 
-        if (c.get_saturation () > 0.1)
-        {
-            shift.s = -0.1;
-        }
-        else
-        {
-            shift.s = 0.1;
-        }
-        if (c.get_value () > 0.5)
-        {
-            shift.v = -0.2;
-        }
-        else
-        {
-            shift.v = 0.2;
-        }
+                hsv_t result = c.as_hsv () + shift;
+                return Color (result);
+            }
 
-        hsv_t result = c.as_hsv () + shift;
-        return Color (result);
-    }
+            Color outer_right (const Color& c) const
+            {
+                hsv_t shift = {-1.0 / 3.0, 0.0, 0.0, 0.0};
 
-    static Color triad_outer_right (const Color& c)
-    {
-        hsv_t shift = {-1.0 / 3.0, 0.0, 0.0, 0.0};
+                if (c.get_saturation () > 0.95)
+                {
+                    shift.s = -0.05;
+                }
+                else
+                {
+                    shift.s = 0.05;
+                }
+                if (c.get_value () > 0.7)
+                {
+                    shift.v = -0.3;
+                }
+                else
+                {
+                    shift.v = 0.3;
+                }
 
-        if (c.get_saturation () > 0.95)
-        {
-            shift.s = -0.05;
-        }
-        else
-        {
-            shift.s = 0.05;
-        }
-        if (c.get_value () > 0.7)
-        {
-            shift.v = -0.3;
-        }
-        else
-        {
-            shift.v = 0.3;
-        }
-
-        hsv_t result = c.as_hsv () + shift;
-        return Color (result);
-    }
+                hsv_t result = c.as_hsv () + shift;
+                return Color (result);
+            }
+    };
 
     // NOTE: this is not thread-safe, don't use in multi-threaded apps
     SchemeManager& SchemeManager::instance ()
@@ -336,25 +431,13 @@ namespace agave
     SchemeManager::SchemeManager ()
     {
         // get and cache the list of available schemes
-        Scheme analogous ("Analogous",
-                analogous_outer_left,
-                analogous_inner_left,
-                analogous_inner_right,
-                analogous_outer_right);
+        boost::shared_ptr<IScheme> analogous (new AnalogousScheme ());
         m_schemes.push_back (analogous);
 
-        Scheme monochromatic ("Monochromatic",
-                monochromatic_outer_left,
-                monochromatic_inner_left,
-                monochromatic_inner_right,
-                monochromatic_outer_right);
+        boost::shared_ptr<IScheme> monochromatic (new MonochromaticScheme ());
         m_schemes.push_back (monochromatic);
 
-        Scheme triad ("Triads",
-                triad_outer_left,
-                triad_inner_left,
-                triad_inner_right,
-                triad_outer_right);
+        boost::shared_ptr<IScheme> triad (new TriadScheme ());
         m_schemes.push_back (triad);
 
         // theoretically this could now load user-defined schemes somewhere
@@ -366,7 +449,7 @@ namespace agave
     {
     }
 
-    const std::vector<Scheme>& SchemeManager::get_schemes ()
+    const std::vector<boost::shared_ptr<IScheme> >& SchemeManager::get_schemes ()
     {
         return m_schemes;
     }

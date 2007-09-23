@@ -44,33 +44,33 @@ class Window : public Gtk::Window
 
             // assign relationships between the colors.  Color #2 is the
             // 'control' color
-            std::vector<Scheme> schemes = SchemeManager::instance().get_schemes ();
+            std::vector<boost::shared_ptr<IScheme> > schemes = SchemeManager::instance().get_schemes ();
             THROW_IF_FAIL (!schemes.size () < 3);
-            Scheme first_scheme = schemes[2];
+            boost::shared_ptr<IScheme> first_scheme = schemes[2];
 
             boost::shared_ptr<ColorRelation> relation;
             relation.reset (new
                     ColorRelation(m_edit_boxes[2]->get_model (),
                         m_edit_boxes[0]->get_model (),
-                        first_scheme.get_outer_left ()));
+                        first_scheme->get_outer_left ()));
             m_relations.push_back (relation);
 
             relation.reset (new
                     ColorRelation(m_edit_boxes[2]->get_model (),
                         m_edit_boxes[1]->get_model (),
-                        first_scheme.get_inner_left ()));
+                        first_scheme->get_inner_left ()));
             m_relations.push_back (relation);
 
             relation.reset (new
                     ColorRelation(m_edit_boxes[2]->get_model (),
                         m_edit_boxes[3]->get_model (),
-                        first_scheme.get_inner_right ()));
+                        first_scheme->get_inner_right ()));
             m_relations.push_back (relation);
 
             relation.reset (new
                     ColorRelation(m_edit_boxes[2]->get_model (),
                         m_edit_boxes[4]->get_model (),
-                        first_scheme.get_outer_right ()));
+                        first_scheme->get_outer_right ()));
             m_relations.push_back (relation);
 
             Color c (1.0, 1.0, 0.0);

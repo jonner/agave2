@@ -21,6 +21,7 @@
 #ifndef __COLOR_RELATION_H
 #define __COLOR_RELATION_H
 
+#include <sigc++/functors/slot.h>
 #include "color.h"
 #include "colormodel.h"
 
@@ -34,16 +35,17 @@ namespace agave
     class ColorRelation
     {
         public:
-            ColorRelation (ColorModel::pointer src, ColorModel::pointer dest, color_gen_func func = &generate_identity);
-            void connect (ColorModel::pointer src, ColorModel::pointer dest, color_gen_func func = &generate_identity);
-            void set_generator (color_gen_func);
+            typedef sigc::slot<Color, const Color&> SlotColorGen;
+            ColorRelation (ColorModel::pointer src, ColorModel::pointer dest, const SlotColorGen& slot = sigc::ptr_fun(&generate_identity));
+            void connect (ColorModel::pointer src, ColorModel::pointer dest, const SlotColorGen& slot = sigc::ptr_fun(&generate_identity));
+            void set_generator (const SlotColorGen& slot);
 
         private:
             void on_source_color_changed ();
             void on_dest_color_changed ();
             ColorModel::pointer m_source;
             ColorModel::pointer m_dest;
-            color_gen_func m_generator;
+            SlotColorGen m_generator;
             hsv_t m_local_offset;
     };
 }

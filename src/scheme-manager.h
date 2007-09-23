@@ -22,7 +22,7 @@
 #define __SCHEME_MANAGER_H
 
 #include <vector>
-#include "scheme.h"
+#include "i-scheme.h"
 
 namespace agave
 {
@@ -30,7 +30,7 @@ namespace agave
     {
         public:
             static SchemeManager& instance ();
-            const std::vector<Scheme>& get_schemes ();
+            const std::vector<boost::shared_ptr<IScheme> >& get_schemes ();
 
         private:
             SchemeManager ();
@@ -40,7 +40,7 @@ namespace agave
             SchemeManager (SchemeManager& other);
             SchemeManager& operator= (SchemeManager& other);
 
-            std::vector<Scheme> m_schemes;
+            std::vector<boost::shared_ptr<IScheme> > m_schemes;
             static SchemeManager* s_instance;
     };
 }

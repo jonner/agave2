@@ -18,8 +18,8 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>
  *
  *******************************************************************************/
-#ifndef __SCHEME_H
-#define __SCHEME_H
+#ifndef __I_SCHEME_H
+#define __I_SCHEME_H
 
 #include <iostream>
 #include <vector>
@@ -28,28 +28,16 @@
 
 namespace agave
 {
-    class Scheme
+    class IScheme
     {
         public:
-            Scheme (const Glib::ustring& name,
-                    color_gen_func outer_left,
-                    color_gen_func inner_left,
-                    color_gen_func inner_right,
-                    color_gen_func outer_right);
-
-            Glib::ustring get_name () const {return m_name;}
-            color_gen_func get_outer_left () {return m_outer_left_gen;}
-            color_gen_func get_inner_left () {return m_inner_left_gen;}
-            color_gen_func get_inner_right () {return m_inner_right_gen;}
-            color_gen_func get_outer_right () {return m_outer_right_gen;}
-
-        private:
-            Glib::ustring m_name;
-            color_gen_func m_outer_left_gen;
-            color_gen_func m_inner_left_gen;
-            color_gen_func m_inner_right_gen;
-            color_gen_func m_outer_right_gen;
+            virtual ~IScheme () {};
+            virtual Glib::ustring get_name () const = 0;
+            virtual ColorRelation::SlotColorGen get_outer_left () const = 0;
+            virtual ColorRelation::SlotColorGen get_inner_left () const = 0;
+            virtual ColorRelation::SlotColorGen get_inner_right () const = 0;
+            virtual ColorRelation::SlotColorGen get_outer_right () const = 0;
     };
 }
 
-#endif // __SCHEME_H
+#endif // __I_SCHEME_H

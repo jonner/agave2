@@ -4,12 +4,9 @@ noinst_LTLIBRARIES=libagavewidgets.la libagavecore.la
 libagavecore_la_SOURCES = \
 color.h \
 color.cc \
-scheme.h \
-scheme.cc \
+i-scheme.h \
 scheme-manager.h \
-scheme-manager.cc \
-scheme.h \
-scheme.cc
+scheme-manager.cc
 
 libagavewidgets_la_SOURCES = \
 swatch.h \

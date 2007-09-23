@@ -27,23 +27,23 @@ namespace agave
     ColorRelation::ColorRelation(
             ColorModel::pointer src,
             ColorModel::pointer dest,
-            color_gen_func func)
+            const SlotColorGen& slot)
     {
         m_local_offset.h = 0.0;
         m_local_offset.s = 0.0;
         m_local_offset.v = 0.0;
         m_local_offset.a = 1.0;
-        connect (src, dest, func);
+        connect (src, dest, slot);
     }
 
     void ColorRelation::connect (
             ColorModel::pointer src,
             ColorModel::pointer dest,
-            color_gen_func func)
+            const SlotColorGen& slot)
     {
         m_source = src;
         m_dest = dest;
-        m_generator = func;
+        m_generator = slot;
         if (m_source)
         {
             m_source->signal_color_changed ().connect (sigc::mem_fun (this,
