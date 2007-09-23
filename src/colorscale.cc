@@ -434,34 +434,73 @@ namespace agave
             case CHANNEL_RED:
                 {
                     LOG_DD ("rendering RED scale");
+                    Cairo::RefPtr<Cairo::ImageSurface> red_surface =
+                        Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
+                                static_cast<int>(w), static_cast<int>(h));
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     Color c = m_model->get_color ();
                     gradient->add_color_stop_rgb (0.0, 0.0, c.get_green (), c.get_blue ());
                     gradient->add_color_stop_rgb (1.0, 1.0, c.get_green (), c.get_blue ());
-                    pattern = gradient;
+                    Cairo::RefPtr<Cairo::Context> cr2 =
+                        Cairo::Context::create (red_surface);
+                    cr2->set_source (gradient);
+                    cr2->paint ();
+                    gradient = Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
+                    gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
+                    gradient->add_color_stop_rgb (1.0, 1.0, 0.0, 0.0);
+                    cr2->rectangle (0.0, 0.0, w, h / 4.0);
+                    cr2->set_source (gradient);
+                    cr2->fill ();
+                    pattern = Cairo::SurfacePattern::create (red_surface);
                 }
                 break;
             case CHANNEL_GREEN:
                 {
                     LOG_DD ("rendering GREEN scale");
+                    Cairo::RefPtr<Cairo::ImageSurface> green_surface =
+                        Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
+                                static_cast<int>(w), static_cast<int>(h));
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     Color c = m_model->get_color ();
                     gradient->add_color_stop_rgb (0.0, c.get_red (), 0.0, c.get_blue ());
                     gradient->add_color_stop_rgb (1.0, c.get_red (), 1.0, c.get_blue ());
-                    pattern = gradient;
+                    Cairo::RefPtr<Cairo::Context> cr2 =
+                        Cairo::Context::create (green_surface);
+                    cr2->set_source (gradient);
+                    cr2->paint ();
+                    gradient = Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
+                    gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
+                    gradient->add_color_stop_rgb (1.0, 0.0, 1.0, 0.0);
+                    cr2->rectangle (0.0, 0.0, w, h / 4.0);
+                    cr2->set_source (gradient);
+                    cr2->fill ();
+                    pattern = Cairo::SurfacePattern::create (green_surface);
                 }
                 break;
             case CHANNEL_BLUE:
                 {
                     LOG_DD ("rendering BLUE scale");
+                    Cairo::RefPtr<Cairo::ImageSurface> blue_surface =
+                        Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
+                                static_cast<int>(w), static_cast<int>(h));
                     Cairo::RefPtr<Cairo::LinearGradient> gradient =
                         Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
                     Color c = m_model->get_color ();
                     gradient->add_color_stop_rgb (0.0, c.get_red (), c.get_green (), 0.0);
                     gradient->add_color_stop_rgb (1.0, c.get_red (), c.get_green (), 1.0);
-                    pattern = gradient;
+                    Cairo::RefPtr<Cairo::Context> cr2 =
+                        Cairo::Context::create (blue_surface);
+                    cr2->set_source (gradient);
+                    cr2->paint ();
+                    gradient = Cairo::LinearGradient::create (0.0, 0.0, w, 0.0);
+                    gradient->add_color_stop_rgb (0.0, 0.0, 0.0, 0.0);
+                    gradient->add_color_stop_rgb (1.0, 0.0, 0.0, 1.0);
+                    cr2->rectangle (0.0, 0.0, w, h / 4.0);
+                    cr2->set_source (gradient);
+                    cr2->fill ();
+                    pattern = Cairo::SurfacePattern::create (blue_surface);
                 }
                 break;
             case CHANNEL_ALPHA:
