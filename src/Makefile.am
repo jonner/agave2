@@ -25,7 +25,9 @@ agave.cc \
 application.h \
 application.cc \
 application-window.h \
-application-window.cc
+application-window.cc \
+about-dialog.h \
+about-dialog.cc
 
 AM_CPPFLAGS = -DAGAVE_LOCALEDIR=\"${AGAVE_LOCALEDIR}\"
 
