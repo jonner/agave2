@@ -18,7 +18,9 @@ colormodel.cc \
 color-relation.h \
 color-relation.cc \
 color-edit-box.h \
-color-edit-box.cc
+color-edit-box.cc \
+color-scheme-box.h \
+color-scheme-box.cc
 
 agave_SOURCES = \
 agave.cc \
@@ -32,7 +34,7 @@ about-dialog.cc
 AM_CPPFLAGS = -DAGAVE_LOCALEDIR=\"${AGAVE_LOCALEDIR}\"
 
 AM_CXXFLAGS=$(AGAVE_CFLAGS)
-agave_LDADD=$(AGAVE_LIBS) libagavecore.la libagavewidgets.la
+agave_LDADD=$(AGAVE_LIBS) libagavewidgets.la libagavecore.la
 
 doc : Doxyfile.in $(libagavewidgets_la_SOURCES) $(libagavecore_la_SOURCES)
 	doxygen Doxyfile

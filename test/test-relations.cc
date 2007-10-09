@@ -21,7 +21,7 @@
 #include <gtkmm.h>
 #include <glibmm-utils/exception.hh>
 #include "color-relation.h"
-#include "color-edit-box.h"
+#include "color-scheme-box.h"
 #include "scheme-manager.h"
 
 using namespace agave;
@@ -31,63 +31,23 @@ class Window : public Gtk::Window
     public:
         Window ()
         {
-            for (int i = 0; i < NUM_COLORS; ++i)
-            {
-                boost::shared_ptr<ColorEditBox> edit_box (new ColorEditBox ());
-                m_edit_boxes.push_back (edit_box);
-                hbox.pack_start (*edit_box);
-            }
-
-            // color #2 is the control color, so highlight it with a thicker
-            // border
-            m_edit_boxes[2]->get_swatch ().set_border_width (2.0);
-
             // assign relationships between the colors.  Color #2 is the
             // 'control' color
             std::vector<boost::shared_ptr<IScheme> > schemes = SchemeManager::instance().get_schemes ();
             THROW_IF_FAIL (!schemes.size () < 5);
-            boost::shared_ptr<IScheme> first_scheme = schemes[4];
-
-            boost::shared_ptr<ColorRelation> relation;
-            relation.reset (new
-                    ColorRelation(m_edit_boxes[2]->get_model (),
-                        m_edit_boxes[0]->get_model (),
-                        first_scheme->get_outer_left ()));
-            m_relations.push_back (relation);
-
-            relation.reset (new
-                    ColorRelation(m_edit_boxes[2]->get_model (),
-                        m_edit_boxes[1]->get_model (),
-                        first_scheme->get_inner_left ()));
-            m_relations.push_back (relation);
-
-            relation.reset (new
-                    ColorRelation(m_edit_boxes[2]->get_model (),
-                        m_edit_boxes[3]->get_model (),
-                        first_scheme->get_inner_right ()));
-            m_relations.push_back (relation);
-
-            relation.reset (new
-                    ColorRelation(m_edit_boxes[2]->get_model (),
-                        m_edit_boxes[4]->get_model (),
-                        first_scheme->get_outer_right ()));
-            m_relations.push_back (relation);
+            m_scheme_box.set_scheme (schemes[4]);
 
             Color c (1.0, 1.0, 0.0);
-            m_edit_boxes[2]->get_model ()->set_color (c);
+            m_scheme_box.set_base_color (c);
+            m_scheme_box.set_border_width (6);
 
-            hbox.set_spacing (6);
-            hbox.set_border_width (6);
-            add (hbox);
+            add (m_scheme_box);
             show_all ();
         }
 
     private:
         static const int NUM_COLORS = 5;
-        Gtk::HBox hbox;
-        std::vector<ColorModel::pointer> m_models;
-        std::vector<boost::shared_ptr<ColorEditBox> > m_edit_boxes;
-        std::vector<boost::shared_ptr<ColorRelation> > m_relations;
+        ColorSchemeBox m_scheme_box;
 };
 
 int main (int argc, char** argv)

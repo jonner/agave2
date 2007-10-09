@@ -30,6 +30,7 @@
 #include "config.h"
 #include "application-window.h"
 #include "about-dialog.h"
+#include "color-scheme-box.h"
 
 namespace agave
 {
@@ -51,10 +52,13 @@ namespace agave
         Glib::RefPtr<Gtk::UIManager> m_ui_manager;
         Glib::RefPtr<Gtk::ActionGroup> m_actions;
         boost::shared_ptr<Gtk::VBox> m_vbox;
+        boost::shared_ptr<ColorSchemeBox> m_scheme_box;
+
         Priv () :
             m_ui_manager (Gtk::UIManager::create ()),
             m_actions (Gtk::ActionGroup::create ()),
-            m_vbox (new Gtk::VBox)
+            m_vbox (new Gtk::VBox),
+            m_scheme_box (new ColorSchemeBox ())
         {
             init_actions ();
             m_ui_manager->add_ui_from_string (menus);
@@ -62,10 +66,13 @@ namespace agave
             set_title (PACKAGE_NAME);
             // dynamic_cast doesn't work here for some reason
             Gtk::Menu* main_menu = static_cast<Gtk::Menu*> (m_ui_manager->get_widget ("/MainMenu"));
-            g_assert (m_vbox);
+            THROW_IF_FAIL (m_vbox);
             add (*m_vbox);
-            g_assert (main_menu);
+            THROW_IF_FAIL (main_menu);
             m_vbox->pack_start (*main_menu, Gtk::PACK_SHRINK);
+            THROW_IF_FAIL (m_scheme_box);
+            m_scheme_box->set_border_width (6);
+            m_vbox->pack_start (*m_scheme_box);
             show_all ();
         }
 
