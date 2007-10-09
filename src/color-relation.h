@@ -21,6 +21,7 @@
 #ifndef __COLOR_RELATION_H
 #define __COLOR_RELATION_H
 
+#include <boost/shared_ptr.hpp>
 #include <sigc++/functors/slot.h>
 #include "color.h"
 #include "colormodel.h"
@@ -41,12 +42,8 @@ namespace agave
             void set_generator (const SlotColorGen& slot);
 
         private:
-            void on_source_color_changed ();
-            void on_dest_color_changed ();
-            ColorModel::pointer m_source;
-            ColorModel::pointer m_dest;
-            SlotColorGen m_generator;
-            hsv_t m_local_offset;
+            struct Priv;
+            boost::shared_ptr<Priv> m_priv;
     };
 }
 

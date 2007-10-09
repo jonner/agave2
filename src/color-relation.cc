@@ -19,58 +19,83 @@
  *
  *******************************************************************************/
 #include "color-relation.h"
+#include <sigc++/trackable.h>
+#include <sigc++/connection.h>
 
 namespace agave
 {
     Color generate_identity (const Color& src) { return src; };
 
+    struct ColorRelation::Priv : public sigc::trackable
+    {
+        ColorModel::pointer m_source;
+        ColorModel::pointer m_dest;
+        SlotColorGen m_generator;
+        hsv_t m_local_offset;
+        sigc::connection m_source_connection, m_dest_connection;
+
+        Priv (
+                ColorModel::pointer src,
+                ColorModel::pointer dest,
+                const SlotColorGen& slot)
+        {
+            m_local_offset.h = 0.0;
+            m_local_offset.s = 0.0;
+            m_local_offset.v = 0.0;
+            m_local_offset.a = 1.0;
+            connect (src, dest, slot);
+        }
+
+        void connect (
+                ColorModel::pointer src,
+                ColorModel::pointer dest,
+                const SlotColorGen& slot)
+        {
+            m_source_connection.disconnect ();
+            m_dest_connection.disconnect ();
+            m_source = src;
+            m_dest = dest;
+            m_generator = slot;
+            if (m_source)
+            {
+                m_source_connection = m_source->signal_color_changed ().connect
+                    (sigc::mem_fun (this,
+                                    &ColorRelation::Priv::on_source_color_changed));
+            }
+            if (m_dest)
+            {
+                m_dest_connection = m_dest->signal_color_changed ().connect
+                    (sigc::mem_fun (this,
+                                    &ColorRelation::Priv::on_dest_color_changed));
+            }
+        }
+
+        void on_source_color_changed ()
+        {
+            if (m_generator)
+            {
+                m_dest->set_color (m_generator (
+                            Color (m_source->get_color ().as_hsv () + m_local_offset)));
+            }
+        }
+
+        void on_dest_color_changed ()
+        {
+            if (m_generator)
+            {
+                Color expected = m_generator (m_source->get_color ());
+                m_local_offset = (m_dest->get_color ().as_hsv ()) - expected.as_hsv ();
+            }
+        }
+    };
+
+
     ColorRelation::ColorRelation(
             ColorModel::pointer src,
             ColorModel::pointer dest,
-            const SlotColorGen& slot)
+            const SlotColorGen& slot) :
+        m_priv (new Priv (src, dest, slot))
     {
-        m_local_offset.h = 0.0;
-        m_local_offset.s = 0.0;
-        m_local_offset.v = 0.0;
-        m_local_offset.a = 1.0;
-        connect (src, dest, slot);
     }
 
-    void ColorRelation::connect (
-            ColorModel::pointer src,
-            ColorModel::pointer dest,
-            const SlotColorGen& slot)
-    {
-        m_source = src;
-        m_dest = dest;
-        m_generator = slot;
-        if (m_source)
-        {
-            m_source->signal_color_changed ().connect (sigc::mem_fun (this,
-                        &ColorRelation::on_source_color_changed));
-        }
-        if (m_dest)
-        {
-            m_dest->signal_color_changed ().connect (sigc::mem_fun (this,
-                        &ColorRelation::on_dest_color_changed));
-        }
-    }
-
-    void ColorRelation::on_source_color_changed ()
-    {
-        if (m_generator)
-        {
-            m_dest->set_color (m_generator (
-                        Color (m_source->get_color ().as_hsv () + m_local_offset)));
-        }
-    }
-
-    void ColorRelation::on_dest_color_changed ()
-    {
-        if (m_generator)
-        {
-            Color expected = m_generator (m_source->get_color ());
-            m_local_offset = (m_dest->get_color ().as_hsv ()) - expected.as_hsv ();
-        }
-    }
 }
