@@ -30,6 +30,7 @@ namespace agave
         boost::shared_ptr<IScheme> m_scheme;
         std::vector<boost::shared_ptr<ColorEditBox> > m_edit_boxes;
         std::vector<boost::shared_ptr<ColorRelation> > m_relations;
+        boost::shared_ptr<ColorEditBox> m_base_color;
         static const int NUM_COLORS = 5;
 
         Priv ()
@@ -42,35 +43,38 @@ namespace agave
 
             // color #2 is the control color, so highlight it with a thicker
             // border
-            m_edit_boxes[2]->get_swatch ().set_border_width (2.0);
+            m_base_color = m_edit_boxes[2];
+            m_base_color->get_swatch ().set_border_width (2.0);
         }
 
         void set_scheme (const boost::shared_ptr<IScheme>& scheme)
         {
+            THROW_IF_FAIL (m_base_color);
+            THROW_IF_FAIL (m_edit_boxes.size () == 5);
             // get rid of the old scheme's relations, if any
             m_relations.clear ();
 
             boost::shared_ptr<ColorRelation> relation;
             relation.reset (new
-                    ColorRelation(m_edit_boxes[2]->get_model (),
+                    ColorRelation(m_base_color->get_model (),
                         m_edit_boxes[0]->get_model (),
                         scheme->get_outer_left ()));
             m_relations.push_back (relation);
 
             relation.reset (new
-                    ColorRelation(m_edit_boxes[2]->get_model (),
+                    ColorRelation(m_base_color->get_model (),
                         m_edit_boxes[1]->get_model (),
                         scheme->get_inner_left ()));
             m_relations.push_back (relation);
 
             relation.reset (new
-                    ColorRelation(m_edit_boxes[2]->get_model (),
+                    ColorRelation(m_base_color->get_model (),
                         m_edit_boxes[3]->get_model (),
                         scheme->get_inner_right ()));
             m_relations.push_back (relation);
 
             relation.reset (new
-                    ColorRelation(m_edit_boxes[2]->get_model (),
+                    ColorRelation(m_base_color->get_model (),
                         m_edit_boxes[4]->get_model (),
                         scheme->get_outer_right ()));
             m_relations.push_back (relation);
@@ -78,7 +82,8 @@ namespace agave
 
         void set_base_color (const Color& c)
         {
-            m_edit_boxes[2]->get_model ()->set_color (c);
+            THROW_IF_FAIL (m_base_color);
+            m_base_color->get_model ()->set_color (c);
         }
     };
 
