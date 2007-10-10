@@ -66,6 +66,7 @@ namespace agave
             init_signals ();
             m_ui_manager->add_ui_from_string (menus);
             m_ui_manager->insert_action_group (m_actions);
+            add_accel_group (m_ui_manager->get_accel_group ());
             set_title (PACKAGE_NAME);
             // dynamic_cast doesn't work here for some reason
             Gtk::Menu* main_menu = static_cast<Gtk::Menu*> (m_ui_manager->get_widget ("/MainMenu"));
