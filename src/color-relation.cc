@@ -68,6 +68,10 @@ namespace agave
                     (sigc::mem_fun (this,
                                     &ColorRelation::Priv::on_dest_color_changed));
             }
+
+            // call once immediately upon connecting so that the current state
+            // of the two colors matches the relationship that we just defined.
+            on_source_color_changed ();
         }
 
         void on_source_color_changed ()
