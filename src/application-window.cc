@@ -78,7 +78,7 @@ namespace agave
             THROW_IF_FAIL (m_scheme_box);
             m_scheme_box->set_border_width (6);
             m_vbox->pack_start (*m_scheme_box);
-            m_vbox->pack_start (*m_scheme_combo);
+            m_vbox->pack_start (*m_scheme_combo, Gtk::PACK_SHRINK);
             show_all ();
         }
 
