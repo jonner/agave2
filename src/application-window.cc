@@ -53,16 +53,14 @@ namespace agave
     {
         Glib::RefPtr<Gtk::UIManager> m_ui_manager;
         Glib::RefPtr<Gtk::ActionGroup> m_actions;
-        boost::shared_ptr<Gtk::VBox> m_vbox;
-        boost::shared_ptr<ColorSchemeBox> m_scheme_box;
-        boost::shared_ptr<SchemeComboBox> m_scheme_combo;
+        Gtk::VBox m_vbox;
+        Gtk::VBox m_vlayout;
+        ColorSchemeBox m_scheme_box;
+        SchemeComboBox m_scheme_combo;
 
         Priv () :
             m_ui_manager (Gtk::UIManager::create ()),
-            m_actions (Gtk::ActionGroup::create ()),
-            m_vbox (new Gtk::VBox),
-            m_scheme_box (new ColorSchemeBox ()),
-            m_scheme_combo (new SchemeComboBox ())
+            m_actions (Gtk::ActionGroup::create ())
         {
             init_actions ();
             init_signals ();
@@ -71,14 +69,17 @@ namespace agave
             set_title (PACKAGE_NAME);
             // dynamic_cast doesn't work here for some reason
             Gtk::Menu* main_menu = static_cast<Gtk::Menu*> (m_ui_manager->get_widget ("/MainMenu"));
-            THROW_IF_FAIL (m_vbox);
-            add (*m_vbox);
             THROW_IF_FAIL (main_menu);
-            m_vbox->pack_start (*main_menu, Gtk::PACK_SHRINK);
-            THROW_IF_FAIL (m_scheme_box);
-            m_scheme_box->set_border_width (6);
-            m_vbox->pack_start (*m_scheme_box);
-            m_vbox->pack_start (*m_scheme_combo, Gtk::PACK_SHRINK);
+
+            m_vbox.pack_start (*main_menu, Gtk::PACK_SHRINK);
+            m_vbox.pack_start (m_vlayout);
+
+            m_vlayout.set_border_width (6);
+            m_vlayout.set_spacing (6);
+            m_vlayout.pack_start (m_scheme_box);
+            m_vlayout.pack_start (m_scheme_combo, Gtk::PACK_SHRINK);
+
+            add (m_vbox);
             show_all ();
         }
 
@@ -98,7 +99,7 @@ namespace agave
 
         void init_signals ()
         {
-            m_scheme_combo->signal_changed ().connect (sigc::mem_fun (this,
+            m_scheme_combo.signal_changed ().connect (sigc::mem_fun (this,
                         &Priv::on_scheme_combo_changed));
         }
 
@@ -131,9 +132,7 @@ namespace agave
         void on_scheme_combo_changed ()
         {
             LOG_FUNCTION_SCOPE_NORMAL_DD ;
-            THROW_IF_FAIL (m_scheme_box);
-            THROW_IF_FAIL (m_scheme_combo);
-            m_scheme_box->set_scheme (m_scheme_combo->get_active_scheme ());
+            m_scheme_box.set_scheme (m_scheme_combo.get_active_scheme ());
         }
     };
 
