@@ -27,10 +27,12 @@
 #include <gtkmm/stock.h>
 #include <glib/gi18n.h>
 #include <glibmm-utils/exception.hh>
+#include <glibmm-utils/log-stream-utils.hh>
 #include "config.h"
 #include "application-window.h"
 #include "about-dialog.h"
 #include "color-scheme-box.h"
+#include "scheme-combo-box.h"
 
 namespace agave
 {
@@ -53,14 +55,17 @@ namespace agave
         Glib::RefPtr<Gtk::ActionGroup> m_actions;
         boost::shared_ptr<Gtk::VBox> m_vbox;
         boost::shared_ptr<ColorSchemeBox> m_scheme_box;
+        boost::shared_ptr<SchemeComboBox> m_scheme_combo;
 
         Priv () :
             m_ui_manager (Gtk::UIManager::create ()),
             m_actions (Gtk::ActionGroup::create ()),
             m_vbox (new Gtk::VBox),
-            m_scheme_box (new ColorSchemeBox ())
+            m_scheme_box (new ColorSchemeBox ()),
+            m_scheme_combo (new SchemeComboBox ())
         {
             init_actions ();
+            init_signals ();
             m_ui_manager->add_ui_from_string (menus);
             m_ui_manager->insert_action_group (m_actions);
             set_title (PACKAGE_NAME);
@@ -73,6 +78,7 @@ namespace agave
             THROW_IF_FAIL (m_scheme_box);
             m_scheme_box->set_border_width (6);
             m_vbox->pack_start (*m_scheme_box);
+            m_vbox->pack_start (*m_scheme_combo);
             show_all ();
         }
 
@@ -88,6 +94,12 @@ namespace agave
             m_actions->add (
                     Gtk::Action::create ("About", Gtk::Stock::ABOUT),
                     sigc::mem_fun (this, &Priv::on_action_help_about));
+        }
+
+        void init_signals ()
+        {
+            m_scheme_combo->signal_changed ().connect (sigc::mem_fun (this,
+                        &Priv::on_scheme_combo_changed));
         }
 
         void set_subtitle (const Glib::ustring& subtitle)
@@ -114,6 +126,14 @@ namespace agave
         {
             static AboutDialog dialog;
             dialog.run ();
+        }
+
+        void on_scheme_combo_changed ()
+        {
+            LOG_FUNCTION_SCOPE_NORMAL_DD ;
+            THROW_IF_FAIL (m_scheme_box);
+            THROW_IF_FAIL (m_scheme_combo);
+            m_scheme_box->set_scheme (m_scheme_combo->get_active_scheme ());
         }
     };
 

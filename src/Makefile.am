@@ -20,7 +20,9 @@ color-relation.cc \
 color-edit-box.h \
 color-edit-box.cc \
 color-scheme-box.h \
-color-scheme-box.cc
+color-scheme-box.cc \
+scheme-combo-box.h \
+scheme-combo-box.cc
 
 agave_SOURCES = \
 agave.cc \
