@@ -63,6 +63,7 @@ namespace agave
         THROW_IF_FAIL (m_priv);
         set_model (m_priv->m_model);
         pack_start (m_priv->m_columns.name);
+        set_active (0);
     }
 
     boost::shared_ptr<IScheme> SchemeComboBox::get_active_scheme ()

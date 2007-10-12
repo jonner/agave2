@@ -80,6 +80,7 @@ namespace agave
             m_vlayout.pack_start (m_scheme_box);
             m_vlayout.pack_start (m_scheme_combo, Gtk::PACK_SHRINK);
 
+            m_scheme_box.set_scheme (m_scheme_combo.get_active_scheme ());
             add (m_vbox);
             show_all ();
         }
