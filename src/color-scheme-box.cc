@@ -25,6 +25,17 @@
 
 namespace agave
 {
+
+    struct BuildColorVector
+    {
+        std::vector<ColorModel::pointer> m_colors;
+
+        void operator () (const boost::shared_ptr<ColorEditBox>& edit_box)
+        {
+            m_colors.push_back (edit_box->get_model ());
+        }
+    };
+
     struct ColorSchemeBox::Priv
     {
         boost::shared_ptr<IScheme> m_scheme;
@@ -110,5 +121,13 @@ namespace agave
     {
         THROW_IF_FAIL (m_priv);
         m_priv->set_base_color (c);
+    }
+
+    std::vector<ColorModel::pointer> ColorSchemeBox::get_colors () const
+    {
+        THROW_IF_FAIL (m_priv);
+        BuildColorVector builder = std::for_each (m_priv->m_edit_boxes.begin (),
+                m_priv->m_edit_boxes.end (), BuildColorVector());
+        return builder.m_colors;
     }
 }

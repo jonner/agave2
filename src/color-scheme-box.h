@@ -33,6 +33,7 @@ namespace agave
             ColorSchemeBox ();
             void set_scheme (const boost::shared_ptr<IScheme> & scheme);
             void set_base_color (const Color& c);
+            std::vector<ColorModel::pointer> get_colors () const;
 
         private:
             struct Priv;
