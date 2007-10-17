@@ -33,6 +33,7 @@
 #include "about-dialog.h"
 #include "color-scheme-box.h"
 #include "scheme-combo-box.h"
+#include "color-wheel.h"
 
 namespace agave
 {
@@ -55,6 +56,7 @@ namespace agave
         Glib::RefPtr<Gtk::ActionGroup> m_actions;
         Gtk::VBox m_vbox;
         Gtk::VBox m_vlayout;
+        ColorWheel m_wheel;
         ColorSchemeBox m_scheme_box;
         SchemeComboBox m_scheme_combo;
 
@@ -77,8 +79,15 @@ namespace agave
 
             m_vlayout.set_border_width (6);
             m_vlayout.set_spacing (6);
+            m_wheel.get_widget ().set_size_request (200, 200);
+            m_vlayout.pack_start (m_wheel.get_widget ());
             m_vlayout.pack_start (m_scheme_box);
             m_vlayout.pack_start (m_scheme_combo, Gtk::PACK_SHRINK);
+
+            // add all of the scheme color models to teh color wheel so that
+            // they get displayed on the wheel properly
+            std::vector<ColorModel::pointer> colors = m_scheme_box.get_colors ();
+            std::for_each (colors.begin (), colors.end (), sigc::mem_fun (m_wheel, &ColorWheel::add_color));
 
             m_scheme_box.set_scheme (m_scheme_combo.get_active_scheme ());
             add (m_vbox);
