@@ -6,23 +6,25 @@ color.h \
 color.cc \
 i-scheme.h \
 scheme-manager.h \
-scheme-manager.cc
+scheme-manager.cc \
+colormodel.h \
+colormodel.cc \
+color-relation.h \
+color-relation.cc
 
 libagavewidgets_la_SOURCES = \
 swatch.h \
 swatch.cc \
 colorscale.h \
 colorscale.cc \
-colormodel.h \
-colormodel.cc \
-color-relation.h \
-color-relation.cc \
 color-edit-box.h \
 color-edit-box.cc \
 color-scheme-box.h \
 color-scheme-box.cc \
 scheme-combo-box.h \
-scheme-combo-box.cc
+scheme-combo-box.cc \
+color-wheel.h \
+color-wheel.cc
 
 agave_SOURCES = \
 agave.cc \

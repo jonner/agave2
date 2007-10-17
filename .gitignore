@@ -36,6 +36,7 @@ test/test-colorscale
 test/test-all
 test/test-ui
 test/test-relations
+test/test-wheel
 src/Doxyfile
 src/doc
 po/agave.pot
