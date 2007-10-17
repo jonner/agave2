@@ -132,6 +132,9 @@ namespace agave
                 m_colors.push_back (model);
                 // need to redraw if we just added it
                 queue_draw ();
+                // also connect to the changed signal so that we can redraw when
+                // a color is changed
+                model->signal_color_changed ().connect (sigc::mem_fun (this, &Priv::queue_draw));
             }
         }
 
@@ -203,7 +206,6 @@ namespace agave
 
             void operator () (const CalcMarkerCoords::coord_map_t::value_type& coords)
             {
-                std::cout << "drawing marker circles" << std::endl;
                 if (m_cr)
                 {
                     m_cr->save ();
