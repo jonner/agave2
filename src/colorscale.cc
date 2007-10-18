@@ -24,7 +24,7 @@
 #include <cairomm/surface.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtkmm/tooltip.h>
-#include <glibmm-utils/log-stream-utils.hh>
+#include <glibmm-utils/log-stream-utils.h>
 #include <boost/format.hpp>
 
 namespace agave

@@ -18,7 +18,7 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>
  *
  *******************************************************************************/
-#include <glibmm-utils/exception.hh>
+#include <glibmm-utils/exception.h>
 #include "color-scheme-box.h"
 #include "color-edit-box.h"
 #include "color-relation.h"

@@ -19,7 +19,7 @@
  *
  *******************************************************************************/
 #include <gdkmm/general.h>  // cairo helpers
-#include <glibmm-utils/exception.hh>
+#include <glibmm-utils/exception.h>
 #include "swatch.h"
 
 namespace agave

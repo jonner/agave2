@@ -19,7 +19,7 @@
  *
  *******************************************************************************/
 #include <gtkmm.h>
-#include <glibmm-utils/exception.hh>
+#include <glibmm-utils/exception.h>
 #include "color-relation.h"
 #include "color-scheme-box.h"
 #include "scheme-manager.h"

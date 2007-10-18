@@ -26,8 +26,8 @@
 #include <gtkmm/menu.h>
 #include <gtkmm/stock.h>
 #include <glib/gi18n.h>
-#include <glibmm-utils/exception.hh>
-#include <glibmm-utils/log-stream-utils.hh>
+#include <glibmm-utils/exception.h>
+#include <glibmm-utils/log-stream-utils.h>
 #include "config.h"
 #include "application-window.h"
 #include "about-dialog.h"

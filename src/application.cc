@@ -21,7 +21,7 @@
 #include <gtkmm/main.h>
 #include <glib/gi18n.h>
 #include <glib/gutils.h>
-#include <glibmm-utils/exception.hh>
+#include <glibmm-utils/exception.h>
 #include "config.h"
 #include "application.h"
 #include "application-window.h"

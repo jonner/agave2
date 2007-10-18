@@ -23,7 +23,7 @@
 #include "color-wheel.h"
 #include "color.h"
 #include <gtkmm/drawingarea.h>
-#include <glibmm-utils/exception.hh>
+#include <glibmm-utils/exception.h>
 
 namespace agave
 {

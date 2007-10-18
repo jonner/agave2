@@ -45,7 +45,7 @@ PKG_CHECK_MODULES(GTKMM, [
                           gtkmm-2.4 >= 2.11.6
                           ])
 PKG_CHECK_MODULES(GLIBMM_UTILS, [
-                          glibmm-utils >= 0.2
+                          glibmm-utils >= 0.3
                           ])
 
 dnl ***************
