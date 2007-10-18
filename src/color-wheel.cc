@@ -18,7 +18,8 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>
  *
  *******************************************************************************/
-#include <algorithm>    // for std::find
+#include <algorithm>    // for std::find, std::for_each
+#include <cmath>    // for floor()
 #include "color-wheel.h"
 #include "color.h"
 #include <gtkmm/drawingarea.h>
@@ -41,15 +42,25 @@ namespace agave
 
         virtual bool on_expose_event (GdkEventExpose* event)
         {
-            LOG_DD ("Color Wheel Expose Event");
+            LOG_FUNCTION_SCOPE_NORMAL_DD;
             Cairo::RefPtr<Cairo::Context> cr = get_window ()->create_cairo_context ();
             cr->rectangle (event->area.x, event->area.y, event->area.width, event->area.height);
             cr->clip ();
             Gdk::Rectangle allocation = get_allocation ();
             double widget_size = static_cast<double> (
                     std::min (allocation.get_width (), allocation.get_height ()));
-            double marker_size = widget_size / 15.0;
-            double diameter = widget_size - 2.0 * BORDER_WIDTH - marker_size;
+            LOG_DD ("Widget size: " << widget_size);
+
+            // The marker size should be an integer value -- we're just storing
+            // it as a double so that it can be used in cairo without casting
+            double marker_size = floor (widget_size / 15.0);
+            LOG_DD ("Marker size: " << marker_size);
+
+            double diameter = widget_size - (2.0 * BORDER_WIDTH) - marker_size;
+            LOG_DD ("Color wheel diameter: " << diameter);
+
+            // check if we already have a cached image surface of the
+            // appropriate size
             if (!(m_image_surface
                         && m_image_surface->get_width () == static_cast<int>(diameter)
                         && m_image_surface->get_height () == static_cast<int>(diameter)))
