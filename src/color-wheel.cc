@@ -186,10 +186,15 @@ namespace agave
                 if (m_cr)
                 {
                     m_cr->save ();
+                    m_cr->push_group ();
                     m_cr->set_line_cap (Cairo::LINE_CAP_ROUND);
                     m_cr->move_to (0.0, 0.0);
+                    m_cr->set_source_rgb (0.0, 0.0, 0.0);
+                    m_cr->set_line_width (2.0);
                     m_cr->line_to (coords.second.first, coords.second.second);
                     m_cr->stroke ();
+                    m_cr->pop_group_to_source ();
+                    m_cr->paint_with_alpha (0.5);
                     m_cr->restore ();
                 }
             }
