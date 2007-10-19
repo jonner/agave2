@@ -21,8 +21,8 @@
 #ifndef __COLOR_EDIT_BOX_H
 #define __COLOR_EDIT_BOX_H
 
+#include <boost/shared_ptr.hpp>
 #include <gtkmm/box.h>
-#include <gtkmm/notebook.h>
 #include "colormodel.h"
 #include "colorscale.h"
 #include "swatch.h"
@@ -45,12 +45,8 @@ namespace agave
             ColorScale& get_value_scale ();
 
         private:
-            ColorModel::pointer m_model;
-            Swatch m_swatch;
-            Gtk::Notebook m_notebook;
-            Gtk::VBox m_hsv_box, m_rgb_box;
-            ColorScale m_scale_r, m_scale_g, m_scale_b;
-            ColorScale m_scale_h, m_scale_s, m_scale_v;
+            struct Priv;
+            boost::shared_ptr<Priv> m_priv;
     };
 }
 
