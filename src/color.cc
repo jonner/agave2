@@ -24,12 +24,16 @@
 #include <iomanip>
 #include <sstream>
 #include <limits>
+#include <glibmm-utils/exception.h>
 
 namespace agave
 {
-    const double Color::m_red_luminance = 0.2126;
-    const double Color::m_green_luminance = 0.7152;
-    const double Color::m_blue_luminance = 0.0722;
+    // constants for determining the luminance of a particular color borrowed
+    // from the GIMP
+    const double RED_LUMINANCE = 0.2126;
+    const double GREEN_LUMINANCE = 0.7152;
+    const double BLUE_LUMINANCE = 0.0722;
+
     static const double MAX_VALUE = 1.0;
     static const double MIN_VALUE = 0.0;
 
@@ -66,6 +70,54 @@ namespace agave
         new_hsv.a = lhs.a;
         return new_hsv;
     }
+
+    struct Color::Priv
+    {
+        void clamp ()
+        {
+            // clamp rgb
+            m_rgb.r = std::min (m_rgb.r, MAX_VALUE);
+            m_rgb.g = std::min (m_rgb.g, MAX_VALUE);
+            m_rgb.b = std::min (m_rgb.b, MAX_VALUE);
+            m_rgb.a = std::min (m_rgb.a, MAX_VALUE);
+
+            m_rgb.r = std::max (m_rgb.r, MIN_VALUE);
+            m_rgb.g = std::max (m_rgb.g, MIN_VALUE);
+            m_rgb.b = std::max (m_rgb.b, MIN_VALUE);
+            m_rgb.a = std::max (m_rgb.a, MIN_VALUE);
+
+            // clamp hsv
+            m_hsv.s = std::min (m_hsv.s, MAX_VALUE);
+            m_hsv.v = std::min (m_hsv.v, MAX_VALUE);
+            m_hsv.a = std::min (m_hsv.a, MAX_VALUE);
+
+            m_hsv.s = std::max (m_hsv.s, MIN_VALUE);
+            m_hsv.v = std::max (m_hsv.v, MIN_VALUE);
+            m_hsv.a = std::max (m_hsv.a, MIN_VALUE);
+
+            // hue is a special case -- it should wrap around, not be clamped
+            while (m_hsv.h < MIN_VALUE)
+            {
+                m_hsv.h += MAX_VALUE - MIN_VALUE;
+            }
+            while (m_hsv.h >= MAX_VALUE)
+            {
+                m_hsv.h -= MAX_VALUE - MIN_VALUE;
+            }
+        }
+
+        /** Internal data representation in RGBA.
+        */
+        rgb_t m_rgb;
+        /** Internal representation in HSV.  We keep a cached copy of this
+         * around since it reduces conversions on demand, and since
+         * converting to rgb and back is lossy (e.g. if VALUE reaches 0,
+         * then HUE and SATURATION get set to 0 automatically)
+         */
+        hsv_t m_hsv;
+
+        mutable sigc::signal<void> m_signal_changed;
+    };
 
     hsv_t Color::rgb_to_hsv (const rgb_t& rgb)
     {
@@ -347,49 +399,61 @@ namespace agave
         return rgb;
     }
 
-    Color::Color ()
+    Color::Color () :
+        m_priv (new Priv ())
     {
         // initialize to opaque red
         set_hsv (0.0, 1.0, 1.0, 1.0);
     }
 
-    Color::Color (rgb_t rgb)
+    Color::Color (rgb_t rgb) :
+        m_priv (new Priv ())
     {
         set (rgb);
     }
 
-    Color::Color (double r, double g, double b, double a)
+    Color::Color (double r, double g, double b, double a) :
+        m_priv (new Priv ())
     {
         set_rgb (r, g, b, a);
     }
 
-    Color::Color (hsv_t hsv)
+    Color::Color (hsv_t hsv) :
+        m_priv (new Priv ())
     {
         set (hsv);
     }
 
-    Color::Color (hsl_t hsl)
+    Color::Color (hsl_t hsl) :
+        m_priv (new Priv ())
     {
+        THROW_IF_FAIL (m_priv);
         set (hsl_to_rgb (hsl));
-        clamp ();
+        m_priv->clamp ();
     }
 
-    Color::Color (cmyk_t cmyk)
+    Color::Color (cmyk_t cmyk) :
+        m_priv (new Priv ())
     {
+        THROW_IF_FAIL (m_priv);
         set (cmyk_to_rgb (cmyk));
-        clamp ();
+        m_priv->clamp ();
     }
 
-    Color::Color (std::string hexstring)
+    Color::Color (std::string hexstring) :
+        m_priv (new Priv ())
     {
         // FIXME
-        clamp ();
+        THROW_IF_FAIL (m_priv);
+        m_priv->clamp ();
     }
 
-    Color::Color (const Color& other)
+    Color::Color (const Color& other) :
+        m_priv (new Priv ())
     {
+        THROW_IF_FAIL (m_priv);
         *this = other;
-        clamp ();
+        m_priv->clamp ();
     }
 
     Color::~Color ()
@@ -398,11 +462,12 @@ namespace agave
 
     Color& Color::operator=(const Color& rhs)
     {
+        THROW_IF_FAIL (m_priv);
         if (this == &rhs) return *this;
-        m_rgb = rhs.m_rgb;
-        m_hsv = rhs.m_hsv;
-        clamp ();
-        m_signal_changed.emit ();
+        m_priv->m_rgb = rhs.m_priv->m_rgb;
+        m_priv->m_hsv = rhs.m_priv->m_hsv;
+        m_priv->clamp ();
+        m_priv->m_signal_changed.emit ();
         return *this;
     }
 
@@ -416,7 +481,7 @@ namespace agave
 
     bool Color::operator==(const Color& rhs) const
     {
-        return (m_rgb == rhs.m_rgb);
+        return (m_priv->m_rgb == rhs.m_priv->m_rgb);
     }
 
     bool Color::operator!=(const Color& rhs) const
@@ -443,48 +508,15 @@ namespace agave
 
     Color Color::operator*(double factor) const
     {
+        THROW_IF_FAIL (m_priv);
         Color result;
-        result.m_rgb.r = m_rgb.r * factor;
-        result.m_rgb.g = m_rgb.g * factor;
-        result.m_rgb.b = m_rgb.b * factor;
-        result.m_rgb.a = m_rgb.a * factor;
-        result.clamp ();
+        result.m_priv->m_rgb.r = m_priv->m_rgb.r * factor;
+        result.m_priv->m_rgb.g = m_priv->m_rgb.g * factor;
+        result.m_priv->m_rgb.b = m_priv->m_rgb.b * factor;
+        result.m_priv->m_rgb.a = m_priv->m_rgb.a * factor;
+        result.m_priv->clamp ();
         return result;
     }
-
-    void Color::clamp ()
-    {
-        // clamp rgb
-        m_rgb.r = std::min (m_rgb.r, MAX_VALUE);
-        m_rgb.g = std::min (m_rgb.g, MAX_VALUE);
-        m_rgb.b = std::min (m_rgb.b, MAX_VALUE);
-        m_rgb.a = std::min (m_rgb.a, MAX_VALUE);
-
-        m_rgb.r = std::max (m_rgb.r, MIN_VALUE);
-        m_rgb.g = std::max (m_rgb.g, MIN_VALUE);
-        m_rgb.b = std::max (m_rgb.b, MIN_VALUE);
-        m_rgb.a = std::max (m_rgb.a, MIN_VALUE);
-
-        // clamp hsv
-        m_hsv.s = std::min (m_hsv.s, MAX_VALUE);
-        m_hsv.v = std::min (m_hsv.v, MAX_VALUE);
-        m_hsv.a = std::min (m_hsv.a, MAX_VALUE);
-
-        m_hsv.s = std::max (m_hsv.s, MIN_VALUE);
-        m_hsv.v = std::max (m_hsv.v, MIN_VALUE);
-        m_hsv.a = std::max (m_hsv.a, MIN_VALUE);
-
-        // hue is a special case -- it should wrap around, not be clamped
-        while (m_hsv.h < MIN_VALUE)
-        {
-            m_hsv.h += MAX_VALUE - MIN_VALUE;
-        }
-        while (m_hsv.h >= MAX_VALUE)
-        {
-            m_hsv.h -= MAX_VALUE - MIN_VALUE;
-        }
-    }
-
 
     std::ostream& operator<< (std::ostream& out, const Color& c)
     {
@@ -523,10 +555,11 @@ namespace agave
 
     void Color::set (rgb_t rgb)
     {
-        m_rgb = rgb;
-        m_hsv = rgb_to_hsv (rgb);
-        clamp ();
-        m_signal_changed.emit ();
+        THROW_IF_FAIL (m_priv);
+        m_priv->m_rgb = rgb;
+        m_priv->m_hsv = rgb_to_hsv (rgb);
+        m_priv->clamp ();
+        m_priv->m_signal_changed.emit ();
     }
 
     void Color::set_rgb (double r, double g, double b, double a)
@@ -537,46 +570,53 @@ namespace agave
 
     void Color::set_red (double r)
     {
-        rgb_t new_rgb = m_rgb;
+        THROW_IF_FAIL (m_priv);
+        rgb_t new_rgb = m_priv->m_rgb;
         new_rgb.r = r;
         set (new_rgb);
     }
 
     void Color::set_green (double g)
     {
-        rgb_t new_rgb = m_rgb;
+        THROW_IF_FAIL (m_priv);
+        rgb_t new_rgb = m_priv->m_rgb;
         new_rgb.g = g;
         set (new_rgb);
     }
 
     void Color::set_blue (double b)
     {
-        rgb_t new_rgb = m_rgb;
+        THROW_IF_FAIL (m_priv);
+        rgb_t new_rgb = m_priv->m_rgb;
         new_rgb.b = b;
         set (new_rgb);
     }
 
     double Color::get_red () const
     {
-        return m_rgb.r;
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_rgb.r;
     }
 
     double Color::get_green () const
     {
-        return m_rgb.g;
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_rgb.g;
     }
 
     double Color::get_blue () const
     {
-        return m_rgb.b;
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_rgb.b;
     }
 
     void Color::set (hsv_t hsv)
     {
-        m_hsv = hsv;
-        clamp ();
-        m_rgb = hsv_to_rgb (m_hsv);
-        m_signal_changed.emit ();
+        THROW_IF_FAIL (m_priv);
+        m_priv->m_hsv = hsv;
+        m_priv->clamp ();
+        m_priv->m_rgb = hsv_to_rgb (m_priv->m_hsv);
+        m_priv->m_signal_changed.emit ();
     }
 
     void Color::set_hsv (double h, double s, double v, double a)
@@ -694,14 +734,16 @@ namespace agave
 
     void Color::set_alpha (double a)
     {
-        rgb_t new_rgb = m_rgb;
+        THROW_IF_FAIL (m_priv);
+        rgb_t new_rgb = m_priv->m_rgb;
         new_rgb.a = a;
         set (new_rgb);
     }
 
     double Color::get_alpha () const
     {
-        return m_rgb.a;
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_rgb.a;
     }
 
     void Color::set (std::string hexstring)
@@ -711,41 +753,53 @@ namespace agave
 
     rgb_t Color::as_rgb () const
     {
-        return m_rgb;
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_rgb;
     }
 
     hsv_t Color::as_hsv () const
     {
-        return m_hsv;
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_hsv;
     }
 
     hsl_t Color::as_hsl () const
     {
-        return rgb_to_hsl (m_rgb);
+        THROW_IF_FAIL (m_priv);
+        return rgb_to_hsl (m_priv->m_rgb);
     }
 
     cmyk_t Color::as_cmyk () const
     {
-        return rgb_to_cmyk (m_rgb);
+        THROW_IF_FAIL (m_priv);
+        return rgb_to_cmyk (m_priv->m_rgb);
     }
 
     std::string Color::as_hexstring () const
     {
+        THROW_IF_FAIL (m_priv);
         std::ostringstream ostream;
         uint16_t x;
-        x = static_cast<uint16_t>((m_rgb.r) * static_cast<double>(255.0));
+        x = static_cast<uint16_t>((m_priv->m_rgb.r) * static_cast<double>(255.0));
         ostream << std::hex << std::setw (2) << std::setfill('0') << x;
-        x = static_cast<uint16_t>((m_rgb.g) * static_cast<double>(255.0));
+        x = static_cast<uint16_t>((m_priv->m_rgb.g) * static_cast<double>(255.0));
         ostream << std::hex << std::setw (2) << std::setfill('0') << x;
-        x = static_cast<uint16_t>((m_rgb.b) * static_cast<double>(255.0));
+        x = static_cast<uint16_t>((m_priv->m_rgb.b) * static_cast<double>(255.0));
         ostream << std::hex << std::setw (2) << std::setfill('0') << x;
         return ostream.str ();
     }
 
     double Color::luminance () const
     {
-        return (m_rgb.r * m_red_luminance +
-                m_rgb.g * m_green_luminance +
-                m_rgb.b * m_blue_luminance);
+        THROW_IF_FAIL (m_priv);
+        return (m_priv->m_rgb.r * RED_LUMINANCE +
+                m_priv->m_rgb.g * GREEN_LUMINANCE +
+                m_priv->m_rgb.b * BLUE_LUMINANCE);
+    }
+
+    sigc::signal<void>& Color::signal_changed () const
+    {
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_signal_changed;
     }
 }

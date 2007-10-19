@@ -25,6 +25,7 @@
 #include <glibmm/ustring.h>
 #include <sigc++/trackable.h>
 #include <sigc++/signal.h>
+#include <boost/shared_ptr.hpp>
 
 namespace agave
 {
@@ -204,7 +205,7 @@ namespace agave
             /**
              * signal emitted whenever the color is changed
              */
-            sigc::signal<void>& signal_changed () const { return m_signal_changed; }
+            sigc::signal<void>& signal_changed () const;
 
             /// \name Conversion helper functions
             /// @{
@@ -266,25 +267,8 @@ namespace agave
             /// @}
 
         private:
-            void clamp ();
-
-            /** Internal data representation in RGBA.
-             */
-            rgb_t m_rgb;
-            /** Internal representation in HSV.  We keep a cached copy of this
-             * around since it reduces conversions on demand, and since
-             * converting to rgb and back is lossy (e.g. if VALUE reaches 0,
-             * then HUE and SATURATION get set to 0 automatically)
-             */
-            hsv_t m_hsv;
-
-            // constants for determining the luminance of a particular color
-            // borrowed from the GIMP
-            static const double m_red_luminance;
-            static const double m_green_luminance;
-            static const double m_blue_luminance;
-
-            mutable sigc::signal<void> m_signal_changed;
+            struct Priv;
+            boost::shared_ptr<Priv> m_priv;
     };
 
 } // namespace agave
