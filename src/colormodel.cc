@@ -19,28 +19,51 @@
  *
  *******************************************************************************/
 #include "colormodel.h"
+#include <glibmm-utils/exception.h>
 
 namespace agave
 {
-    ColorModel::ColorModel (const Color& c)
+
+    struct ColorModel::Priv
     {
+        mutable sigc::signal<void> m_signal_color_changed;
+        Color m_color;
+
+        Priv ()
+        {
+            m_color.signal_changed ().connect (sigc::mem_fun (this,
+                        &Priv::on_color_changed));
+        }
+
+        void on_color_changed ()
+        {
+            m_signal_color_changed.emit ();
+        }
+    };
+
+    ColorModel::ColorModel (const Color& c) :
+        m_priv (new Priv ())
+    {
+        THROW_IF_FAIL (m_priv);
         set_color (c);
-        m_color.signal_changed ().connect (sigc::mem_fun (this, &ColorModel::on_color_changed));
     }
 
     void ColorModel::set_color (const Color& c)
     {
-        m_color = c;
+        THROW_IF_FAIL (m_priv);
+        m_priv->m_color = c;
         signal_color_changed ().emit ();
     }
 
     Color& ColorModel::get_color ()
     {
-        return m_color;
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_color;
     }
 
-    void ColorModel::on_color_changed ()
+    sigc::signal<void>& ColorModel::signal_color_changed () const
     {
-        signal_color_changed ().emit ();
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_signal_color_changed;
     }
 }
