@@ -92,20 +92,20 @@ int main (int argc, char** argv)
     g_scale = new ColorScale (model1, ColorScale::CHANNEL_GREEN);
     b_scale = new ColorScale (model1, ColorScale::CHANNEL_BLUE);
     a_scale_rgb = new ColorScale (model1, ColorScale::CHANNEL_ALPHA);
-    vbox_rgb.pack_start (*r_scale);
-    vbox_rgb.pack_start (*g_scale);
-    vbox_rgb.pack_start (*b_scale);
-    vbox_rgb.pack_start (*a_scale_rgb);
+    vbox_rgb.pack_start (r_scale->get_widget ());
+    vbox_rgb.pack_start (g_scale->get_widget ());
+    vbox_rgb.pack_start (b_scale->get_widget ());
+    vbox_rgb.pack_start (a_scale_rgb->get_widget ());
 
     // set up hsv scales
     h_scale = new ColorScale (model2, ColorScale::CHANNEL_HUE);
     s_scale = new ColorScale (model2, ColorScale::CHANNEL_SATURATION);
     v_scale = new ColorScale (model2, ColorScale::CHANNEL_VALUE);
     a_scale_hsv = new ColorScale (model2, ColorScale::CHANNEL_ALPHA);
-    vbox_hsv.pack_start (*h_scale);
-    vbox_hsv.pack_start (*s_scale);
-    vbox_hsv.pack_start (*v_scale);
-    vbox_hsv.pack_start (*a_scale_hsv);
+    vbox_hsv.pack_start (h_scale->get_widget ());
+    vbox_hsv.pack_start (s_scale->get_widget ());
+    vbox_hsv.pack_start (v_scale->get_widget ());
+    vbox_hsv.pack_start (a_scale_hsv->get_widget ());
 
     Gtk::Button button("Swap Models");
     button.signal_clicked ().connect (sigc::ptr_fun (&on_button_clicked));

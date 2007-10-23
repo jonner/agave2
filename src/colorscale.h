@@ -21,14 +21,13 @@
 #ifndef __COLORSCALE_H
 #define __COLORSCALE_H
 
-#include <gtkmm/drawingarea.h>
-#include <gtkmm/adjustment.h>
 #include <boost/shared_ptr.hpp>
+#include <gtkmm/widget.h>
 #include "colormodel.h"
 
 namespace agave
 {
-    class ColorScale : public Gtk::DrawingArea
+    class ColorScale
     {
         public:
             enum channel_t {
@@ -50,50 +49,11 @@ namespace agave
             bool get_draw_value ();
             void set_draw_label (bool enable=true);
             bool get_draw_label ();
-
-        protected:
-            virtual bool on_expose_event (GdkEventExpose* event);
-            virtual bool on_motion_notify_event (GdkEventMotion* event);
-            virtual bool on_button_press_event (GdkEventButton* event);
-            virtual bool on_button_release_event (GdkEventButton* event);
-            virtual bool on_scroll_event (GdkEventScroll* event);
-            virtual bool on_focus_in_event (GdkEventFocus* event);
-            virtual bool on_focus_out_event (GdkEventFocus* event);
-            virtual bool on_key_press_event (GdkEventKey* event);
-            bool on_query_tooltip (int x, int y, bool keyboard_tooltip,
-                    const Glib::RefPtr<Gtk::Tooltip>& tooltip);
-            void render_scale (Cairo::RefPtr<Cairo::Context>& cr);
-            void render_selectors (Cairo::RefPtr<Cairo::Context>& cr);
-            void render_checks (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);
-            void render_stipple (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);
-            void on_adjustment_value_changed ();
-            void on_color_changed ();
-            void update_adjustment (const Color& c);
-            double inside_x () const;
-            double inside_y () const;
-            double inside_width () const;
-            double inside_height () const;
-            double outside_x () const;
-            double outside_y () const;
-            double outside_width () const;
-            double outside_height () const;
-            bool is_inside_scale (double x, double y) const;
+            Gtk::Widget& get_widget ();
 
         private:
-            double get_value_from_coords (double x, double y);
-            void increment_page ();
-            void decrement_page ();
-            void init ();
-            const channel_t m_channel;
-            boost::shared_ptr<Gtk::Adjustment> m_adj;
-            Color last_color;
-            ColorModel::pointer m_model;
-            bool m_draw_value;
-            bool m_drag_started;
-            Cairo::RefPtr<Cairo::ImageSurface> m_hue_surface;
-            Glib::RefPtr<Pango::Layout> m_text_layout;
-            mutable sigc::connection m_color_signal_connection;
-            mutable sigc::connection m_adjustment_signal_connection;
+            struct Priv;
+            boost::shared_ptr<Priv> m_priv;
     };
 }
 #endif // __COLORSCALE_H

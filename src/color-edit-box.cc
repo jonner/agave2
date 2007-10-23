@@ -44,16 +44,16 @@ namespace agave
         {
             m_hsv_box.set_spacing (3);
             m_hsv_box.set_border_width (3);
-            m_hsv_box.pack_start (m_scale_h, Gtk::PACK_SHRINK);
-            m_hsv_box.pack_start (m_scale_s, Gtk::PACK_SHRINK);
-            m_hsv_box.pack_start (m_scale_v, Gtk::PACK_SHRINK);
+            m_hsv_box.pack_start (m_scale_h.get_widget (), Gtk::PACK_SHRINK);
+            m_hsv_box.pack_start (m_scale_s.get_widget (), Gtk::PACK_SHRINK);
+            m_hsv_box.pack_start (m_scale_v.get_widget (), Gtk::PACK_SHRINK);
             m_notebook.append_page (m_hsv_box, "HSV", "Specify the color in HSV Colorspace");
 
             m_rgb_box.set_spacing (3);
             m_rgb_box.set_border_width (3);
-            m_rgb_box.pack_start (m_scale_r, Gtk::PACK_SHRINK);
-            m_rgb_box.pack_start (m_scale_g, Gtk::PACK_SHRINK);
-            m_rgb_box.pack_start (m_scale_b, Gtk::PACK_SHRINK);
+            m_rgb_box.pack_start (m_scale_r.get_widget (), Gtk::PACK_SHRINK);
+            m_rgb_box.pack_start (m_scale_g.get_widget (), Gtk::PACK_SHRINK);
+            m_rgb_box.pack_start (m_scale_b.get_widget (), Gtk::PACK_SHRINK);
             m_notebook.append_page (m_rgb_box, "RGB", "Specify the color in RGB Colorspace");
 
             m_swatch.set_size_request (100, 100);

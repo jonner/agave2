@@ -52,15 +52,15 @@ class TestWindow : public Gtk::Window
 
             m_box_selection.pack_start (m_swatch);
 
-            m_box_rgb.pack_start (m_rscale);
-            m_box_rgb.pack_start (m_gscale);
-            m_box_rgb.pack_start (m_bscale);
-            m_box_rgb.pack_start (m_ascale_rgb);
+            m_box_rgb.pack_start (m_rscale.get_widget ());
+            m_box_rgb.pack_start (m_gscale.get_widget ());
+            m_box_rgb.pack_start (m_bscale.get_widget ());
+            m_box_rgb.pack_start (m_ascale_rgb.get_widget ());
 
-            m_box_hsv.pack_start (m_hscale);
-            m_box_hsv.pack_start (m_sscale);
-            m_box_hsv.pack_start (m_vscale);
-            m_box_hsv.pack_start (m_ascale_hsv);
+            m_box_hsv.pack_start (m_hscale.get_widget ());
+            m_box_hsv.pack_start (m_sscale.get_widget ());
+            m_box_hsv.pack_start (m_vscale.get_widget ());
+            m_box_hsv.pack_start (m_ascale_hsv.get_widget ());
 
             set_default_size (750, 150);
 
