@@ -1,3 +1,5 @@
+SUBDIRS = icons
+
 # desktop files
 desktopdir = $(datadir)/applications
 desktop_in_files = agave.desktop.in
