@@ -91,6 +91,7 @@ namespace agave
 
             m_scheme_box.set_scheme (m_scheme_combo.get_active_scheme ());
             add (m_vbox);
+            set_default_icon_name ("agave");
             show_all ();
         }
 

@@ -19,6 +19,8 @@
  *
  *******************************************************************************/
 #include <glib/gi18n.h>
+#include <gtkmm/icontheme.h>
+#include <glibmm-utils/log-stream-utils.h>
 #include "config.h"
 #include "about-dialog.h"
 
@@ -31,10 +33,29 @@ namespace agave
         set_comments (_(PACKAGE_DESCRIPTION));
         //dialog.set_logo_icon_name ("agave-icon");
         std::vector<Glib::ustring> authors;
-        authors.push_back ("Jonathon Jongsma");
+        authors.push_back ("Jonathon Jongsma <jjongsma@gnome.org>");
         set_authors (authors);
         set_translator_credits ("translator-credits");
+        std::vector<Glib::ustring> artists;
+        artists.push_back ("Vinicius Depizzol <vdepizzol@gmail.com>");
+        set_artists (artists);
         set_website (PACKAGE_WEBSITE);
+        const Glib::ustring icon_name = "agave";
+        Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
+
+        if (theme->has_icon(icon_name))
+        {
+            try
+            {
+                Glib::RefPtr<Gdk::Pixbuf> logo = theme->load_icon(icon_name, 150,
+                        Gtk::ICON_LOOKUP_USE_BUILTIN);
+                set_logo(logo);
+            }
+            catch (const Glib::Error& e)
+            {
+                LOG_ERROR ("Couldn't load log image: " << e.what());
+            }
+        }
     }
 
     void AboutDialog::on_response(int response_id)
