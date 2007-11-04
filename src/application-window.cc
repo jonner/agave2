@@ -131,7 +131,6 @@ namespace agave
 
         void on_action_quit ()
         {
-            printf ("quitting\n");
             hide ();
         }
 
