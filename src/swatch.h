@@ -44,6 +44,9 @@ namespace agave
         protected:
             void on_color_changed ();
             void render_checks (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);
+            void on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
+                Gtk::SelectionData& selection_data, guint info, guint time);
+            void set_color_icon(const Glib::RefPtr<Gdk::DragContext>& context);
 
         private:
             void init (const ColorModel::pointer& model);

@@ -18,6 +18,7 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>
  *
  *******************************************************************************/
+#include <list>
 #include <gdkmm/general.h>  // cairo helpers
 #include <glibmm-utils/exception.h>
 #include "swatch.h"
@@ -27,6 +28,9 @@ namespace agave
 
     const double DEFAULT_BORDER_WIDTH = 1.0;
     const int MIN_SIZE = 10;
+    static const unsigned int RED_BYTE_POS = 3;
+    static const unsigned int GREEN_BYTE_POS = 2;
+    static const unsigned int BLUE_BYTE_POS = 1;
 
     struct Swatch::Priv
     {
@@ -38,6 +42,7 @@ namespace agave
             m_border_width (DEFAULT_BORDER_WIDTH),
             m_padding (0)
         {}
+
     };
 
     Swatch::Swatch () :
@@ -64,6 +69,17 @@ namespace agave
     {
         request_size ();
         set_model (model);
+
+        // Targets for drag and drop:
+        std::list<Gtk::TargetEntry> drag_targets;
+        drag_targets.push_back(Gtk::TargetEntry("application/x-color"));
+        drag_targets.push_back(Gtk::TargetEntry("UTF8_STRING"));
+        drag_targets.push_back(Gtk::TargetEntry("text/plain"));
+
+        // set the swatch as a drag source
+        drag_source_set(drag_targets);
+        signal_drag_data_get().connect(sigc::mem_fun(*this, &Swatch::on_drag_data_get));
+        signal_drag_begin().connect(sigc::mem_fun(*this, &Swatch::set_color_icon));
     }
 
     void Swatch::request_size ()
@@ -145,6 +161,68 @@ namespace agave
     void Swatch::on_color_changed ()
     {
         queue_draw ();
+    }
+
+    void Swatch::on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
+            Gtk::SelectionData& selection_data,
+            guint info,
+            guint time)
+    {
+        Color c = get_model ()->get_color ();
+        if (selection_data.get_target() == "application/x-color")
+        {
+            /* type: application/x-color
+             * format::16
+             * data[0]: red
+             * data[1]: green
+             * data[2]: blue
+             * data[3]: opacity
+             */
+            guint16 color[4];
+            guint16 max = std::numeric_limits<guint16>::max ();
+            color[0] = static_cast<guint16>(c.get_red() *
+                    static_cast<double>(max));
+            color[1] = static_cast<guint16>(c.get_green()
+                    * static_cast<double>(max));
+            color[2] = static_cast<guint16>(c.get_blue()
+                    * static_cast<double>(max));
+            color[3] = max;
+            selection_data.set(selection_data.get_target (), 16,
+                    reinterpret_cast<const guchar*>(&color), sizeof(color));
+        }
+        else if (selection_data.targets_include_text ())
+        {
+            selection_data.set_text(c.as_hexstring ());
+        }
+    }
+
+
+    void Swatch::set_color_icon(const Glib::RefPtr<Gdk::DragContext>& context)
+    {
+        using std::numeric_limits;
+
+        const int bits_per_sample = 8;
+        const int w = 32;
+        const int h = 32;
+        Glib::RefPtr<Gdk::Pixbuf> pixbuf =
+            Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, false, bits_per_sample,
+                    w, h);
+        Color c = get_model ()->get_color ();
+        guint32 pixel = 0;
+
+        // populate the 'pixel' value from the red, green, and blue color
+        // values
+        *(reinterpret_cast<guchar*>(&pixel) + RED_BYTE_POS) =
+            (guchar) (c.get_red () * static_cast<double>(numeric_limits<guchar>::max()));
+
+        *(reinterpret_cast<guchar*>(&pixel) + GREEN_BYTE_POS) =
+            (guchar) (c.get_green () * static_cast<double>(numeric_limits<guchar>::max()));
+
+        *(reinterpret_cast<guchar*>(&pixel) + BLUE_BYTE_POS) =
+            (guchar) (c.get_blue () * static_cast<double>(numeric_limits<guchar>::max()));
+
+        pixbuf->fill(pixel);
+        drag_source_set_icon(pixbuf);
     }
 
     void Swatch::set_border_width (double width)
