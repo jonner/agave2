@@ -133,14 +133,17 @@ namespace agave
                     event->area.height);
             cr->clip ();
         }
-        Color c = m_priv->m_model->get_color ();
-        cr->set_source_rgba (c.get_red (), c.get_green (), c.get_blue (),
-                c.get_alpha ());
         Gdk::Rectangle alloc = get_allocation ();
-        double x, y, w, h;
+        render_swatch (cr, alloc.get_width(), alloc.get_height ());
+        return false;
+    }
+
+    void Swatch::render_swatch (Cairo::RefPtr<Cairo::Context>& cr, double w, double h)
+    {
+        double x, y;
         x = y = m_priv->m_padding;
-        w = alloc.get_width () - 2 * m_priv->m_padding;
-        h = alloc.get_height () - 2 * m_priv->m_padding;
+        w -= 2 * m_priv->m_padding;
+        h -= 2 * m_priv->m_padding;
         if (m_priv->m_border_width > 0.0)
         {
             x += m_priv->m_border_width / 2.0;
@@ -152,6 +155,9 @@ namespace agave
         cr->rectangle (x, y, w, h);
         if (m_priv->m_border_width > 0.0)
         {
+            Color c = m_priv->m_model->get_color ();
+            cr->set_source_rgba (c.get_red (), c.get_green (), c.get_blue (),
+                    c.get_alpha ());
             cr->fill_preserve ();
             cr->set_line_width (m_priv->m_border_width);
             Gdk::Cairo::set_source_color (cr, get_style ()->get_fg (get_state ()));
@@ -161,7 +167,6 @@ namespace agave
         {
             cr->fill ();
         }
-        return false;
     }
 
     void Swatch::on_color_changed ()

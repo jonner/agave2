@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *  Copyright (c) 2007 Jonathon Jongsma
+ *  Copyright (c) 2008 Jonathon Jongsma
  *
  *  This file is part of Agave
  *
@@ -18,30 +18,21 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>
  *
  *******************************************************************************/
-#ifndef __COLOR_EDIT_BOX_H
-#define __COLOR_EDIT_BOX_H
+#ifndef __I_COLOR_VIEW_H
+#define __I_COLOR_VIEW_H
 
+#include "colormodel.h"
 #include <boost/shared_ptr.hpp>
-#include <gtkmm/box.h>
-#include "swatch.h"
 
 namespace agave
 {
-    class ColorModel;
-
-    class ColorEditBox : public Gtk::VBox
+    class IColorView
     {
         public:
-            ColorEditBox ();
-
-            void set_color (const Color& c);
-            boost::shared_ptr<ColorModel> get_model ();
-            Swatch& get_swatch ();
-
-        private:
-            struct Priv;
-            boost::shared_ptr<Priv> m_priv;
+            virtual ~IColorView() {}
+            virtual void set_model (const boost::shared_ptr<ColorModel>& model) = 0;
+            virtual boost::shared_ptr<ColorModel> get_model () = 0;
     };
 }
 
-#endif // __COLOR_EDIT_BOX_H
+#endif // __I_COLOR_VIEW_H

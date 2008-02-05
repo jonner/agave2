@@ -44,6 +44,7 @@ namespace agave
 
         protected:
             void on_color_changed ();
+            void render_swatch (Cairo::RefPtr<Cairo::Context>& cr, double w, double h);
             void render_checks (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);
             void on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
                 Gtk::SelectionData& selection_data, guint info, guint time);

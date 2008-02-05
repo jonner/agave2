@@ -13,10 +13,15 @@ color-relation.h \
 color-relation.cc
 
 libagavewidgets_la_SOURCES = \
+i-color-view.h \
 swatch.h \
 swatch.cc \
 colorscale.h \
 colorscale.cc \
+rgb-scale-set.h \
+rgb-scale-set.cc \
+hsv-scale-set.h \
+hsv-scale-set.cc \
 color-edit-box.h \
 color-edit-box.cc \
 color-scheme-box.h \
