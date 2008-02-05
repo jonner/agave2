@@ -24,18 +24,21 @@
 #include <boost/shared_ptr.hpp>
 #include <gtkmm/box.h>
 #include "swatch.h"
+#include "i-color-view.h"
 
 namespace agave
 {
     class ColorModel;
 
-    class ColorEditBox : public Gtk::VBox
+    class ColorEditBox :
+        public Gtk::VBox,
+        public IColorView
     {
         public:
-            ColorEditBox ();
+            ColorEditBox (const boost::shared_ptr<ColorModel>& model);
 
-            void set_color (const Color& c);
-            boost::shared_ptr<ColorModel> get_model ();
+            virtual void set_model (const boost::shared_ptr<ColorModel>& model);
+            virtual boost::shared_ptr<ColorModel> get_model ();
             Swatch& get_swatch ();
 
         private:

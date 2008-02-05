@@ -34,21 +34,29 @@ namespace agave
         Gtk::Notebook m_notebook;
         RgbScaleSet m_rgb_scales;
         HsvScaleSet m_hsv_scales;
-        Priv () :
-            m_model (new ColorModel ()),
-            m_swatch (m_model),
-            m_rgb_scales (m_model),
-            m_hsv_scales (m_model)
+        Priv (const boost::shared_ptr<ColorModel>& model) :
+            m_model (model),
+            m_swatch (model),
+            m_rgb_scales (model),
+            m_hsv_scales (model)
         {
             m_notebook.append_page (m_hsv_scales, "HSV", "Specify the color in HSV Colorspace");
             m_notebook.append_page (m_rgb_scales, "RGB", "Specify the color in RGB Colorspace");
 
             m_swatch.set_size_request (100, 100);
         }
+
+        void set_model (const boost::shared_ptr<ColorModel>& model)
+        {
+            m_swatch.set_model (model);
+            m_rgb_scales.set_model (model);
+            m_hsv_scales.set_model (model);
+            m_model = model;
+        }
     };
 
-    ColorEditBox::ColorEditBox () :
-        m_priv (new Priv ())
+    ColorEditBox::ColorEditBox (const boost::shared_ptr<ColorModel>& model) :
+        m_priv (new Priv (model))
     {
         THROW_IF_FAIL (m_priv);
         pack_start (m_priv->m_swatch);
@@ -56,10 +64,10 @@ namespace agave
         set_spacing (6);
     }
 
-    void ColorEditBox::set_color (const Color& c)
+    void ColorEditBox::set_model (const boost::shared_ptr<ColorModel>& model)
     {
-        THROW_IF_FAIL (m_priv && m_priv->m_model);
-        m_priv->m_model->set_color (c);
+        THROW_IF_FAIL (m_priv);
+        m_priv->set_model (model);
     }
 
     boost::shared_ptr<ColorModel> ColorEditBox::get_model ()

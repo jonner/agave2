@@ -48,8 +48,9 @@ namespace agave
         {
             for (int i = 0; i < NUM_COLORS; ++i)
             {
+                boost::shared_ptr<ColorModel> model (new ColorModel());
                 m_edit_boxes.push_back (
-                        boost::shared_ptr<ColorEditBox>(new ColorEditBox ()));
+                        boost::shared_ptr<ColorEditBox>(new ColorEditBox (model)));
             }
 
             // color #2 is the control color, so highlight it with a thicker
