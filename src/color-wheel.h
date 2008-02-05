@@ -33,9 +33,9 @@ namespace agave
             ColorWheel ();
             Gtk::Widget& get_widget ();
 
-            std::vector<ColorModel::pointer> get_colors ();
-            void add_color (const ColorModel::pointer& model);
-            void remove_color (const ColorModel::pointer& model);
+            std::vector<boost::shared_ptr<ColorModel> > get_colors ();
+            void add_color (const boost::shared_ptr<ColorModel>& model);
+            void remove_color (const boost::shared_ptr<ColorModel>& model);
 
 
         private:

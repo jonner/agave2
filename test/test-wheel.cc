@@ -35,13 +35,13 @@ int main (int argc, char** argv)
     Gtk::VBox vbox;
     win.add (vbox);
     agave::ColorWheel wheel;
-    agave::ColorModel::pointer color1 (new agave::ColorModel (agave::Color (0.8, 0.8, 0.4)));
+    boost::shared_ptr<agave::ColorModel> color1 (new agave::ColorModel (agave::Color (0.8, 0.8, 0.4)));
     wheel.add_color (color1);
-    agave::ColorModel::pointer color2 (new agave::ColorModel (agave::Color (0.4, 0.8, 0.4)));
+    boost::shared_ptr<agave::ColorModel> color2 (new agave::ColorModel (agave::Color (0.4, 0.8, 0.4)));
     wheel.add_color (color2);
-    agave::ColorModel::pointer color3 (new agave::ColorModel (agave::Color (1.0, 0.0, 0.0)));
+    boost::shared_ptr<agave::ColorModel> color3 (new agave::ColorModel (agave::Color (1.0, 0.0, 0.0)));
     wheel.add_color (color3);
-    agave::ColorModel::pointer color4 (new agave::ColorModel (agave::Color (1.0, 1.0, 1.0)));
+    boost::shared_ptr<agave::ColorModel> color4 (new agave::ColorModel (agave::Color (1.0, 1.0, 1.0)));
     wheel.add_color (color4);
 
     vbox.pack_start (wheel.get_widget ());

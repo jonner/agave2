@@ -40,7 +40,7 @@ namespace agave
 
     struct ColorScale::Priv : public Gtk::DrawingArea
     {
-        ColorModel::pointer m_model;
+        boost::shared_ptr<ColorModel> m_model;
         const channel_t m_channel;
         boost::shared_ptr<Gtk::Adjustment> m_adj;
         Color last_color;
@@ -51,14 +51,14 @@ namespace agave
         mutable sigc::connection m_color_signal_connection;
         mutable sigc::connection m_adjustment_signal_connection;
 
-        Priv (const ColorModel::pointer& model, channel_t channel) :
+        Priv (const boost::shared_ptr<ColorModel>& model, channel_t channel) :
             m_channel (channel)
         {
             init ();
             set_model (model);
         }
 
-        void set_model (const ColorModel::pointer& model)
+        void set_model (const boost::shared_ptr<ColorModel>& model)
         {
             m_model = model;
             if (m_model)
@@ -752,23 +752,29 @@ namespace agave
     };
 
     ColorScale::ColorScale (channel_t channel) :
-        m_priv (new Priv (ColorModel::pointer (new ColorModel ()), channel))
+        m_priv (new Priv (boost::shared_ptr<ColorModel> (new ColorModel ()), channel))
     {}
 
-    ColorScale::ColorScale (const ColorModel::pointer& model, channel_t channel) :
+    ColorScale::ColorScale (const boost::shared_ptr<ColorModel>& model, channel_t channel) :
         m_priv (new Priv (model, channel))
     {}
 
 
     void
-    ColorScale::set_model (const ColorModel::pointer& model)
+    ColorScale::set_model (const boost::shared_ptr<ColorModel>& model)
     {
         THROW_IF_FAIL (m_priv);
         m_priv->set_model (model);
     }
 
 
-    ColorModel::pointer ColorScale::get_model ()
+    boost::shared_ptr<ColorModel> ColorScale::get_model ()
+    {
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_model;
+    }
+
+    boost::shared_ptr<const ColorModel> ColorScale::get_model () const
     {
         THROW_IF_FAIL (m_priv);
         return m_priv->m_model;

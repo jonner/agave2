@@ -41,9 +41,10 @@ namespace agave
             };
 
             ColorScale (channel_t channel);
-            ColorScale (const ColorModel::pointer& model, channel_t channel);
-            void set_model (const ColorModel::pointer& model);
-            ColorModel::pointer get_model ();
+            ColorScale (const boost::shared_ptr<ColorModel>& model, channel_t channel);
+            void set_model (const boost::shared_ptr<ColorModel>& model);
+            boost::shared_ptr<ColorModel> get_model ();
+            boost::shared_ptr<const ColorModel> get_model () const;
             void set_alpha (double new_alpha);
             void set_draw_value (bool enable=true);
             bool get_draw_value ();

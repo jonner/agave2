@@ -32,7 +32,7 @@ namespace agave
 
     struct ColorWheel::Priv : public Gtk::DrawingArea
     {
-        std::vector<ColorModel::pointer> m_colors;
+        std::vector<boost::shared_ptr<ColorModel> > m_colors;
         Cairo::RefPtr<Cairo::ImageSurface> m_image_surface;
 
         Priv ()
@@ -133,9 +133,9 @@ namespace agave
             return true;
         }
 
-        void add_color (const ColorModel::pointer& model)
+        void add_color (const boost::shared_ptr<ColorModel>& model)
         {
-            std::vector<ColorModel::pointer>::const_iterator i =
+            std::vector<boost::shared_ptr<ColorModel> >::const_iterator i =
                 std::find (m_colors.begin (), m_colors.end (), model);
             if (i == m_colors.end ())
             {
@@ -149,9 +149,9 @@ namespace agave
             }
         }
 
-        void remove_color (const ColorModel::pointer& model)
+        void remove_color (const boost::shared_ptr<ColorModel>& model)
         {
-            std::vector<ColorModel::pointer>::iterator i =
+            std::vector<boost::shared_ptr<ColorModel> >::iterator i =
                 std::find (m_colors.begin (), m_colors.end (), model);
             if (i != m_colors.end ())
             {
@@ -166,14 +166,14 @@ namespace agave
         {
             double m_radius;
             typedef std::pair<double, double> xy_t;
-            typedef std::map <ColorModel::pointer, xy_t> coord_map_t;
+            typedef std::map <boost::shared_ptr<ColorModel>, xy_t> coord_map_t;
             coord_map_t m_coords;
 
             CalcMarkerCoords (double radius) :
                 m_radius (radius)
             {}
 
-            void operator () (const ColorModel::pointer& model)
+            void operator () (const boost::shared_ptr<ColorModel>& model)
             {
                 double dest_x, dest_y;
                 Color c = model->get_color ();
@@ -249,19 +249,19 @@ namespace agave
         return *m_priv;
     }
 
-    std::vector<ColorModel::pointer> ColorWheel::get_colors ()
+    std::vector<boost::shared_ptr<ColorModel> > ColorWheel::get_colors ()
     {
         THROW_IF_FAIL (m_priv);
         return m_priv->m_colors;
     }
 
-    void ColorWheel::add_color (const ColorModel::pointer& model)
+    void ColorWheel::add_color (const boost::shared_ptr<ColorModel>& model)
     {
         THROW_IF_FAIL (m_priv);
         m_priv->add_color (model);
     }
 
-    void ColorWheel::remove_color (const ColorModel::pointer& model)
+    void ColorWheel::remove_color (const boost::shared_ptr<ColorModel>& model)
     {
         THROW_IF_FAIL (m_priv);
         m_priv->remove_color (model);

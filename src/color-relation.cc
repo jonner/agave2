@@ -28,15 +28,15 @@ namespace agave
 
     struct ColorRelation::Priv : public sigc::trackable
     {
-        ColorModel::pointer m_source;
-        ColorModel::pointer m_dest;
+        boost::shared_ptr<ColorModel> m_source;
+        boost::shared_ptr<ColorModel> m_dest;
         SlotColorGen m_generator;
         hsv_t m_local_offset;
         sigc::connection m_source_connection, m_dest_connection;
 
         Priv (
-                ColorModel::pointer src,
-                ColorModel::pointer dest,
+                boost::shared_ptr<ColorModel> src,
+                boost::shared_ptr<ColorModel> dest,
                 const SlotColorGen& slot)
         {
             m_local_offset.h = 0.0;
@@ -47,8 +47,8 @@ namespace agave
         }
 
         void connect (
-                ColorModel::pointer src,
-                ColorModel::pointer dest,
+                boost::shared_ptr<ColorModel> src,
+                boost::shared_ptr<ColorModel> dest,
                 const SlotColorGen& slot)
         {
             m_source_connection.disconnect ();
@@ -94,10 +94,9 @@ namespace agave
     };
 
 
-    ColorRelation::ColorRelation(
-            ColorModel::pointer src,
-            ColorModel::pointer dest,
-            const SlotColorGen& slot) :
+    ColorRelation::ColorRelation(boost::shared_ptr<ColorModel> src,
+                                 boost::shared_ptr<ColorModel> dest,
+                                 const SlotColorGen& slot) :
         m_priv (new Priv (src, dest, slot))
     {
     }

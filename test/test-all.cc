@@ -71,7 +71,7 @@ class TestWindow : public Gtk::Window
     private:
         Gtk::HBox m_hbox;
         Gtk::VBox m_box_selection, m_box_rgb, m_box_hsv, m_box_scheme;
-        ColorModel::pointer m_model;
+        boost::shared_ptr<ColorModel> m_model;
         ColorScale m_rscale;
         ColorScale m_gscale;
         ColorScale m_bscale;

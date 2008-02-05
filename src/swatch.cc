@@ -34,7 +34,7 @@ namespace agave
 
     struct Swatch::Priv
     {
-        ColorModel::pointer m_model;
+        boost::shared_ptr<ColorModel> m_model;
         double m_border_width;
         int m_padding;
 
@@ -48,11 +48,11 @@ namespace agave
     Swatch::Swatch () :
         m_priv (new Priv())
     {
-        ColorModel::pointer model (new ColorModel());
+        boost::shared_ptr<ColorModel> model (new ColorModel());
         init (model);
     }
 
-    Swatch::Swatch (const ColorModel::pointer& model) :
+    Swatch::Swatch (const boost::shared_ptr<ColorModel>& model) :
         m_priv (new Priv())
     {
         init (model);
@@ -61,11 +61,11 @@ namespace agave
     Swatch::Swatch (const Color& c) :
         m_priv (new Priv())
     {
-        ColorModel::pointer model (new ColorModel(c));
+        boost::shared_ptr<ColorModel> model (new ColorModel(c));
         init (model);
     }
 
-    void Swatch::init (const ColorModel::pointer& model)
+    void Swatch::init (const boost::shared_ptr<ColorModel>& model)
     {
         request_size ();
         set_model (model);
@@ -93,7 +93,7 @@ namespace agave
         set_size_request (sz, sz);
     }
 
-    void Swatch::set_model (const ColorModel::pointer& model)
+    void Swatch::set_model (const boost::shared_ptr<ColorModel>& model)
     {
         THROW_IF_FAIL (m_priv);
         m_priv->m_model = model;
@@ -110,7 +110,13 @@ namespace agave
         m_priv->m_model->set_color (c);
     }
 
-    ColorModel::pointer Swatch::get_model ()
+    boost::shared_ptr<ColorModel> Swatch::get_model ()
+    {
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_model;
+    }
+
+    boost::shared_ptr<const ColorModel> Swatch::get_model () const
     {
         THROW_IF_FAIL (m_priv);
         return m_priv->m_model;

@@ -26,7 +26,7 @@ namespace agave
 {
     struct ColorEditBox::Priv : public Gtk::VBox
     {
-        ColorModel::pointer m_model;
+        boost::shared_ptr<ColorModel> m_model;
         Swatch m_swatch;
         Gtk::Notebook m_notebook;
         Gtk::VBox m_hsv_box, m_rgb_box;
@@ -75,7 +75,13 @@ namespace agave
         m_priv->m_model->set_color (c);
     }
 
-    ColorModel::pointer ColorEditBox::get_model ()
+    boost::shared_ptr<ColorModel> ColorEditBox::get_model ()
+    {
+        THROW_IF_FAIL (m_priv);
+        return m_priv->m_model;
+    }
+
+    boost::shared_ptr<const ColorModel> ColorEditBox::get_model () const
     {
         THROW_IF_FAIL (m_priv);
         return m_priv->m_model;

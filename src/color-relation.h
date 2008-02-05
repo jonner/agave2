@@ -37,8 +37,8 @@ namespace agave
     {
         public:
             typedef sigc::slot<Color, const Color&> SlotColorGen;
-            ColorRelation (ColorModel::pointer src, ColorModel::pointer dest, const SlotColorGen& slot = sigc::ptr_fun(&generate_identity));
-            void connect (ColorModel::pointer src, ColorModel::pointer dest, const SlotColorGen& slot = sigc::ptr_fun(&generate_identity));
+            ColorRelation (boost::shared_ptr<ColorModel> src, boost::shared_ptr<ColorModel> dest, const SlotColorGen& slot = sigc::ptr_fun(&generate_identity));
+            void connect (boost::shared_ptr<ColorModel> src, boost::shared_ptr<ColorModel> dest, const SlotColorGen& slot = sigc::ptr_fun(&generate_identity));
             void set_generator (const SlotColorGen& slot);
 
         private:

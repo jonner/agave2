@@ -28,7 +28,7 @@
 
 using namespace agave;
 
-ColorModel::pointer model1, model2;
+boost::shared_ptr<ColorModel> model1, model2;
 ColorScale *h_scale, *s_scale, *v_scale, *a_scale_hsv;
 ColorScale *r_scale, *g_scale, *b_scale, *a_scale_rgb;
 

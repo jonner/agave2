@@ -32,11 +32,12 @@ namespace agave
     {
         public:
             Swatch ();
-            Swatch (const ColorModel::pointer& model);
+            Swatch (const boost::shared_ptr<ColorModel>& model);
             Swatch (const Color& c);
-            void set_model (const ColorModel::pointer& model);
+            void set_model (const boost::shared_ptr<ColorModel>& model);
             void set_color (const Color& c);
-            ColorModel::pointer get_model ();
+            boost::shared_ptr<ColorModel> get_model ();
+            boost::shared_ptr<const ColorModel> get_model () const;
             virtual bool on_expose_event (GdkEventExpose* event);
             void set_border_width (double width);
             void set_padding (int padding);
@@ -49,7 +50,7 @@ namespace agave
             void set_color_icon(const Glib::RefPtr<Gdk::DragContext>& context);
 
         private:
-            void init (const ColorModel::pointer& model);
+            void init (const boost::shared_ptr<ColorModel>& model);
             void request_size ();
             struct Priv;
             boost::shared_ptr<Priv> m_priv;

@@ -35,7 +35,8 @@ namespace agave
             ColorEditBox ();
 
             void set_color (const Color& c);
-            ColorModel::pointer get_model ();
+            boost::shared_ptr<ColorModel> get_model ();
+            boost::shared_ptr<const ColorModel> get_model () const;
             Swatch& get_swatch ();
             ColorScale& get_red_scale ();
             ColorScale& get_green_scale ();

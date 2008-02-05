@@ -86,7 +86,7 @@ namespace agave
 
             // add all of the scheme color models to teh color wheel so that
             // they get displayed on the wheel properly
-            std::vector<ColorModel::pointer> colors = m_scheme_box.get_colors ();
+            std::vector<boost::shared_ptr<ColorModel> > colors = m_scheme_box.get_colors ();
             std::for_each (colors.begin (), colors.end (), sigc::mem_fun (m_wheel, &ColorWheel::add_color));
 
             m_scheme_box.set_scheme (m_scheme_combo.get_active_scheme ());

@@ -31,7 +31,6 @@ namespace agave
     class ColorModel : public sigc::trackable
     {
         public:
-            typedef boost::shared_ptr<ColorModel> pointer;
             ColorModel (const Color& c = Color ());
             void set_color (const Color& c);
             Color& get_color ();
