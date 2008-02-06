@@ -24,8 +24,8 @@ hsv-scale-set.h \
 hsv-scale-set.cc \
 color-edit-box.h \
 color-edit-box.cc \
-color-scheme-box.h \
-color-scheme-box.cc \
+color-group-box.h \
+color-group-box.cc \
 scheme-combo-box.h \
 scheme-combo-box.cc \
 color-wheel.h \

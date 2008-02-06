@@ -31,8 +31,10 @@
 #include "config.h"
 #include "application-window.h"
 #include "about-dialog.h"
-#include "color-scheme-box.h"
+#include "color-group-box.h"
 #include "scheme-combo-box.h"
+#include "color-relation.h"
+#include "i-scheme.h"
 #include "color-wheel.h"
 
 namespace agave
@@ -62,7 +64,7 @@ namespace agave
         Gtk::VBox m_vbox;
         Gtk::VBox m_vlayout;
         ColorWheel m_wheel;
-        ColorSchemeBox m_scheme_box;
+        ColorGroupBox m_color_group;
         SchemeComboBox m_scheme_combo;
 
         Priv () :
@@ -81,7 +83,7 @@ namespace agave
                     m_base_color = model;
                 }
                 m_wheel.add_color(model, is_base);
-                m_scheme_box.add_color(model, is_base);
+                m_color_group.add_color(model, is_base);
             }
 
             init_actions ();
@@ -101,7 +103,7 @@ namespace agave
             m_vlayout.set_spacing (6);
             m_wheel.get_widget ().set_size_request (200, 200);
             m_vlayout.pack_start (m_wheel.get_widget ());
-            m_vlayout.pack_start (m_scheme_box);
+            m_vlayout.pack_start (m_color_group);
             m_vlayout.pack_start (m_scheme_combo, Gtk::PACK_SHRINK);
 
             // trigger the scheme change manually at startup so we start with

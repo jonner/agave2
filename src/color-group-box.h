@@ -18,19 +18,21 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>
  *
  *******************************************************************************/
-#ifndef __COLOR_SCHEME_BOX_H
-#define __COLOR_SCHEME_BOX_H
+#ifndef __COLOR_GROUP_BOX_H
+#define __COLOR_GROUP_BOX_H
 
 #include <boost/shared_ptr.hpp>
 #include <gtkmm/box.h>
-#include "i-scheme.h"
+#include "i-multi-color-view.h"
 
 namespace agave
 {
-    class ColorSchemeBox : public Gtk::HBox
+    class ColorGroupBox :
+        public Gtk::HBox,
+        public IMultiColorView
     {
         public:
-            ColorSchemeBox ();
+            ColorGroupBox ();
             virtual void add_color (const boost::shared_ptr<ColorModel>& model, bool highlight);
             virtual unsigned int get_num_colors () const;
 
@@ -41,4 +43,4 @@ namespace agave
     };
 }
 
-#endif // __COLOR_SCHEME_BOX_H
+#endif // __COLOR_GROUP_BOX_H

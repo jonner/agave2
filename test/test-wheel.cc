@@ -36,10 +36,10 @@ int main (int argc, char** argv)
     Gtk::VBox vbox;
     win.add (vbox);
     agave::ColorWheel wheel;
-    wheel.add_color (agave::ColorModel::create (agave::Color (0.8, 0.8, 0.4)));
-    wheel.add_color (agave::ColorModel::create (agave::Color (0.4, 0.8, 0.4)));
-    wheel.add_color (agave::ColorModel::create (agave::Color (1.0, 0.0, 0.0)));
-    wheel.add_color (agave::ColorModel::create (agave::Color (1.0, 1.0, 1.0)));
+    wheel.add_color (agave::ColorModel::create (agave::Color (0.8, 0.8, 0.4)), false);
+    wheel.add_color (agave::ColorModel::create (agave::Color (0.4, 0.8, 0.4)), false);
+    wheel.add_color (agave::ColorModel::create (agave::Color (1.0, 0.0, 0.0)), false);
+    wheel.add_color (agave::ColorModel::create (agave::Color (1.0, 1.0, 1.0)), false);
 
     vbox.pack_start (wheel.get_widget ());
 

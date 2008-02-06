@@ -19,7 +19,7 @@
  *
  *******************************************************************************/
 #include <glibmm-utils/exception.h>
-#include "color-scheme-box.h"
+#include "color-group-box.h"
 #include "color-edit-box.h"
 #include "color-relation.h"
 
@@ -36,7 +36,7 @@ namespace agave
         }
     };
 
-    struct ColorSchemeBox::Priv
+    struct ColorGroupBox::Priv
     {
         std::vector<boost::shared_ptr<ColorEditBox> > m_edit_boxes;
 
@@ -45,7 +45,7 @@ namespace agave
         }
     };
 
-    ColorSchemeBox::ColorSchemeBox() :
+    ColorGroupBox::ColorGroupBox() :
         m_priv (new Priv ())
     {
         THROW_IF_FAIL (m_priv);
@@ -58,7 +58,7 @@ namespace agave
         set_spacing (6);
     }
 
-    void ColorSchemeBox::add_color (const boost::shared_ptr<ColorModel>& model, bool highlight)
+    void ColorGroupBox::add_color (const boost::shared_ptr<ColorModel>& model, bool highlight)
     {
         THROW_IF_FAIL (m_priv);
         boost::shared_ptr<ColorEditBox> edit_box (new ColorEditBox (model));
@@ -73,7 +73,7 @@ namespace agave
         pack_start (*edit_box);
     }
 
-    unsigned int ColorSchemeBox::get_num_colors () const
+    unsigned int ColorGroupBox::get_num_colors () const
     {
         THROW_IF_FAIL (m_priv);
         return m_priv->m_edit_boxes.size ();

@@ -21,7 +21,7 @@
 #include <gtkmm.h>
 #include <glibmm-utils/exception.h>
 #include "color-relation.h"
-#include "color-scheme-box.h"
+#include "color-group-box.h"
 #include "scheme-manager.h"
 
 using namespace agave;
@@ -35,19 +35,21 @@ class Window : public Gtk::Window
             // 'control' color
             std::vector<boost::shared_ptr<IScheme> > schemes = SchemeManager::instance().get_schemes ();
             THROW_IF_FAIL (!schemes.size () < 5);
-            m_scheme_box.set_scheme (schemes[4]);
+            //FIXME: make this work again
+            //m_group_box.set_scheme (schemes[4]);
 
             Color c (1.0, 1.0, 0.0);
-            m_scheme_box.set_base_color (c);
-            m_scheme_box.set_border_width (6);
+            //FIXME: make this work again
+            //m_group_box.set_base_color (c);
+            m_group_box.set_border_width (6);
 
-            add (m_scheme_box);
+            add (m_group_box);
             show_all ();
         }
 
     private:
         static const int NUM_COLORS = 5;
-        ColorSchemeBox m_scheme_box;
+        ColorGroupBox m_group_box;
 };
 
 int main (int argc, char** argv)
