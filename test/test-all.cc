@@ -50,7 +50,7 @@ class TestWindow : public Gtk::Window
             m_hbox.pack_start (m_box_hsv);
             //m_hbox.pack_start (m_box_scheme);
 
-            m_box_selection.pack_start (m_swatch);
+            m_box_selection.pack_start (m_swatch.get_widget ());
 
             m_box_rgb.pack_start (m_rscale.get_widget ());
             m_box_rgb.pack_start (m_gscale.get_widget ());

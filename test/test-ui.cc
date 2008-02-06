@@ -34,7 +34,7 @@ int main (int argc, char** argv)
     const int NUM_BOXES = 5;
     Gtk::Main kit (argc, argv);
     Gtk::Window win;
-    ColorEditBox boxes[NUM_BOXES];
+    ColorEditBox* boxes[NUM_BOXES];
     Gtk::HBox hbox;
     hbox.set_spacing (6);
     hbox.set_border_width (6);
@@ -43,10 +43,17 @@ int main (int argc, char** argv)
     {
         hsv_t hsv = { static_cast<double>(i) / static_cast<double>(NUM_BOXES), 1.0, 1.0, 1.0 };
         Color c (hsv);
-        boxes[i].set_color (c);
-        hbox.pack_start (boxes[i]);
+        boost::shared_ptr<ColorModel> model = ColorModel::create (c);
+        boxes[i] = new ColorEditBox (model);
+        hbox.pack_start (*boxes[i]);
     }
     win.show_all ();
     Gtk::Main::run (win);
+
+    // free the edit boxes
+    for (int i = 0; i < NUM_BOXES; ++i)
+    {
+        delete boxes[i];
+    }
     return 0;
 }

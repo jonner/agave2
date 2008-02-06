@@ -43,7 +43,7 @@ namespace agave
             m_notebook.append_page (m_hsv_scales, "HSV", "Specify the color in HSV Colorspace");
             m_notebook.append_page (m_rgb_scales, "RGB", "Specify the color in RGB Colorspace");
 
-            m_swatch.set_size_request (100, 100);
+            m_swatch.get_widget ().set_size_request (100, 100);
         }
 
         void set_model (const boost::shared_ptr<ColorModel>& model)
@@ -59,7 +59,7 @@ namespace agave
         m_priv (new Priv (model))
     {
         THROW_IF_FAIL (m_priv);
-        pack_start (m_priv->m_swatch);
+        pack_start (m_priv->m_swatch.get_widget ());
         pack_start (m_priv->m_notebook, Gtk::PACK_SHRINK);
         set_spacing (6);
     }
@@ -74,12 +74,6 @@ namespace agave
     {
         THROW_IF_FAIL (m_priv);
         return m_priv->m_model;
-    }
-
-    Swatch& ColorEditBox::get_swatch ()
-    {
-        THROW_IF_FAIL (m_priv);
-        return m_priv->m_swatch;
     }
 
 }

@@ -22,37 +22,30 @@
 #define __SWATCH_H
 
 #include <boost/shared_ptr.hpp>
-#include <gtkmm/drawingarea.h>
-#include <sigc++/signal.h>
-#include "colormodel.h"
+#include "i-color-view.h"
+
+namespace Gtk
+{
+    class Widget;
+}
 
 namespace agave
 {
-    class Swatch : public Gtk::DrawingArea
+    class ColorModel;
+
+    class Swatch :
+        public IColorView
     {
         public:
-            Swatch ();
+            virtual ~Swatch() {}
             Swatch (const boost::shared_ptr<ColorModel>& model);
-            Swatch (const Color& c);
-            void set_model (const boost::shared_ptr<ColorModel>& model);
-            void set_color (const Color& c);
-            boost::shared_ptr<ColorModel> get_model ();
-            boost::shared_ptr<const ColorModel> get_model () const;
-            virtual bool on_expose_event (GdkEventExpose* event);
+            virtual void set_model (const boost::shared_ptr<ColorModel>& model);
+            virtual boost::shared_ptr<ColorModel> get_model ();
             void set_border_width (double width);
             void set_padding (int padding);
-
-        protected:
-            void on_color_changed ();
-            void render_swatch (Cairo::RefPtr<Cairo::Context>& cr, double w, double h);
-            void render_checks (Cairo::RefPtr<Cairo::Context>& cr, double x, double y, double w, double h);
-            void on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
-                Gtk::SelectionData& selection_data, guint info, guint time);
-            void set_color_icon(const Glib::RefPtr<Gdk::DragContext>& context);
+            Gtk::Widget& get_widget () const;
 
         private:
-            void init (const boost::shared_ptr<ColorModel>& model);
-            void request_size ();
             struct Priv;
             boost::shared_ptr<Priv> m_priv;
     };

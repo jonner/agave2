@@ -28,21 +28,25 @@
 #include <gtkmm/window.h>
 #include <gtkmm/box.h>
 
+using agave::ColorModel;
+using agave::Color;
+using agave::Swatch;
+
 int main (int argc, char** argv)
 {
     Gtk::Main kit (argc, argv);
     Gtk::Window win;
     Gtk::VBox vbox;
     win.add (vbox);
-    agave::Swatch s1 (agave::Color (1.0, 0.0, 0.0, 1.0));
-    agave::Swatch s2 (agave::Color (0.0, 1.0, 0.0, 1.0));
-    agave::Swatch s3 (agave::Color (0.0, 0.0, 1.0, 1.0));
-    agave::Swatch s4 (agave::Color (0.0, 0.0, 1.0, 0.5));
+    Swatch s1 (ColorModel::create (Color (1.0, 0.0, 0.0, 1.0)));
+    Swatch s2 (ColorModel::create (Color (0.0, 1.0, 0.0, 1.0)));
+    Swatch s3 (ColorModel::create (Color (0.0, 0.0, 1.0, 1.0)));
+    Swatch s4 (ColorModel::create (Color (0.0, 0.0, 1.0, 0.5)));
 
-    vbox.pack_start (s1);
-    vbox.pack_start (s2);
-    vbox.pack_start (s3);
-    vbox.pack_start (s4);
+    vbox.pack_start (s1.get_widget ());
+    vbox.pack_start (s2.get_widget ());
+    vbox.pack_start (s3.get_widget ());
+    vbox.pack_start (s4.get_widget ());
 
     win.show_all ();
 

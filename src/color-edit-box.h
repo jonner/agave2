@@ -39,7 +39,6 @@ namespace agave
 
             virtual void set_model (const boost::shared_ptr<ColorModel>& model);
             virtual boost::shared_ptr<ColorModel> get_model ();
-            Swatch& get_swatch ();
 
         private:
             struct Priv;
