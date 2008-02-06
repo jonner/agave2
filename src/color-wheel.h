@@ -21,22 +21,28 @@
 #ifndef __COLOR_WHEEL_H
 #define __COLOR_WHEEL_H
 
-#include <gtkmm/widget.h>
+#include <vector>
 #include <boost/shared_ptr.hpp>
-#include "colormodel.h"
+
+namespace Gtk
+{
+    class Widget;
+}
 
 namespace agave
 {
+    class ColorModel;
+
     class ColorWheel
     {
         public:
             ColorWheel ();
-            Gtk::Widget& get_widget ();
 
             std::vector<boost::shared_ptr<ColorModel> > get_colors ();
             void add_color (const boost::shared_ptr<ColorModel>& model);
             void remove_color (const boost::shared_ptr<ColorModel>& model);
 
+            Gtk::Widget& get_widget ();
 
         private:
             struct Priv;
