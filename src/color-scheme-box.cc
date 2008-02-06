@@ -38,63 +38,10 @@ namespace agave
 
     struct ColorSchemeBox::Priv
     {
-        boost::shared_ptr<IScheme> m_scheme;
         std::vector<boost::shared_ptr<ColorEditBox> > m_edit_boxes;
-        std::vector<boost::shared_ptr<ColorRelation> > m_relations;
-        boost::shared_ptr<ColorEditBox> m_base_color;
-        static const int NUM_COLORS = 5;
 
         Priv ()
         {
-            for (int i = 0; i < NUM_COLORS; ++i)
-            {
-                m_edit_boxes.push_back (
-                        boost::shared_ptr<ColorEditBox>(new ColorEditBox (ColorModel::create ())));
-            }
-
-            // color #2 is the control color, so highlight it with a thicker
-            // border
-            m_base_color = m_edit_boxes[2];
-            m_base_color->set_border_width (3.0);
-        }
-
-        void set_scheme (const boost::shared_ptr<IScheme>& scheme)
-        {
-            THROW_IF_FAIL (m_base_color);
-            THROW_IF_FAIL (m_edit_boxes.size () == 5);
-            // get rid of the old scheme's relations, if any
-            m_relations.clear ();
-
-            boost::shared_ptr<ColorRelation> relation;
-            relation.reset (new
-                    ColorRelation(m_base_color->get_model (),
-                        m_edit_boxes[0]->get_model (),
-                        scheme->get_outer_left ()));
-            m_relations.push_back (relation);
-
-            relation.reset (new
-                    ColorRelation(m_base_color->get_model (),
-                        m_edit_boxes[1]->get_model (),
-                        scheme->get_inner_left ()));
-            m_relations.push_back (relation);
-
-            relation.reset (new
-                    ColorRelation(m_base_color->get_model (),
-                        m_edit_boxes[3]->get_model (),
-                        scheme->get_inner_right ()));
-            m_relations.push_back (relation);
-
-            relation.reset (new
-                    ColorRelation(m_base_color->get_model (),
-                        m_edit_boxes[4]->get_model (),
-                        scheme->get_outer_right ()));
-            m_relations.push_back (relation);
-        }
-
-        void set_base_color (const Color& c)
-        {
-            THROW_IF_FAIL (m_base_color);
-            m_base_color->get_model ()->set_color (c);
         }
     };
 
@@ -111,23 +58,24 @@ namespace agave
         set_spacing (6);
     }
 
-    void ColorSchemeBox::set_scheme (const boost::shared_ptr<IScheme> & scheme)
+    void ColorSchemeBox::add_color (const boost::shared_ptr<ColorModel>& model, bool highlight)
     {
         THROW_IF_FAIL (m_priv);
-        m_priv->set_scheme (scheme);
+        boost::shared_ptr<ColorEditBox> edit_box (new ColorEditBox (model));
+        THROW_IF_FAIL (edit_box);
+        if (highlight)
+        {
+            // highlight this box with a thicker border width around the swatch
+            edit_box->set_border_width (3.0);
+        }
+        m_priv->m_edit_boxes.push_back (edit_box);
+        edit_box->show ();
+        pack_start (*edit_box);
     }
 
-    void ColorSchemeBox::set_base_color (const Color& c)
+    unsigned int ColorSchemeBox::get_num_colors () const
     {
         THROW_IF_FAIL (m_priv);
-        m_priv->set_base_color (c);
-    }
-
-    std::vector<boost::shared_ptr<ColorModel> > ColorSchemeBox::get_colors () const
-    {
-        THROW_IF_FAIL (m_priv);
-        BuildColorVector builder = std::for_each (m_priv->m_edit_boxes.begin (),
-                m_priv->m_edit_boxes.end (), BuildColorVector());
-        return builder.m_colors;
+        return m_priv->m_edit_boxes.size ();
     }
 }

@@ -249,22 +249,15 @@ namespace agave
         return *m_priv;
     }
 
-    std::vector<boost::shared_ptr<ColorModel> > ColorWheel::get_colors ()
-    {
-        THROW_IF_FAIL (m_priv);
-        return m_priv->m_colors;
-    }
-
-    void ColorWheel::add_color (const boost::shared_ptr<ColorModel>& model)
+    void ColorWheel::add_color (const boost::shared_ptr<ColorModel>& model, bool highlight)
     {
         THROW_IF_FAIL (m_priv);
         m_priv->add_color (model);
     }
 
-    void ColorWheel::remove_color (const boost::shared_ptr<ColorModel>& model)
+    unsigned int ColorWheel::get_num_colors () const
     {
         THROW_IF_FAIL (m_priv);
-        m_priv->remove_color (model);
+        return m_priv->m_colors.size ();
     }
-
 }

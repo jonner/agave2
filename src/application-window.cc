@@ -54,6 +54,11 @@ namespace agave
     {
         Glib::RefPtr<Gtk::UIManager> m_ui_manager;
         Glib::RefPtr<Gtk::ActionGroup> m_actions;
+        std::vector<boost::shared_ptr<ColorModel> > m_colors;
+        static const int DEFAULT_NUM_COLORS = 5;
+        boost::shared_ptr<ColorModel> m_base_color;
+        std::vector<boost::shared_ptr<ColorRelation> > m_relations;
+        boost::shared_ptr<IScheme> m_scheme;
         Gtk::VBox m_vbox;
         Gtk::VBox m_vlayout;
         ColorWheel m_wheel;
@@ -64,6 +69,21 @@ namespace agave
             m_ui_manager (Gtk::UIManager::create ()),
             m_actions (Gtk::ActionGroup::create ())
         {
+            // create the color models
+            for (int i = 0; i < DEFAULT_NUM_COLORS; ++i)
+            {
+                boost::shared_ptr<ColorModel> model = ColorModel::create ();
+                m_colors.push_back (model);
+                // the middle one is the base color
+                bool is_base = (i == 2);
+                if (is_base)
+                {
+                    m_base_color = model;
+                }
+                m_wheel.add_color(model, is_base);
+                m_scheme_box.add_color(model, is_base);
+            }
+
             init_actions ();
             init_signals ();
             m_ui_manager->add_ui_from_string (menus);
@@ -84,12 +104,10 @@ namespace agave
             m_vlayout.pack_start (m_scheme_box);
             m_vlayout.pack_start (m_scheme_combo, Gtk::PACK_SHRINK);
 
-            // add all of the scheme color models to teh color wheel so that
-            // they get displayed on the wheel properly
-            std::vector<boost::shared_ptr<ColorModel> > colors = m_scheme_box.get_colors ();
-            std::for_each (colors.begin (), colors.end (), sigc::mem_fun (m_wheel, &ColorWheel::add_color));
+            // trigger the scheme change manually at startup so we start with
+            // some scheme relationship
+            on_scheme_combo_changed();
 
-            m_scheme_box.set_scheme (m_scheme_combo.get_active_scheme ());
             add (m_vbox);
             set_default_icon_name ("agave");
             show_all ();
@@ -143,7 +161,36 @@ namespace agave
         void on_scheme_combo_changed ()
         {
             LOG_FUNCTION_SCOPE_NORMAL_DD ;
-            m_scheme_box.set_scheme (m_scheme_combo.get_active_scheme ());
+            set_scheme (m_scheme_combo.get_active_scheme ());
+        }
+
+        void set_scheme (const boost::shared_ptr<IScheme>& scheme)
+        {
+            m_scheme = scheme;
+            THROW_IF_FAIL (m_base_color);
+            // get rid of the old scheme's relations, if any
+            m_relations.clear ();
+
+            boost::shared_ptr<ColorRelation> relation;
+            relation.reset (new
+                    ColorRelation(m_base_color, m_colors[0],
+                        scheme->get_outer_left ()));
+            m_relations.push_back (relation);
+
+            relation.reset (new
+                    ColorRelation(m_base_color, m_colors[1],
+                        scheme->get_inner_left ()));
+            m_relations.push_back (relation);
+
+            relation.reset (new
+                    ColorRelation(m_base_color, m_colors[3],
+                        scheme->get_inner_right ()));
+            m_relations.push_back (relation);
+
+            relation.reset (new
+                    ColorRelation(m_base_color, m_colors[4],
+                        scheme->get_outer_right ()));
+            m_relations.push_back (relation);
         }
     };
 

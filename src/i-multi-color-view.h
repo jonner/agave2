@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *  Copyright (c) 2007 Jonathon Jongsma
+ *  Copyright (c) 2008 Jonathon Jongsma
  *
  *  This file is part of Agave
  *
@@ -18,27 +18,23 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>
  *
  *******************************************************************************/
-#ifndef __COLOR_SCHEME_BOX_H
-#define __COLOR_SCHEME_BOX_H
+#ifndef __I_SCHEME_VIEW_H
+#define __I_SCHEME_VIEW_H
 
+#include <vector>
 #include <boost/shared_ptr.hpp>
-#include <gtkmm/box.h>
-#include "i-scheme.h"
 
 namespace agave
 {
-    class ColorSchemeBox : public Gtk::HBox
+    class ColorModel;
+
+    class IMultiColorView
     {
         public:
-            ColorSchemeBox ();
-            virtual void add_color (const boost::shared_ptr<ColorModel>& model, bool highlight);
-            virtual unsigned int get_num_colors () const;
-
-
-        private:
-            struct Priv;
-            boost::shared_ptr<Priv> m_priv;
+            virtual ~IMultiColorView() {}
+            virtual void add_color (const boost::shared_ptr<ColorModel>& model, bool highlight) = 0;
+            virtual unsigned int get_num_colors () const = 0;
     };
-}
+} // namespace agave
 
-#endif // __COLOR_SCHEME_BOX_H
+#endif // __I_SCHEME_VIEW_H

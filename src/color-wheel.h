@@ -23,6 +23,7 @@
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include "i-multi-color-view.h"
 
 namespace Gtk
 {
@@ -33,14 +34,14 @@ namespace agave
 {
     class ColorModel;
 
-    class ColorWheel
+    class ColorWheel :
+        public IMultiColorView
     {
         public:
             ColorWheel ();
 
-            std::vector<boost::shared_ptr<ColorModel> > get_colors ();
-            void add_color (const boost::shared_ptr<ColorModel>& model);
-            void remove_color (const boost::shared_ptr<ColorModel>& model);
+            virtual void add_color (const boost::shared_ptr<ColorModel>& model, bool highlight);
+            virtual unsigned int get_num_colors () const;
 
             Gtk::Widget& get_widget ();
 
