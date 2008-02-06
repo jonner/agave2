@@ -76,4 +76,9 @@ namespace agave
         return m_priv->m_model;
     }
 
+    void ColorEditBox::set_border_width (double width)
+    {
+        THROW_IF_FAIL (m_priv);
+        m_priv->m_swatch.set_border_width (width);
+    }
 }

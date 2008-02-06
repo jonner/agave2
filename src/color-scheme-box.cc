@@ -55,9 +55,8 @@ namespace agave
 
             // color #2 is the control color, so highlight it with a thicker
             // border
-            //m_base_color = m_edit_boxes[2];
-            // FIXME: add back when we add an appropriate API
-            //m_base_color->get_swatch ().set_border_width (2.0);
+            m_base_color = m_edit_boxes[2];
+            m_base_color->set_border_width (3.0);
         }
 
         void set_scheme (const boost::shared_ptr<IScheme>& scheme)
