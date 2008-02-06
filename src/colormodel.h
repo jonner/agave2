@@ -37,6 +37,8 @@ namespace agave
 
             sigc::signal<void>& signal_color_changed () const;
 
+            static boost::shared_ptr<ColorModel> create (const Color& c);
+
         private:
             struct Priv;
             boost::shared_ptr<Priv> m_priv;

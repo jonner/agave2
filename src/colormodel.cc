@@ -66,4 +66,9 @@ namespace agave
         THROW_IF_FAIL (m_priv);
         return m_priv->m_signal_color_changed;
     }
+
+    boost::shared_ptr<ColorModel> ColorModel::create (const Color& c)
+    {
+        return boost::shared_ptr<ColorModel> (new ColorModel (c));
+    }
 }
