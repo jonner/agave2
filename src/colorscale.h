@@ -22,12 +22,19 @@
 #define __COLORSCALE_H
 
 #include <boost/shared_ptr.hpp>
-#include <gtkmm/widget.h>
-#include "colormodel.h"
+#include "i-color-view.h"
+
+namespace Gtk
+{
+    class Widget;
+}
 
 namespace agave
 {
-    class ColorScale
+    class ColorModel;
+
+    class ColorScale :
+        public IColorView
     {
         public:
             enum channel_t {
@@ -40,12 +47,9 @@ namespace agave
                 CHANNEL_ALPHA
             };
 
-            ColorScale (channel_t channel);
             ColorScale (const boost::shared_ptr<ColorModel>& model, channel_t channel);
-            void set_model (const boost::shared_ptr<ColorModel>& model);
-            boost::shared_ptr<ColorModel> get_model ();
-            boost::shared_ptr<const ColorModel> get_model () const;
-            void set_alpha (double new_alpha);
+            virtual void set_model (const boost::shared_ptr<ColorModel>& model);
+            virtual boost::shared_ptr<ColorModel> get_model ();
             void set_draw_value (bool enable=true);
             bool get_draw_value ();
             void set_draw_label (bool enable=true);

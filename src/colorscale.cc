@@ -28,6 +28,7 @@
 #include <glibmm-utils/log-stream-utils.h>
 #include <boost/format.hpp>
 #include <glibmm-utils/exception.h>
+#include "colormodel.h"
 
 namespace agave
 {
@@ -66,20 +67,6 @@ namespace agave
                 m_color_signal_connection = m_model->signal_color_changed ().connect
                     (sigc::mem_fun (this, &Priv::on_color_changed));
                 update_adjustment (m_model->get_color ());
-            }
-        }
-
-        void set_alpha (double new_alpha)
-        {
-            switch (m_channel)
-            {
-                case CHANNEL_ALPHA:
-                    g_return_if_fail (new_alpha >= 0.0 && new_alpha <= 1.0);
-                    m_adj->set_value (new_alpha);
-                    break;
-                default:
-                    //do nothing
-                    break;
             }
         }
 
@@ -751,10 +738,6 @@ namespace agave
 
     };
 
-    ColorScale::ColorScale (channel_t channel) :
-        m_priv (new Priv (boost::shared_ptr<ColorModel> (new ColorModel ()), channel))
-    {}
-
     ColorScale::ColorScale (const boost::shared_ptr<ColorModel>& model, channel_t channel) :
         m_priv (new Priv (model, channel))
     {}
@@ -772,19 +755,6 @@ namespace agave
     {
         THROW_IF_FAIL (m_priv);
         return m_priv->m_model;
-    }
-
-    boost::shared_ptr<const ColorModel> ColorScale::get_model () const
-    {
-        THROW_IF_FAIL (m_priv);
-        return m_priv->m_model;
-    }
-
-    void
-    ColorScale::set_alpha (double new_alpha)
-    {
-        THROW_IF_FAIL (m_priv);
-        m_priv->set_alpha (new_alpha);
     }
 
     void ColorScale::set_draw_value (bool enable)
