@@ -21,11 +21,12 @@
 #ifndef __I_COLOR_VIEW_H
 #define __I_COLOR_VIEW_H
 
-#include "colormodel.h"
 #include <boost/shared_ptr.hpp>
 
 namespace agave
 {
+    class ColorModel;
+
     class IColorView
     {
         public:

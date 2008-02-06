@@ -26,6 +26,7 @@
 #include <gtkmm.h>
 #include <boost/shared_ptr.hpp>
 #include "color-edit-box.h"
+#include "colormodel.h"
 
 using namespace agave;
 

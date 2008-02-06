@@ -21,8 +21,6 @@
 #ifndef __RGB_SCALE_SET_H
 #define __RGB_SCALE_SET_H
 
-#include "colorscale.h"
-#include "colormodel.h"
 #include "i-color-view.h"
 #include <boost/shared_ptr.hpp>
 #include <gtkmm/box.h>
@@ -30,6 +28,7 @@
 
 namespace agave
 {
+    class ColorModel;
 
     class RgbScaleSet :
         public Gtk::VBox,

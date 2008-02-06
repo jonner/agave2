@@ -23,6 +23,7 @@
 #include <glibmm-utils/exception.h>
 #include <gtkmm/drawingarea.h>
 #include "swatch.h"
+#include "colormodel.h"
 
 namespace agave
 {

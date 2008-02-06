@@ -19,6 +19,7 @@
  *
  *******************************************************************************/
 #include "rgb-scale-set.h"
+#include "colorscale.h"
 
 namespace agave
 {
