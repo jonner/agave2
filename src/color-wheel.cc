@@ -55,11 +55,14 @@ namespace agave
         public Goocanvas::Ellipse
     {
         public:
-            static Glib::RefPtr<MarkerItem> create (double xc, double yc, double radius)
-            { return Glib::RefPtr<MarkerItem> (new MarkerItem (xc, yc, radius)); }
+            static Glib::RefPtr<MarkerItem> create (const boost::shared_ptr<ColorModel>& model, double radius)
+            { return Glib::RefPtr<MarkerItem> (new MarkerItem (model, radius)); }
 
             void set_validate_drop_func (const SlotValidateDrop& func)
             { m_validate = func; }
+
+            boost::shared_ptr<ColorModel> get_model () { return m_model;}
+            void set_model (const boost::shared_ptr<ColorModel>& model) { m_model = model;}
 
         protected:
             bool xon_button_press_event (const Glib::RefPtr<Goocanvas::Item>& target,
@@ -96,13 +99,31 @@ namespace agave
                 return false;
             }
 
+            void on_color_changed ()
+            {
+                // FIXME: this is kind of a nasty hack because we end up losing a
+                // lot of precision -- isn't there a better way to do this?
+                unsigned char color[4];
+                color[3] = static_cast<unsigned char>(m_model->get_color ().get_red () *
+                        std::numeric_limits<unsigned char>::max ());
+                color[2] = static_cast<unsigned char>(m_model->get_color ().get_green () *
+                        std::numeric_limits<unsigned char>::max ());
+                color[1] = static_cast<unsigned char>(m_model->get_color ().get_blue () *
+                        std::numeric_limits<unsigned char>::max ());
+                color[0] = std::numeric_limits<unsigned char>::max ();
+                property_fill_color_rgba () = *reinterpret_cast<uint32_t*>(color);
+                // FIXME: move the marker to the proper location on the color wheel
+            }
+
+
         private:
-            MarkerItem (double xc, double yc, double radius) :
-                Goocanvas::Ellipse (xc, yc, radius, radius),
+            MarkerItem (const boost::shared_ptr<ColorModel>& model, double radius) :
+                Goocanvas::Ellipse (0.0, 0.0, radius, radius),
                 m_dragging (false),
                 m_drag_origin_x (0),
                 m_drag_origin_y (0),
-                m_validate (sigc::ptr_fun (drop_anywhere))
+                m_validate (sigc::ptr_fun (drop_anywhere)),
+                m_model (model)
             {
                 property_pointer_events () = Goocanvas::CANVAS_EVENTS_ALL;
                 signal_button_press_event ().connect (sigc::mem_fun (this,
@@ -111,11 +132,17 @@ namespace agave
                             &MarkerItem::xon_button_release_event));
                 signal_motion_notify_event ().connect (sigc::mem_fun (this,
                             &MarkerItem::xon_motion_notify_event));
+                if (m_model) {
+                    m_model->signal_color_changed ().connect (sigc::mem_fun
+                            (this, &MarkerItem::on_color_changed));
+                }
+                // FIXME: set center coordinates based on color value
             }
 
             bool m_dragging;
             double m_drag_origin_x, m_drag_origin_y;
             SlotValidateDrop m_validate;
+            boost::shared_ptr<ColorModel> m_model;
     };
 
     class WheelItem :
@@ -371,11 +398,10 @@ namespace agave
 
     struct ColorWheel::Priv : public Goocanvas::Canvas
     {
-        typedef std::map<boost::shared_ptr<ColorModel>, Glib::RefPtr<MarkerItem> > color_marker_map_t;
-        color_marker_map_t m_colors;
         Cairo::RefPtr<Cairo::ImageSurface> m_image_surface;
         Glib::RefPtr<WheelItem> m_wheel;
-        std::vector<Glib::RefPtr<MarkerItem> > m_markers;
+        typedef std::vector<Glib::RefPtr<MarkerItem> > marker_vector_t;
+        marker_vector_t m_markers;
 
         Priv ()
         {
@@ -386,17 +412,25 @@ namespace agave
 
         void add_color (const boost::shared_ptr<ColorModel>& model)
         {
-            color_marker_map_t::const_iterator i = m_colors.find (model);
-            if (i == m_colors.end ())
+            bool found = false;
+            for (marker_vector_t::const_iterator i = m_markers.begin ();
+                    i != m_markers.end (); ++i)
+            {
+                if ((*i)->get_model () == model)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
             {
                 // not yet in the list, so add it
-                Glib::RefPtr<MarkerItem> marker = MarkerItem::create (MIN_WIDGET_SIZE / 2.0, MIN_WIDGET_SIZE / 2.0, 10.0);
+                Glib::RefPtr<MarkerItem> marker = MarkerItem::create (model, 10.0);
                 get_root_item ()->add_child (marker);
-                m_colors[model] = marker;
+                m_markers.push_back (marker);
                 // also connect to the changed signal so that we can redraw when
                 // a color is changed
-                model->signal_color_changed ().connect (sigc::bind
-                        (sigc::mem_fun (this, &Priv::on_color_changed), model));
                 marker->property_center_x ().signal_changed ().connect
                     (sigc::bind (sigc::mem_fun (this, &Priv::on_marker_moved),
                                  marker));
@@ -406,23 +440,6 @@ namespace agave
             }
         }
 
-        void on_color_changed (const boost::shared_ptr<ColorModel>& model)
-        {
-            Glib::RefPtr<MarkerItem> marker = m_colors[model];
-            // FIXME: this is kind of a nasty hack because we end up losing a
-            // lot of precision -- isn't there a better way to do this?
-            unsigned char color[4];
-            color[3] = static_cast<unsigned char>(model->get_color ().get_red () *
-                    std::numeric_limits<unsigned char>::max ());
-            color[2] = static_cast<unsigned char>(model->get_color ().get_green () *
-                    std::numeric_limits<unsigned char>::max ());
-            color[1] = static_cast<unsigned char>(model->get_color ().get_blue () *
-                    std::numeric_limits<unsigned char>::max ());
-            color[0] = std::numeric_limits<unsigned char>::max ();
-            marker->property_fill_color_rgba () = *reinterpret_cast<uint32_t*>(color);
-            // FIXME: move the marker to the proper location on the color wheel
-        }
-
         void on_marker_moved (const Glib::RefPtr<MarkerItem>& marker)
         {
             LOG_DD ("a marker moved");
@@ -430,11 +447,25 @@ namespace agave
 
         void remove_color (const boost::shared_ptr<ColorModel>& model)
         {
-            color_marker_map_t::iterator i = m_colors.find (model);
-            if (i != m_colors.end ())
+            bool found = false;
+            marker_vector_t::iterator i;
+            for (i = m_markers.begin (); i != m_markers.end (); ++i)
+            {
+                if ((*i)->get_model () == model)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
             {
                 // color found, remove it
-                m_colors.erase (i, ++i);
+                int id = get_root_item ()->find_child (*i);
+                get_root_item ()->remove_child (id);
+                marker_vector_t::iterator next_iter (i);
+                std::advance (next_iter, 1);
+                m_markers.erase (i, next_iter);
             }
         }
     };
@@ -459,6 +490,6 @@ namespace agave
     unsigned int ColorWheel::get_num_colors () const
     {
         THROW_IF_FAIL (m_priv);
-        return m_priv->m_colors.size ();
+        return m_priv->m_markers.size ();
     }
 }
