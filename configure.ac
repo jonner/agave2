@@ -47,6 +47,9 @@ PKG_CHECK_MODULES(GTKMM, [
 PKG_CHECK_MODULES(GLIBMM_UTILS, [
                           glibmm-utils >= 0.3
                           ])
+PKG_CHECK_MODULES(GOOCANVAS, [
+                          goocanvasmm-1.0 >= 0.4.0
+                          ])
 
 dnl ***************
 dnl gconf tool and path info
@@ -115,8 +118,8 @@ AC_CHECK_HEADER([boost/shared_ptr.hpp], ,AC_MSG_ERROR(dnl
                 [Boost header shared_ptr.hpp not found]))
 
 dnl Consolidate all libraries and flags into one variable
-AGAVE_LIBS="$GTKMM_LIBS $GLIBMM_UTILS_LIBS"
-AGAVE_CFLAGS="$GTKMM_CFLAGS $GLIBMM_UTILS_CFLAGS"
+AGAVE_LIBS="$GTKMM_LIBS $GLIBMM_UTILS_LIBS $GOOCANVAS_LIBS"
+AGAVE_CFLAGS="$GTKMM_CFLAGS $GLIBMM_UTILS_CFLAGS $GOOCANVAS_CFLAGS"
 
 AC_SUBST(AGAVE_LIBS)
 AC_SUBST(AGAVE_CFLAGS)

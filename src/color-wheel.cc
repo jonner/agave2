@@ -22,7 +22,8 @@
 #include <cmath>    // for floor()
 #include "color-wheel.h"
 #include "color-model.h"
-#include <gtkmm/drawingarea.h>
+#include <goocanvasmm.h>
+#include <goocanvas.h>
 #include <glibmm-utils/exception.h>
 
 namespace agave
@@ -30,52 +31,200 @@ namespace agave
     const double BORDER_WIDTH = 2.0;
     const int MIN_WIDGET_SIZE = 100;
 
-    struct ColorWheel::Priv : public Gtk::DrawingArea
+    /*
+    static bool
+    bounds_intersect (const Goocanvas::Bounds& b1, const Goocanvas::Bounds& b2)
     {
-        std::vector<boost::shared_ptr<ColorModel> > m_colors;
-        Cairo::RefPtr<Cairo::ImageSurface> m_image_surface;
-
-        Priv ()
-        {
-            set_size_request (MIN_WIDGET_SIZE, MIN_WIDGET_SIZE);
+        if (b1.get_x1 () > b2.get_x2 ()
+                || b1.get_x2 () < b2.get_x1 ()
+                || b1.get_y1 () > b2.get_y2 ()
+                || b1.get_y2 () < b2.get_y1 ()) {
+            return false;
         }
+        return true;
+    }
+    */
 
-        virtual bool on_expose_event (GdkEventExpose* event)
-        {
-            LOG_FUNCTION_SCOPE_NORMAL_DD;
-            Cairo::RefPtr<Cairo::Context> cr = get_window ()->create_cairo_context ();
-            cr->rectangle (event->area.x, event->area.y, event->area.width, event->area.height);
-            cr->clip ();
-            Gdk::Rectangle allocation = get_allocation ();
-            double widget_size = static_cast<double> (
-                    std::min (allocation.get_width (), allocation.get_height ()));
-            LOG_DD ("Widget size: " << widget_size);
+    typedef sigc::slot<bool, double, double> SlotValidateDrop;
+    static bool drop_anywhere (double x, double y)
+    {
+        return true;
+    }
 
-            // The marker size should be an integer value -- we're just storing
-            // it as a double so that it can be used in cairo without casting
-            double marker_size = floor (widget_size / 15.0);
-            LOG_DD ("Marker size: " << marker_size);
+    class MarkerItem :
+        public Goocanvas::Ellipse
+    {
+        public:
+            static Glib::RefPtr<MarkerItem> create (double xc, double yc, double radius)
+            { return Glib::RefPtr<MarkerItem> (new MarkerItem (xc, yc, radius)); }
 
-            double diameter = widget_size - (2.0 * BORDER_WIDTH) - marker_size;
-            LOG_DD ("Color wheel diameter: " << diameter);
+            void set_validate_drop_func (const SlotValidateDrop& func)
+            { m_validate = func; }
 
-            // check if we already have a cached image surface of the
-            // appropriate size
-            if (!(m_image_surface
-                        && m_image_surface->get_width () == static_cast<int>(diameter)
-                        && m_image_surface->get_height () == static_cast<int>(diameter)))
+        protected:
+            bool xon_button_press_event (const Glib::RefPtr<Goocanvas::Item>& target,
+                    GdkEventButton* event)
             {
-                LOG_DD ("creating new image surface for color wheel, " << diameter << "x" << diameter);
-                m_image_surface =
-                    Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
-                            static_cast<int>(diameter), static_cast<int>(diameter));
+                m_dragging = true;
+                m_drag_origin_x = event->x;
+                m_drag_origin_y = event->y;
+                get_canvas ()->pointer_grab(target,
+                        Gdk::POINTER_MOTION_MASK | Gdk::BUTTON_RELEASE_MASK,
+                        Gdk::Cursor(Gdk::HAND1),
+                        event->time);
+                return false;
+            }
+
+            bool xon_button_release_event (const Glib::RefPtr<Goocanvas::Item>& target,
+                    GdkEventButton* event)
+            {
+                m_dragging = false;
+                m_drag_origin_x = 0.0;
+                m_drag_origin_y = 0.0;
+                get_canvas ()->pointer_ungrab(target, event->time);
+                return false;
+            }
+
+            bool xon_motion_notify_event (const Glib::RefPtr<Goocanvas::Item>& target,
+                    GdkEventMotion* event)
+            {
+                if (m_dragging && m_validate (event->x, event->y))
+                {
+                    property_center_x () = event->x;
+                    property_center_y () = event->y;
+                }
+                return false;
+            }
+
+        private:
+            MarkerItem (double xc, double yc, double radius) :
+                Goocanvas::Ellipse (xc, yc, radius, radius),
+                m_dragging (false),
+                m_drag_origin_x (0),
+                m_drag_origin_y (0),
+                m_validate (sigc::ptr_fun (drop_anywhere))
+            {
+                property_pointer_events () = Goocanvas::CANVAS_EVENTS_ALL;
+                signal_button_press_event ().connect (sigc::mem_fun (this,
+                            &MarkerItem::xon_button_press_event));
+                signal_button_release_event ().connect (sigc::mem_fun (this,
+                            &MarkerItem::xon_button_release_event));
+                signal_motion_notify_event ().connect (sigc::mem_fun (this,
+                            &MarkerItem::xon_motion_notify_event));
+            }
+
+            bool m_dragging;
+            double m_drag_origin_x, m_drag_origin_y;
+            SlotValidateDrop m_validate;
+    };
+
+    class WheelItem :
+        public Goocanvas::ItemSimple
+    {
+        public:
+            static Glib::RefPtr<WheelItem> create (double xc, double yc, double radius)
+            { return Glib::RefPtr<WheelItem> (new WheelItem (xc, yc, radius)); }
+            bool is_in_bounds (double x, double y)
+            {
+                Cairo::RefPtr<Cairo::Context> cr =
+                    get_canvas ()->create_cairo_context ();
+                create_path (cr);
+                return (cr->in_fill (x, y));
+            }
+
+        protected:
+            WheelItem (double xc, double yc, double radius) :
+                Goocanvas::ItemSimple(),
+                m_xc (xc), m_yc (yc), m_radius (radius),
+                m_canvas (0),
+                m_parent (0),
+                m_need_update (true),
+                m_need_entire_subtree_update (true),
+                m_prop_description (*this, "description")
+            {
+                m_bounds.set_x1 (0.0);
+                m_bounds.set_x2 (0.0);
+                m_bounds.set_y1 (0.0);
+                m_bounds.set_y2 (0.0);
+            }
+
+            virtual ~WheelItem () {}
+
+            virtual void
+            update_vfunc (bool entire_tree,
+                          const Cairo::RefPtr<Cairo::Context> &cr,
+                          Goocanvas::Bounds& bounds)
+            {
+                Goocanvas::Bounds child_bounds;
+                if (entire_tree || m_need_update) {
+                    if (m_canvas) {
+                        // request redraw of the existing bounds
+                        goo_canvas_request_redraw(m_canvas, m_bounds.gobj ());
+                    }
+
+                    cr->save ();
+
+                    if (m_need_entire_subtree_update) {
+                        entire_tree = true;
+                    }
+                    m_need_update = false;
+                    m_need_entire_subtree_update = false;
+
+                    // pretend to update all of the child items :)
+                    for (child_array_t::const_iterator it = m_children.begin ();
+                            it != m_children.end (); ++it) {
+                        (*it)->update (entire_tree, cr, child_bounds);
+                    }
+
+                    // calculate the group's bounds
+                    create_path (cr);
+                    double x1, x2, y1, y2;
+                    cr->get_stroke_extents (x1, y1, x2, y2);
+                    bounds.set_x1 (x1);
+                    bounds.set_y1 (y1);
+                    bounds.set_x2 (x2);
+                    bounds.set_y2 (y2);
+                    m_bounds = bounds;
+
+                    cr->restore ();
+
+                    if (m_canvas) {
+                        // request redraw of the new bounds
+                        goo_canvas_request_redraw(m_canvas, m_bounds.gobj ());
+                    }
+                }
+            }
+
+            virtual void paint_vfunc (const Cairo::RefPtr<Cairo::Context> &cr,
+                    const Goocanvas::Bounds &bounds,
+                    double scale)
+            {
+                /*
+                   if (!bounds_intersect (bounds, get_bounds ())) {
+                   return;
+                   }
+                   */
+                cr->save ();
+                // only paint within the exposed area
+                cr->rectangle (bounds.get_x1 (), bounds.get_y1 (),
+                        bounds.get_x2 () - bounds.get_x1 (),
+                        bounds.get_y2 () - bounds.get_y1 ());
+                cr->clip ();
+
+                if (!m_image_surface)
+                {
+                    m_image_surface =
+                        Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
+                                static_cast<int>(m_radius * 2.0),
+                                static_cast<int>(m_radius * 2.0));
+                }
                 unsigned char *data = m_image_surface->get_data ();
                 for (int row = 0; row < m_image_surface->get_height (); ++row)
                 {
-                    int dy = - (row - static_cast<int>(diameter / 2.0));
+                    int dy = - (row - static_cast<int>(m_radius));
                     for (int px = 0; px < m_image_surface->get_width (); ++px)
                     {
-                        int dx = px - static_cast<int>(diameter / 2.0);
+                        int dx = px - static_cast<int>(m_radius);
                         double angle = atan2 (dy, dx);
                         if (angle < 0.0)
                         {
@@ -85,157 +234,209 @@ namespace agave
 
                         hsv_t hsv;
                         hsv.h = angle / (2.0 * G_PI);
-                        hsv.s = dist / (diameter / 2.0);
+                        hsv.s = dist / (m_radius);
                         hsv.v = 1.0;
-                        Color c (hsv);
+                        rgb_t rgb = Color::hsv_to_rgb (hsv);
                         *data++ =
                             static_cast<unsigned char>(
-                                    c.get_blue () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
+                                    rgb.b * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
                         *data++ =
                             static_cast<unsigned char>(
-                                    c.get_green () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
+                                    rgb.g * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
                         *data++ =
                             static_cast<unsigned char>(
-                                    c.get_red () * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
+                                    rgb.r * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
                         *data++ = std::numeric_limits<unsigned char>::max ();
                     }
                 }
                 m_image_surface->flush ();
+
+                cr->set_source (m_image_surface, m_xc - m_radius, m_yc - m_radius);
+                create_path (cr);
+                // fill the center of the circle with the image surface
+                cr->fill ();
+                // draw a border around the wheel
+                cr->set_source_rgb (0.0, 0.0, 0.0);
+                create_path (cr);
+                cr->stroke ();
+                cr->restore ();
+
+                // now paint all child items
+                for (child_array_t::const_iterator it = m_children.begin ();
+                        it != m_children.end (); ++it) {
+                    (*it)->paint (cr, bounds, scale);
+                }
             }
-            //Cairo::RefPtr<Cairo::Pattern> pattern =
-                //Cairo::SurfacePattern::create (m_image_surface);
-            cr->set_source (m_image_surface,
-                    (allocation.get_width () - diameter) / 2.0,
-                    (allocation.get_height () - diameter) / 2.0);
-            cr->translate (allocation.get_width () / 2.0,
-                    allocation.get_height () / 2.0);
-            cr->arc (0.0, 0.0, diameter / 2.0, 0.0, 2.0 * G_PI);
-            // fill the center of the circle with the image surface
-            cr->fill ();
-            // draw a border around the wheel
-            cr->set_source_rgb (0.0, 0.0, 0.0);
-            cr->set_line_width (BORDER_WIDTH);
-            cr->arc (0.0, 0.0, diameter / 2.0 + BORDER_WIDTH / 2.0, 0.0, 2.0 * G_PI);
-            cr->stroke ();
-            // calculate the (x,y) coordinates where the color markers should be
-            // drawn on the color wheel
-            CalcMarkerCoords coord_calulator =
-                std::for_each (m_colors.begin (), m_colors.end (),
-                        CalcMarkerCoords (diameter / 2.0));
-            // draw lines from the center of the color wheel to the marker
-            // position for each marker color
-            std::for_each (coord_calulator.m_coords.begin (),
-                    coord_calulator.m_coords.end (), DrawMarkerLines (cr));
-            // draw circles at each marker coordinate.  These are all done last
-            // so they're all above the marker lines.
-            std::for_each (coord_calulator.m_coords.begin (),
-                    coord_calulator.m_coords.end (), DrawMarkerCircles (cr, marker_size));
-            return true;
+
+            virtual GList*
+            get_items_at_vfunc (double x,
+                                double y,
+                                const Cairo::RefPtr<Cairo::Context>& cr,
+                                bool is_pointer_event,
+                                bool parent_is_visible, GList* found_items)
+            {
+                typedef Glib::ListHandle<Glib::RefPtr<Goocanvas::Item> > item_list_t;
+                if (is_in_bounds (x, y))
+                {
+                    found_items = g_list_append (found_items, gobj ());
+                }
+                item_list_t empty_list (NULL, Glib::OWNERSHIP_NONE);
+                GList* new_found = 0;
+                for (child_array_t::const_iterator it = m_children.begin ();
+                        it != m_children.end (); ++it) {
+                    new_found = (*it)->get_items_at (x, y, cr,
+                            is_pointer_event,
+                            parent_is_visible,
+                            empty_list).data ();
+                    if (new_found) {
+                        // prepend the found item to the list of found items
+                        found_items = g_list_concat (new_found, found_items);
+                    }
+                }
+                return found_items;
+            }
+
+            virtual int
+            get_n_children_vfunc () const
+            { return m_children.size (); }
+
+            virtual Glib::RefPtr<Goocanvas::Item>
+            get_child_vfunc (int child_num)
+            { return m_children[child_num]; }
+
+            virtual void
+            add_child_vfunc (const Glib::RefPtr<Goocanvas::Item>& child, int position)
+            {
+                m_children.push_back (child);
+                goo_canvas_item_set_parent (child->gobj (), GOO_CANVAS_ITEM(gobj ()));
+                request_update ();
+            }
+
+            virtual void
+            request_update_vfunc ()
+            {
+                if (!m_need_update) {
+                    m_need_update = true;
+                    if (get_parent ()) {
+                        get_parent ()->request_update ();
+                    } else if (get_canvas ()) {
+                        get_canvas ()->request_update ();
+                    }
+                }
+            }
+
+            virtual void
+            set_canvas_vfunc (GooCanvas* canvas)
+            { m_canvas = canvas; }
+
+            virtual GooCanvas*
+            get_canvas_vfunc ()
+            { return m_canvas; }
+
+            virtual void
+            set_parent_vfunc (GooCanvasItem* parent)
+            {
+                m_parent = parent;
+                if (parent) {
+                    m_canvas = goo_canvas_item_get_canvas (parent);
+                }
+            }
+
+            virtual GooCanvasItem*
+            get_parent_vfunc ()
+            { return m_parent; }
+
+        private:
+            void
+            create_path (const Cairo::RefPtr<Cairo::Context>& cr)
+            {
+                cr->set_line_width (BORDER_WIDTH);
+                cr->save ();
+                cr->translate (m_xc, m_yc);
+                cr->arc (0.0, 0.0, m_radius, 0.0, 2.0 * G_PI);
+                cr->restore ();
+            }
+            double m_xc, m_yc, m_radius;
+            typedef std::vector<Glib::RefPtr<Goocanvas::Item> > child_array_t;
+            child_array_t m_children;
+            GooCanvas* m_canvas;
+            GooCanvasItem* m_parent;
+            bool m_need_update;
+            bool m_need_entire_subtree_update;
+            Goocanvas::Bounds m_bounds;
+            Glib::Property<Glib::ustring> m_prop_description;
+            Cairo::RefPtr<Cairo::ImageSurface> m_image_surface;
+    };
+
+
+    struct ColorWheel::Priv : public Goocanvas::Canvas
+    {
+        typedef std::map<boost::shared_ptr<ColorModel>, Glib::RefPtr<MarkerItem> > color_marker_map_t;
+        color_marker_map_t m_colors;
+        Cairo::RefPtr<Cairo::ImageSurface> m_image_surface;
+        Glib::RefPtr<WheelItem> m_wheel;
+        std::vector<Glib::RefPtr<MarkerItem> > m_markers;
+
+        Priv ()
+        {
+            set_size_request (MIN_WIDGET_SIZE, MIN_WIDGET_SIZE);
+            m_wheel = WheelItem::create (MIN_WIDGET_SIZE / 2.0, MIN_WIDGET_SIZE / 2.0, MIN_WIDGET_SIZE / 2.0 - BORDER_WIDTH);
+            get_root_item ()->add_child (m_wheel);
         }
 
         void add_color (const boost::shared_ptr<ColorModel>& model)
         {
-            std::vector<boost::shared_ptr<ColorModel> >::const_iterator i =
-                std::find (m_colors.begin (), m_colors.end (), model);
+            color_marker_map_t::const_iterator i = m_colors.find (model);
             if (i == m_colors.end ())
             {
                 // not yet in the list, so add it
-                m_colors.push_back (model);
-                // need to redraw if we just added it
-                queue_draw ();
+                Glib::RefPtr<MarkerItem> marker = MarkerItem::create (MIN_WIDGET_SIZE / 2.0, MIN_WIDGET_SIZE / 2.0, 10.0);
+                get_root_item ()->add_child (marker);
+                m_colors[model] = marker;
                 // also connect to the changed signal so that we can redraw when
                 // a color is changed
-                model->signal_color_changed ().connect (sigc::mem_fun (this, &Priv::queue_draw));
+                model->signal_color_changed ().connect (sigc::bind
+                        (sigc::mem_fun (this, &Priv::on_color_changed), model));
+                marker->property_center_x ().signal_changed ().connect
+                    (sigc::bind (sigc::mem_fun (this, &Priv::on_marker_moved),
+                                 marker));
+                marker->property_center_y ().signal_changed ().connect
+                    (sigc::bind (sigc::mem_fun (this, &Priv::on_marker_moved),
+                                 marker));
             }
+        }
+
+        void on_color_changed (const boost::shared_ptr<ColorModel>& model)
+        {
+            Glib::RefPtr<MarkerItem> marker = m_colors[model];
+            // FIXME: this is kind of a nasty hack because we end up losing a
+            // lot of precision -- isn't there a better way to do this?
+            unsigned char color[4];
+            color[3] = static_cast<unsigned char>(model->get_color ().get_red () *
+                    std::numeric_limits<unsigned char>::max ());
+            color[2] = static_cast<unsigned char>(model->get_color ().get_green () *
+                    std::numeric_limits<unsigned char>::max ());
+            color[1] = static_cast<unsigned char>(model->get_color ().get_blue () *
+                    std::numeric_limits<unsigned char>::max ());
+            color[0] = std::numeric_limits<unsigned char>::max ();
+            marker->property_fill_color_rgba () = *reinterpret_cast<uint32_t*>(color);
+            // FIXME: move the marker to the proper location on the color wheel
+        }
+
+        void on_marker_moved (const Glib::RefPtr<MarkerItem>& marker)
+        {
+            LOG_DD ("a marker moved");
         }
 
         void remove_color (const boost::shared_ptr<ColorModel>& model)
         {
-            std::vector<boost::shared_ptr<ColorModel> >::iterator i =
-                std::find (m_colors.begin (), m_colors.end (), model);
+            color_marker_map_t::iterator i = m_colors.find (model);
             if (i != m_colors.end ())
             {
                 // color found, remove it
                 m_colors.erase (i, ++i);
-                // need to redraw if we just removed it
-                queue_draw ();
             }
         }
-
-        struct CalcMarkerCoords
-        {
-            double m_radius;
-            typedef std::pair<double, double> xy_t;
-            typedef std::map <boost::shared_ptr<ColorModel>, xy_t> coord_map_t;
-            coord_map_t m_coords;
-
-            CalcMarkerCoords (double radius) :
-                m_radius (radius)
-            {}
-
-            void operator () (const boost::shared_ptr<ColorModel>& model)
-            {
-                double dest_x, dest_y;
-                Color c = model->get_color ();
-                dest_x = m_radius * c.get_saturation () *
-                    cos(c.get_hue () * 2.0 * G_PI);
-                dest_y = - m_radius * c.get_saturation () *
-                    sin(c.get_hue () * 2.0 * G_PI);
-                m_coords[model] = std::make_pair (dest_x, dest_y);
-            }
-        };
-
-        struct DrawMarkerLines
-        {
-            Cairo::RefPtr<Cairo::Context> m_cr;
-            DrawMarkerLines (Cairo::RefPtr<Cairo::Context>& cr) :
-                m_cr (cr)
-            {}
-
-            void operator () (const CalcMarkerCoords::coord_map_t::value_type& coords)
-            {
-                if (m_cr)
-                {
-                    m_cr->save ();
-                    m_cr->push_group ();
-                    m_cr->set_line_cap (Cairo::LINE_CAP_ROUND);
-                    m_cr->move_to (0.0, 0.0);
-                    m_cr->set_source_rgb (0.0, 0.0, 0.0);
-                    m_cr->set_line_width (2.0);
-                    m_cr->line_to (coords.second.first, coords.second.second);
-                    m_cr->stroke ();
-                    m_cr->pop_group_to_source ();
-                    m_cr->paint_with_alpha (0.5);
-                    m_cr->restore ();
-                }
-            }
-        };
-
-        struct DrawMarkerCircles
-        {
-            Cairo::RefPtr<Cairo::Context> m_cr;
-            double m_marker_size;
-
-            DrawMarkerCircles (Cairo::RefPtr<Cairo::Context>& cr, double marker_size) :
-                m_cr (cr), m_marker_size (marker_size)
-            {}
-
-            void operator () (const CalcMarkerCoords::coord_map_t::value_type& coords)
-            {
-                if (m_cr)
-                {
-                    m_cr->save ();
-                    m_cr->arc (coords.second.first, coords.second.second, m_marker_size / 2.0, 0.0, 2.0 * G_PI);
-                    m_cr->set_source_rgb (coords.first->get_color ().get_red (),
-                            coords.first->get_color ().get_green (),
-                            coords.first->get_color ().get_blue ());
-                    m_cr->fill_preserve ();
-                    m_cr->set_source_rgb (0.0, 0.0, 0.0);
-                    m_cr->stroke ();
-                    m_cr->restore ();
-                }
-            }
-        };
     };
 
     ColorWheel::ColorWheel () :
