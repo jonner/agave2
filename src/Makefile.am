@@ -7,8 +7,8 @@ color.cc \
 i-scheme.h \
 scheme-manager.h \
 scheme-manager.cc \
-colormodel.h \
-colormodel.cc \
+color-model.h \
+color-model.cc \
 color-relation.h \
 color-relation.cc
 
@@ -16,8 +16,8 @@ libagavewidgets_la_SOURCES = \
 i-color-view.h \
 swatch.h \
 swatch.cc \
-colorscale.h \
-colorscale.cc \
+color-scale.h \
+color-scale.cc \
 rgb-scale-set.h \
 rgb-scale-set.cc \
 hsv-scale-set.h \

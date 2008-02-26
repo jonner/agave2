@@ -21,7 +21,7 @@
 #include <algorithm>    // for std::find, std::for_each
 #include <cmath>    // for floor()
 #include "color-wheel.h"
-#include "colormodel.h"
+#include "color-model.h"
 #include <gtkmm/drawingarea.h>
 #include <glibmm-utils/exception.h>
 

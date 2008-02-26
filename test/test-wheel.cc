@@ -24,7 +24,7 @@
  *******************************************************************************/
 
 #include "color-wheel.h"
-#include "colormodel.h"
+#include "color-model.h"
 #include <gtkmm/main.h>
 #include <gtkmm/window.h>
 #include <gtkmm/box.h>

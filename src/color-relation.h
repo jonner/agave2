@@ -24,7 +24,7 @@
 #include <boost/shared_ptr.hpp>
 #include <sigc++/functors/slot.h>
 #include "color.h"
-#include "colormodel.h"
+#include "color-model.h"
 
 namespace agave
 {

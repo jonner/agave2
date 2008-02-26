@@ -19,7 +19,7 @@
  *
  *******************************************************************************/
 #include "hsv-scale-set.h"
-#include "colorscale.h"
+#include "color-scale.h"
 
 namespace agave
 {

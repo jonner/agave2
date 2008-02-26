@@ -21,7 +21,7 @@
 #include <gtkmm/notebook.h>
 #include <glibmm-utils/exception.h>
 #include "color-edit-box.h"
-#include "colormodel.h"
+#include "color-model.h"
 #include "rgb-scale-set.h"
 #include "hsv-scale-set.h"
 

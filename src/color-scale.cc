@@ -18,7 +18,7 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>
  *
  *******************************************************************************/
-#include "colorscale.h"
+#include "color-scale.h"
 #include <gdkmm/general.h>  // cairo integration
 #include <cairomm/surface.h>
 #include <gdk/gdkkeysyms.h>
@@ -28,7 +28,7 @@
 #include <glibmm-utils/log-stream-utils.h>
 #include <boost/format.hpp>
 #include <glibmm-utils/exception.h>
-#include "colormodel.h"
+#include "color-model.h"
 
 namespace agave
 {
