@@ -31,21 +31,9 @@ namespace agave
     const double BORDER_WIDTH = 2.0;
     const int MIN_WIDGET_SIZE = 100;
 
-    /*
-    static bool
-    bounds_intersect (const Goocanvas::Bounds& b1, const Goocanvas::Bounds& b2)
-    {
-        if (b1.get_x1 () > b2.get_x2 ()
-                || b1.get_x2 () < b2.get_x1 ()
-                || b1.get_y1 () > b2.get_y2 ()
-                || b1.get_y2 () < b2.get_y1 ()) {
-            return false;
-        }
-        return true;
-    }
-    */
-
     typedef sigc::slot<bool, double, double> SlotValidateDrop;
+    typedef sigc::slot<std::pair<double, double>, const Color&> SlotDeterminePosition;
+    typedef sigc::slot<Color, double, double> SlotDetermineColor;
     static bool drop_anywhere (double x, double y)
     {
         return true;
@@ -59,7 +47,11 @@ namespace agave
             { return Glib::RefPtr<MarkerItem> (new MarkerItem (model, radius)); }
 
             void set_validate_drop_func (const SlotValidateDrop& func)
-            { m_validate = func; }
+            { m_validate_func = func; }
+
+            void set_color_position_funcs (const SlotDetermineColor& color_func,
+                    const SlotDeterminePosition& position_func)
+            { m_position_func = position_func; m_color_func = color_func; }
 
             boost::shared_ptr<ColorModel> get_model () { return m_model;}
             void set_model (const boost::shared_ptr<ColorModel>& model) { m_model = model;}
@@ -91,28 +83,44 @@ namespace agave
             bool xon_motion_notify_event (const Glib::RefPtr<Goocanvas::Item>& target,
                     GdkEventMotion* event)
             {
-                if (m_dragging && m_validate (event->x, event->y))
+                if (m_dragging && m_validate_func (event->x, event->y))
                 {
-                    property_center_x () = event->x;
-                    property_center_y () = event->y;
+                    move_to (event->x, event->y);
+                    Color new_color = m_color_func (event->x, event->y);
+                    m_model->set_color (new_color);
                 }
                 return false;
             }
 
-            void on_color_changed ()
+            void move_to (double x, double y)
+            {
+                property_center_x () = x;
+                property_center_y () = y;
+            }
+
+            void set_background_color (const Color& color)
             {
                 // FIXME: this is kind of a nasty hack because we end up losing a
                 // lot of precision -- isn't there a better way to do this?
-                unsigned char color[4];
-                color[3] = static_cast<unsigned char>(m_model->get_color ().get_red () *
+                unsigned char pixel[4];
+                pixel[3] = static_cast<unsigned char>(color.get_red () *
                         std::numeric_limits<unsigned char>::max ());
-                color[2] = static_cast<unsigned char>(m_model->get_color ().get_green () *
+                pixel[2] = static_cast<unsigned char>(color.get_green () *
                         std::numeric_limits<unsigned char>::max ());
-                color[1] = static_cast<unsigned char>(m_model->get_color ().get_blue () *
+                pixel[1] = static_cast<unsigned char>(color.get_blue () *
                         std::numeric_limits<unsigned char>::max ());
-                color[0] = std::numeric_limits<unsigned char>::max ();
-                property_fill_color_rgba () = *reinterpret_cast<uint32_t*>(color);
-                // FIXME: move the marker to the proper location on the color wheel
+                pixel[0] = std::numeric_limits<unsigned char>::max ();
+                property_fill_color_rgba () = *reinterpret_cast<uint32_t*>(pixel);
+            }
+
+            void on_color_changed ()
+            {
+                set_background_color (m_model->get_color ());
+                if (m_position_func)
+                {
+                    std::pair<double, double> new_position = m_position_func (m_model->get_color ());
+                    move_to (new_position.first, new_position.second);
+                }
             }
 
 
@@ -122,7 +130,7 @@ namespace agave
                 m_dragging (false),
                 m_drag_origin_x (0),
                 m_drag_origin_y (0),
-                m_validate (sigc::ptr_fun (drop_anywhere)),
+                m_validate_func (sigc::ptr_fun (drop_anywhere)),
                 m_model (model)
             {
                 property_pointer_events () = Goocanvas::CANVAS_EVENTS_ALL;
@@ -141,12 +149,14 @@ namespace agave
 
             bool m_dragging;
             double m_drag_origin_x, m_drag_origin_y;
-            SlotValidateDrop m_validate;
+            SlotValidateDrop m_validate_func;
+            SlotDeterminePosition m_position_func;
+            SlotDetermineColor m_color_func;
             boost::shared_ptr<ColorModel> m_model;
     };
 
     class WheelItem :
-        public Goocanvas::ItemSimple
+        public Goocanvas::Ellipse
     {
         public:
             static Glib::RefPtr<WheelItem> create (double xc, double yc, double radius)
@@ -159,111 +169,77 @@ namespace agave
                 return (cr->in_fill (x, y));
             }
 
+            std::pair<double, double> position_for_color (const Color& color)
+            {
+                double x = 0.0, y = 0.0;
+                hsv_t hsv = color.as_hsv ();
+                x = hsv.s * cos (hsv.h * 2.0 * G_PI) * property_radius_x () +
+                    property_radius_x ();
+                y = hsv.s * -sin (hsv.h * 2.0 * G_PI) * property_radius_y () +
+                    property_radius_y ();
+                return std::make_pair (x, y);
+            }
+
+            Color color_at_position (double x, double y)
+            {
+                double dy = - (y - property_radius_y ());
+                double dx = x - property_radius_x ();
+                double angle = atan2 (dy, dx);
+                if (angle < 0.0)
+                {
+                    angle += 2.0 * G_PI;
+                }
+                double dist = sqrt (dx * dx + dy * dy);
+
+                hsv_t hsv;
+                hsv.h = angle / (2.0 * G_PI);
+                hsv.s = std::min (dist / (property_radius_x ()), 1.0);
+                hsv.v = 1.0;
+                hsv.a = 1.0;
+                return Color (hsv);
+            }
+
+
         protected:
             WheelItem (double xc, double yc, double radius) :
-                Goocanvas::ItemSimple(),
-                m_xc (xc), m_yc (yc), m_radius (radius),
-                m_canvas (0),
-                m_parent (0),
-                m_need_update (true),
-                m_need_entire_subtree_update (true),
-                m_prop_description (*this, "description")
+                Goocanvas::Ellipse(xc, yc, radius, radius)
             {
-                m_bounds.set_x1 (0.0);
-                m_bounds.set_x2 (0.0);
-                m_bounds.set_y1 (0.0);
-                m_bounds.set_y2 (0.0);
+                update_pattern ();
+                // FIXME: this doesn't work in goocanvasmm -- needs
+                // investigation
+                //property_fill_pattern () = m_pattern;
+                g_object_set (gobj (), "fill-pattern", m_pattern->cobj (), NULL);
             }
 
             virtual ~WheelItem () {}
 
-            virtual void
-            update_vfunc (bool entire_tree,
-                          const Cairo::RefPtr<Cairo::Context> &cr,
-                          Goocanvas::Bounds& bounds)
+
+        private:
+            void
+            create_path (const Cairo::RefPtr<Cairo::Context>& cr)
             {
-                Goocanvas::Bounds child_bounds;
-                if (entire_tree || m_need_update) {
-                    if (m_canvas) {
-                        // request redraw of the existing bounds
-                        goo_canvas_request_redraw(m_canvas, m_bounds.gobj ());
-                    }
-
-                    cr->save ();
-
-                    if (m_need_entire_subtree_update) {
-                        entire_tree = true;
-                    }
-                    m_need_update = false;
-                    m_need_entire_subtree_update = false;
-
-                    // pretend to update all of the child items :)
-                    for (child_array_t::const_iterator it = m_children.begin ();
-                            it != m_children.end (); ++it) {
-                        (*it)->update (entire_tree, cr, child_bounds);
-                    }
-
-                    // calculate the group's bounds
-                    create_path (cr);
-                    double x1, x2, y1, y2;
-                    cr->get_stroke_extents (x1, y1, x2, y2);
-                    bounds.set_x1 (x1);
-                    bounds.set_y1 (y1);
-                    bounds.set_x2 (x2);
-                    bounds.set_y2 (y2);
-                    m_bounds = bounds;
-
-                    cr->restore ();
-
-                    if (m_canvas) {
-                        // request redraw of the new bounds
-                        goo_canvas_request_redraw(m_canvas, m_bounds.gobj ());
-                    }
-                }
+                cr->set_line_width (BORDER_WIDTH);
+                cr->save ();
+                cr->translate (property_center_x (), property_center_y ());
+                cr->arc (0.0, 0.0, property_radius_x (), 0.0, 2.0 * G_PI);
+                cr->restore ();
             }
 
-            virtual void paint_vfunc (const Cairo::RefPtr<Cairo::Context> &cr,
-                    const Goocanvas::Bounds &bounds,
-                    double scale)
+            void update_pattern ()
             {
-                /*
-                   if (!bounds_intersect (bounds, get_bounds ())) {
-                   return;
-                   }
-                   */
-                cr->save ();
-                // only paint within the exposed area
-                cr->rectangle (bounds.get_x1 (), bounds.get_y1 (),
-                        bounds.get_x2 () - bounds.get_x1 (),
-                        bounds.get_y2 () - bounds.get_y1 ());
-                cr->clip ();
-
-                if (!m_image_surface)
+                Cairo::RefPtr<Cairo::ImageSurface> image_surface =
+                    Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
+                            static_cast<int>(property_radius_x () * 2.0),
+                            static_cast<int>(property_radius_y () * 2.0));
+                unsigned char *data = image_surface->get_data ();
+                for (int row = 0; row < image_surface->get_height (); ++row)
                 {
-                    m_image_surface =
-                        Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
-                                static_cast<int>(m_radius * 2.0),
-                                static_cast<int>(m_radius * 2.0));
-                }
-                unsigned char *data = m_image_surface->get_data ();
-                for (int row = 0; row < m_image_surface->get_height (); ++row)
-                {
-                    int dy = - (row - static_cast<int>(m_radius));
-                    for (int px = 0; px < m_image_surface->get_width (); ++px)
+                    int dy = row;
+                    for (int px = 0; px < image_surface->get_width (); ++px)
                     {
-                        int dx = px - static_cast<int>(m_radius);
-                        double angle = atan2 (dy, dx);
-                        if (angle < 0.0)
-                        {
-                            angle += 2.0 * G_PI;
-                        }
-                        double dist = sqrt (dx * dx + dy * dy);
-
-                        hsv_t hsv;
-                        hsv.h = angle / (2.0 * G_PI);
-                        hsv.s = dist / (m_radius);
-                        hsv.v = 1.0;
-                        rgb_t rgb = Color::hsv_to_rgb (hsv);
+                        int dx = px;
+                        Color c = color_at_position (dx, dy);
+                        rgb_t rgb = c.as_rgb ();
                         *data++ =
                             static_cast<unsigned char>(
                                     rgb.b * static_cast<double>(std::numeric_limits<unsigned char>::max ()));
@@ -276,129 +252,16 @@ namespace agave
                         *data++ = std::numeric_limits<unsigned char>::max ();
                     }
                 }
-                m_image_surface->flush ();
-
-                cr->set_source (m_image_surface, m_xc - m_radius, m_yc - m_radius);
-                create_path (cr);
-                // fill the center of the circle with the image surface
-                cr->fill ();
-                // draw a border around the wheel
-                cr->set_source_rgb (0.0, 0.0, 0.0);
-                create_path (cr);
-                cr->stroke ();
-                cr->restore ();
-
-                // now paint all child items
-                for (child_array_t::const_iterator it = m_children.begin ();
-                        it != m_children.end (); ++it) {
-                    (*it)->paint (cr, bounds, scale);
-                }
+                image_surface->flush ();
+                m_pattern = Cairo::SurfacePattern::create (image_surface);
             }
 
-            virtual GList*
-            get_items_at_vfunc (double x,
-                                double y,
-                                const Cairo::RefPtr<Cairo::Context>& cr,
-                                bool is_pointer_event,
-                                bool parent_is_visible, GList* found_items)
-            {
-                typedef Glib::ListHandle<Glib::RefPtr<Goocanvas::Item> > item_list_t;
-                if (is_in_bounds (x, y))
-                {
-                    found_items = g_list_append (found_items, gobj ());
-                }
-                item_list_t empty_list (NULL, Glib::OWNERSHIP_NONE);
-                GList* new_found = 0;
-                for (child_array_t::const_iterator it = m_children.begin ();
-                        it != m_children.end (); ++it) {
-                    new_found = (*it)->get_items_at (x, y, cr,
-                            is_pointer_event,
-                            parent_is_visible,
-                            empty_list).data ();
-                    if (new_found) {
-                        // prepend the found item to the list of found items
-                        found_items = g_list_concat (new_found, found_items);
-                    }
-                }
-                return found_items;
-            }
-
-            virtual int
-            get_n_children_vfunc () const
-            { return m_children.size (); }
-
-            virtual Glib::RefPtr<Goocanvas::Item>
-            get_child_vfunc (int child_num)
-            { return m_children[child_num]; }
-
-            virtual void
-            add_child_vfunc (const Glib::RefPtr<Goocanvas::Item>& child, int position)
-            {
-                m_children.push_back (child);
-                goo_canvas_item_set_parent (child->gobj (), GOO_CANVAS_ITEM(gobj ()));
-                request_update ();
-            }
-
-            virtual void
-            request_update_vfunc ()
-            {
-                if (!m_need_update) {
-                    m_need_update = true;
-                    if (get_parent ()) {
-                        get_parent ()->request_update ();
-                    } else if (get_canvas ()) {
-                        get_canvas ()->request_update ();
-                    }
-                }
-            }
-
-            virtual void
-            set_canvas_vfunc (GooCanvas* canvas)
-            { m_canvas = canvas; }
-
-            virtual GooCanvas*
-            get_canvas_vfunc ()
-            { return m_canvas; }
-
-            virtual void
-            set_parent_vfunc (GooCanvasItem* parent)
-            {
-                m_parent = parent;
-                if (parent) {
-                    m_canvas = goo_canvas_item_get_canvas (parent);
-                }
-            }
-
-            virtual GooCanvasItem*
-            get_parent_vfunc ()
-            { return m_parent; }
-
-        private:
-            void
-            create_path (const Cairo::RefPtr<Cairo::Context>& cr)
-            {
-                cr->set_line_width (BORDER_WIDTH);
-                cr->save ();
-                cr->translate (m_xc, m_yc);
-                cr->arc (0.0, 0.0, m_radius, 0.0, 2.0 * G_PI);
-                cr->restore ();
-            }
-            double m_xc, m_yc, m_radius;
-            typedef std::vector<Glib::RefPtr<Goocanvas::Item> > child_array_t;
-            child_array_t m_children;
-            GooCanvas* m_canvas;
-            GooCanvasItem* m_parent;
-            bool m_need_update;
-            bool m_need_entire_subtree_update;
-            Goocanvas::Bounds m_bounds;
-            Glib::Property<Glib::ustring> m_prop_description;
-            Cairo::RefPtr<Cairo::ImageSurface> m_image_surface;
+            Cairo::RefPtr<Cairo::SurfacePattern> m_pattern;
     };
 
 
     struct ColorWheel::Priv : public Goocanvas::Canvas
     {
-        Cairo::RefPtr<Cairo::ImageSurface> m_image_surface;
         Glib::RefPtr<WheelItem> m_wheel;
         typedef std::vector<Glib::RefPtr<MarkerItem> > marker_vector_t;
         marker_vector_t m_markers;
@@ -431,18 +294,12 @@ namespace agave
                 m_markers.push_back (marker);
                 // also connect to the changed signal so that we can redraw when
                 // a color is changed
-                marker->property_center_x ().signal_changed ().connect
-                    (sigc::bind (sigc::mem_fun (this, &Priv::on_marker_moved),
-                                 marker));
-                marker->property_center_y ().signal_changed ().connect
-                    (sigc::bind (sigc::mem_fun (this, &Priv::on_marker_moved),
-                                 marker));
+                marker->set_color_position_funcs (
+                        sigc::mem_fun (m_wheel.operator->(),
+                            &WheelItem::color_at_position),
+                        sigc::mem_fun (m_wheel.operator->(),
+                            &WheelItem::position_for_color));
             }
-        }
-
-        void on_marker_moved (const Glib::RefPtr<MarkerItem>& marker)
-        {
-            LOG_DD ("a marker moved");
         }
 
         void remove_color (const boost::shared_ptr<ColorModel>& model)
