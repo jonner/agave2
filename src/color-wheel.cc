@@ -28,8 +28,8 @@
 
 namespace agave
 {
-    const double BORDER_WIDTH = 2.0;
-    const int MIN_WIDGET_SIZE = 100;
+    const int MIN_WIDGET_SIZE = 200;
+    const int PADDING = 10;
 
     typedef sigc::slot<bool, double, double> SlotValidateDrop;
     typedef sigc::slot<std::pair<double, double>, const Color&> SlotDeterminePosition;
@@ -161,13 +161,6 @@ namespace agave
         public:
             static Glib::RefPtr<WheelItem> create (double xc, double yc, double radius)
             { return Glib::RefPtr<WheelItem> (new WheelItem (xc, yc, radius)); }
-            bool is_in_bounds (double x, double y)
-            {
-                Cairo::RefPtr<Cairo::Context> cr =
-                    get_canvas ()->create_cairo_context ();
-                create_path (cr);
-                return (cr->in_fill (x, y));
-            }
 
             std::pair<double, double> position_for_color (const Color& color)
             {
@@ -209,22 +202,20 @@ namespace agave
                 // investigation
                 //property_fill_pattern () = m_pattern;
                 g_object_set (gobj (), "fill-pattern", m_pattern->cobj (), NULL);
+
+                property_center_x ().signal_changed ().connect (sigc::mem_fun
+                        (this, &WheelItem::update_pattern));
+                property_center_y ().signal_changed ().connect (sigc::mem_fun
+                        (this, &WheelItem::update_pattern));
+                property_radius_x ().signal_changed ().connect (sigc::mem_fun
+                        (this, &WheelItem::update_pattern));
+                property_radius_y ().signal_changed ().connect (sigc::mem_fun
+                        (this, &WheelItem::update_pattern));
             }
 
             virtual ~WheelItem () {}
 
-
         private:
-            void
-            create_path (const Cairo::RefPtr<Cairo::Context>& cr)
-            {
-                cr->set_line_width (BORDER_WIDTH);
-                cr->save ();
-                cr->translate (property_center_x (), property_center_y ());
-                cr->arc (0.0, 0.0, property_radius_x (), 0.0, 2.0 * G_PI);
-                cr->restore ();
-            }
-
             void update_pattern ()
             {
                 Cairo::RefPtr<Cairo::ImageSurface> image_surface =
@@ -269,7 +260,7 @@ namespace agave
         Priv ()
         {
             set_size_request (MIN_WIDGET_SIZE, MIN_WIDGET_SIZE);
-            m_wheel = WheelItem::create (MIN_WIDGET_SIZE / 2.0, MIN_WIDGET_SIZE / 2.0, MIN_WIDGET_SIZE / 2.0 - BORDER_WIDTH);
+            m_wheel = WheelItem::create (MIN_WIDGET_SIZE / 2.0, MIN_WIDGET_SIZE / 2.0, MIN_WIDGET_SIZE / 2.0 - PADDING);
             get_root_item ()->add_child (m_wheel);
         }
 
