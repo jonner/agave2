@@ -28,8 +28,8 @@
 
 namespace agave
 {
-    const int MIN_WIDGET_SIZE = 200;
-    const int PADDING = 10;
+    const int WHEEL_MIN_SIZE = 200;
+    const int WHEEL_PADDING = 10;
 
     typedef sigc::slot<bool, double, double> SlotValidateDrop;
     typedef sigc::slot<std::pair<double, double>, const Color&> SlotDeterminePosition;
@@ -167,9 +167,9 @@ namespace agave
                 double x = 0.0, y = 0.0;
                 hsv_t hsv = color.as_hsv ();
                 x = hsv.s * cos (hsv.h * 2.0 * G_PI) * property_radius_x () +
-                    property_radius_x ();
+                    property_center_x ();
                 y = hsv.s * -sin (hsv.h * 2.0 * G_PI) * property_radius_y () +
-                    property_radius_y ();
+                    property_center_y ();
                 return std::make_pair (x, y);
             }
 
@@ -220,8 +220,11 @@ namespace agave
             {
                 Cairo::RefPtr<Cairo::ImageSurface> image_surface =
                     Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
-                            static_cast<int>(property_radius_x () * 2.0),
-                            static_cast<int>(property_radius_y () * 2.0));
+                            // FIXME: do we really have to create the image
+                            // surface from the 0,0 point of the entire canvas?
+                            // that could be huge in theory...
+                            static_cast<int>(property_center_x () + property_radius_x ()),
+                            static_cast<int>(property_center_y () + property_radius_y ()));
                 unsigned char *data = image_surface->get_data ();
                 for (int row = 0; row < image_surface->get_height (); ++row)
                 {
@@ -259,8 +262,8 @@ namespace agave
 
         Priv ()
         {
-            set_size_request (MIN_WIDGET_SIZE, MIN_WIDGET_SIZE);
-            m_wheel = WheelItem::create (MIN_WIDGET_SIZE / 2.0, MIN_WIDGET_SIZE / 2.0, MIN_WIDGET_SIZE / 2.0 - PADDING);
+            set_size_request (WHEEL_MIN_SIZE, WHEEL_MIN_SIZE);
+            m_wheel = WheelItem::create (WHEEL_MIN_SIZE / 2.0, WHEEL_MIN_SIZE / 2.0, WHEEL_MIN_SIZE / 2.0 - WHEEL_PADDING);
             get_root_item ()->add_child (m_wheel);
         }
 
