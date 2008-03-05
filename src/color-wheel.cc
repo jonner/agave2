@@ -57,6 +57,22 @@ namespace agave
             void set_model (const boost::shared_ptr<ColorModel>& model) { m_model = model;}
 
         protected:
+            bool on_focus_event (const Glib::RefPtr<Goocanvas::Item>& target,
+                    GdkEventFocus* event)
+            {
+                g_return_val_if_fail (event, false);
+                if (event->in)
+                {
+                    // FIXME: theme-friendly colors
+                    property_stroke_color_rgba () = COLOR_FOCUSED;
+                }
+                else
+                {
+                    property_stroke_color_rgba () = COLOR_UNFOCUSED;
+                }
+                return false;
+            }
+
             bool xon_button_press_event (const Glib::RefPtr<Goocanvas::Item>& target,
                     GdkEventButton* event)
             {
@@ -139,6 +155,11 @@ namespace agave
                 m_model (model)
             {
                 property_pointer_events () = Goocanvas::CANVAS_EVENTS_ALL;
+                property_can_focus () = true;
+                signal_focus_out_event ().connect (sigc::mem_fun (this,
+                            &MarkerItem::on_focus_event));
+                signal_focus_in_event ().connect (sigc::mem_fun (this,
+                            &MarkerItem::on_focus_event));
                 signal_button_press_event ().connect (sigc::mem_fun (this,
                             &MarkerItem::xon_button_press_event));
                 signal_button_release_event ().connect (sigc::mem_fun (this,
@@ -149,6 +170,7 @@ namespace agave
                     m_model->signal_color_changed ().connect (sigc::mem_fun
                             (this, &MarkerItem::on_color_changed));
                 }
+                property_stroke_color_rgba () = COLOR_UNFOCUSED;
                 // FIXME: set center coordinates based on color value
             }
 
@@ -158,7 +180,13 @@ namespace agave
             SlotDeterminePosition m_position_func;
             SlotDetermineColor m_color_func;
             boost::shared_ptr<ColorModel> m_model;
+            static const guint COLOR_FOCUSED;
+            static const guint COLOR_UNFOCUSED;
     };
+
+    const guint MarkerItem::COLOR_FOCUSED = 0xffffffff;
+    const guint MarkerItem::COLOR_UNFOCUSED = 0x000000ff;
+
 
     class WheelItem :
         public Goocanvas::Ellipse
@@ -312,7 +340,16 @@ namespace agave
                             &WheelItem::position_for_color));
                 marker->set_validate_drop_func (sigc::mem_fun
                         (m_wheel.operator->(), &WheelItem::is_in_path));
+                marker->signal_button_press_event ().connect (sigc::mem_fun
+                        (this, &Priv::on_marker_button_press));
             }
+        }
+
+        bool on_marker_button_press (const Glib::RefPtr<Goocanvas::Item>& target,
+                GdkEventButton* event)
+        {
+            grab_focus (target);
+            return false;
         }
 
         void remove_color (const boost::shared_ptr<ColorModel>& model)
