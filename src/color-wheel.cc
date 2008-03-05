@@ -20,6 +20,7 @@
  *******************************************************************************/
 #include <algorithm>    // for std::find, std::for_each
 #include <cmath>    // for floor()
+#include <gdk/gdkkeysyms.h>
 #include "color-wheel.h"
 #include "color-model.h"
 #include <goocanvasmm.h>
@@ -102,8 +103,7 @@ namespace agave
                 if (m_dragging && m_validate_func (event->x, event->y))
                 {
                     move_to (event->x, event->y);
-                    Color new_color = m_color_func (event->x, event->y);
-                    m_model->set_color (new_color);
+                    update_color_from_position ();
                 }
                 return false;
             }
@@ -144,6 +144,37 @@ namespace agave
                 }
             }
 
+            bool xon_key_press_event (const Glib::RefPtr<Goocanvas::Item>& target, GdkEventKey* event)
+            {
+                const guint ADJUSTMENT = 2;
+                g_return_val_if_fail (event, false);
+                double newx = property_center_x (), newy = property_center_y ();
+                switch (event->keyval)
+                {
+                    case GDK_Left:
+                        newx = property_center_x () - ADJUSTMENT;
+                        break;
+                    case GDK_Right:
+                        newx = property_center_x () + ADJUSTMENT;
+                        break;
+                    case GDK_Up:
+                        newy = property_center_y () - ADJUSTMENT;
+                        break;
+                    case GDK_Down:
+                        newy = property_center_y () + ADJUSTMENT;
+                        break;
+                    default:
+                        // let any other keys be handled by the default handlers
+                        return false;
+                }
+                if (m_validate_func (newx, newy))
+                {
+                    move_to (newx, newy);
+                    update_color_from_position ();
+                }
+                return true;
+            }
+
 
         private:
             MarkerItem (const boost::shared_ptr<ColorModel>& model, double radius) :
@@ -166,12 +197,21 @@ namespace agave
                             &MarkerItem::xon_button_release_event));
                 signal_motion_notify_event ().connect (sigc::mem_fun (this,
                             &MarkerItem::xon_motion_notify_event));
+                signal_key_press_event ().connect (sigc::mem_fun (this,
+                            &MarkerItem::xon_key_press_event));
                 if (m_model) {
                     m_model->signal_color_changed ().connect (sigc::mem_fun
                             (this, &MarkerItem::on_color_changed));
                 }
                 property_stroke_color_rgba () = COLOR_UNFOCUSED;
                 // FIXME: set center coordinates based on color value
+            }
+
+            void update_color_from_position ()
+            {
+                    Color new_color = m_color_func (property_center_x (),
+                            property_center_y ());
+                    m_model->set_color (new_color);
             }
 
             bool m_dragging;
