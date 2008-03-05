@@ -66,6 +66,7 @@ namespace agave
                 {
                     // FIXME: theme-friendly colors
                     property_stroke_color_rgba () = COLOR_FOCUSED;
+                    raise ();
                 }
                 else
                 {
