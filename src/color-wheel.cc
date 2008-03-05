@@ -116,9 +116,14 @@ namespace agave
             void on_color_changed ()
             {
                 set_background_color (m_model->get_color ());
-                if (m_position_func)
+
+                // when we drag the marker, it changes the color model, so we
+                // don't want to modify the position due to that color model
+                // change
+                if (!m_dragging && m_position_func)
                 {
-                    std::pair<double, double> new_position = m_position_func (m_model->get_color ());
+                    std::pair<double, double> new_position =
+                        m_position_func (m_model->get_color ());
                     move_to (new_position.first, new_position.second);
                 }
             }
@@ -175,8 +180,8 @@ namespace agave
 
             Color color_at_position (double x, double y)
             {
-                double dy = - (y - property_radius_y ());
-                double dx = x - property_radius_x ();
+                double dy = - (y - property_center_y ());
+                double dx = x - property_center_x ();
                 double angle = atan2 (dy, dx);
                 if (angle < 0.0)
                 {
@@ -190,6 +195,18 @@ namespace agave
                 hsv.v = 1.0;
                 hsv.a = 1.0;
                 return Color (hsv);
+            }
+
+            bool is_in_path (double x, double y)
+            {
+                double dy = std::abs (y - property_center_y ());
+                double dx = std::abs (x - property_center_x ());
+                double dist = std::sqrt (dx * dx + dy * dy);
+                if (dist < property_radius_x ())
+                {
+                    return true;
+                }
+                return false;
             }
 
 
@@ -293,6 +310,8 @@ namespace agave
                             &WheelItem::color_at_position),
                         sigc::mem_fun (m_wheel.operator->(),
                             &WheelItem::position_for_color));
+                marker->set_validate_drop_func (sigc::mem_fun
+                        (m_wheel.operator->(), &WheelItem::is_in_path));
             }
         }
 
