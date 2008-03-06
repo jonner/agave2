@@ -1,4 +1,4 @@
-bin_PROGRAMS=agave
+bin_PROGRAMS=agave2
 
 noinst_LTLIBRARIES=libagavewidgets.la libagavecore.la
 libagavecore_la_SOURCES = \
@@ -31,7 +31,7 @@ scheme-combo-box.cc \
 color-wheel.h \
 color-wheel.cc
 
-agave_SOURCES = \
+agave2_SOURCES = \
 agave.cc \
 application.h \
 application.cc \
@@ -43,7 +43,7 @@ about-dialog.cc
 AM_CPPFLAGS = -DAGAVE_LOCALEDIR=\"${AGAVE_LOCALEDIR}\"
 
 AM_CXXFLAGS=$(AGAVE_CFLAGS)
-agave_LDADD=$(AGAVE_LIBS) libagavewidgets.la libagavecore.la
+agave2_LDADD=$(AGAVE_LIBS) libagavewidgets.la libagavecore.la
 
 doc : Doxyfile.in $(libagavewidgets_la_SOURCES) $(libagavecore_la_SOURCES)
 	doxygen Doxyfile

@@ -2,10 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 
 #AC_PREREQ(2.59)
-AC_INIT([Agave],
+AC_INIT([Agave2],
         [0.9],
-        [https://gna.org/bugs/?group=colorscheme],
-        [agave])
+        [jjongsma@gnome.org],
+        [agave2])
 
 AC_CONFIG_SRCDIR([src/color.cc])
 AM_INIT_AUTOMAKE
@@ -35,7 +35,7 @@ AC_CHECK_PROGS(SED, sed)
 
 dnl i18n
 AC_PROG_INTLTOOL([0.35.0])
-GETTEXT_PACKAGE=agave
+GETTEXT_PACKAGE=agave2
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$GETTEXT_PACKAGE"],
                    [The domain name to use with gettext])
@@ -126,7 +126,7 @@ AC_SUBST(AGAVE_CFLAGS)
 
 dnl Define directory locations for use in the program
 AGAVE_LOCALEDIR=[${datadir}/locale]
-AGAVE_COMMONDIR=[${datadir}/agave]
+AGAVE_COMMONDIR=[${datadir}/agave2]
 AGAVE_ICONDIR=[${AGAVE_COMMONDIR}/pixmaps]
 AGAVE_UIDIR=[${AGAVE_COMMONDIR}/ui]
 AGAVE_PALETTEDIR=[${AGAVE_COMMONDIR}/palettes]

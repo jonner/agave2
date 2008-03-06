@@ -31,7 +31,6 @@ namespace agave
         set_name (PACKAGE_NAME);
         set_version (PACKAGE_VERSION);
         set_comments (_(PACKAGE_DESCRIPTION));
-        //dialog.set_logo_icon_name ("agave-icon");
         std::vector<Glib::ustring> authors;
         authors.push_back ("Jonathon Jongsma <jjongsma@gnome.org>");
         set_authors (authors);
@@ -40,7 +39,7 @@ namespace agave
         artists.push_back ("Vinicius Depizzol <vdepizzol@gmail.com>");
         set_artists (artists);
         set_website (PACKAGE_WEBSITE);
-        const Glib::ustring icon_name = "agave";
+        const Glib::ustring icon_name = "agave2";
         Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
 
         if (theme->has_icon(icon_name))

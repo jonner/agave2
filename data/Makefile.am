@@ -2,13 +2,13 @@ SUBDIRS = icons
 
 # desktop files
 desktopdir = $(datadir)/applications
-desktop_in_files = agave.desktop.in
+desktop_in_files = agave2.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 
 # gconf schemas
 schemasdir = $(GCONF_SCHEMA_FILE_DIR)
-schemas_in_files = agave.schemas.in
+schemas_in_files = agave2.schemas.in
 schemas_DATA = $(schemas_in_files:.schemas.in=.schemas)
 
 @INTLTOOL_SCHEMAS_RULE@

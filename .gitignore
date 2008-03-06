@@ -22,7 +22,7 @@ mkinstalldirs
 /po/stamp-it
 .deps
 .libs
-/src/agave
+/src/agave2
 /libtool
 /ltmain.sh
 *.o
@@ -39,7 +39,7 @@ test/test-relations
 test/test-wheel
 src/Doxyfile
 src/doc
-po/agave.pot
-data/agave.desktop
-data/agave.schemas
+po/agave2.pot
+data/agave2.desktop
+data/agave2.schemas
 po/.intltool*

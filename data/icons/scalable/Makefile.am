@@ -5,7 +5,7 @@ context = apps
 iconsdir = $(themedir)/$(size)/$(context)
 
 icons_DATA = \
-	agave.svg
+	agave2.svg
 
 noinst_DATA =
 

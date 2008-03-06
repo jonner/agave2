@@ -2,10 +2,8 @@ src/agave.cc
 src/application.cc
 src/application-window.cc
 src/color.cc
-src/colormodel.cc
-src/colorscale.cc
-src/scheme.cc
-src/scheme-generators.cc
+src/color-model.cc
+src/color-scale.cc
 src/swatch.cc
-data/agave.desktop.in
-data/agave.schemas.in
+data/agave2.desktop.in
+data/agave2.schemas.in

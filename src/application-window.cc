@@ -111,7 +111,7 @@ namespace agave
             on_scheme_combo_changed();
 
             add (m_vbox);
-            set_default_icon_name ("agave");
+            set_default_icon_name ("agave2");
             show_all ();
         }
 
