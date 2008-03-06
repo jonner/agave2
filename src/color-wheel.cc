@@ -62,15 +62,15 @@ namespace agave
                     GdkEventFocus* event)
             {
                 g_return_val_if_fail (event, false);
+
                 if (event->in)
                 {
-                    // FIXME: theme-friendly colors
-                    property_stroke_color_rgba () = COLOR_FOCUSED;
+                    property_stroke_color_rgba () = get_stroke_color (FOCUSED);
                     raise ();
                 }
                 else
                 {
-                    property_stroke_color_rgba () = COLOR_UNFOCUSED;
+                    property_stroke_color_rgba () = get_stroke_color (UNFOCUSED);
                 }
                 return false;
             }
@@ -204,7 +204,8 @@ namespace agave
                     m_model->signal_color_changed ().connect (sigc::mem_fun
                             (this, &MarkerItem::on_color_changed));
                 }
-                property_stroke_color_rgba () = COLOR_UNFOCUSED;
+
+                property_stroke_color_rgba () = get_stroke_color (UNFOCUSED);
                 // FIXME: set center coordinates based on color value
             }
 
@@ -215,18 +216,36 @@ namespace agave
                     m_model->set_color (new_color);
             }
 
+            enum FocusState {
+                FOCUSED,
+                UNFOCUSED
+            };
+
+            inline uint32_t get_stroke_color (FocusState focus)
+            {
+                Gtk::StateType gtk_state;
+                if (focus == FOCUSED)
+                    gtk_state = Gtk::STATE_SELECTED;
+                else
+                    gtk_state = Gtk::STATE_NORMAL;
+
+                Glib::RefPtr<Gtk::Style> style;
+                if (get_canvas ())
+                { style = get_canvas ()->get_style (); }
+                else
+                { style = Gtk::Widget::get_default_style (); }
+                return (style->get_fg(gtk_state).get_pixel () << 8 | 0xff);
+            }
+
             bool m_dragging;
             double m_drag_origin_x, m_drag_origin_y;
             SlotValidateDrop m_validate_func;
             SlotDeterminePosition m_position_func;
             SlotDetermineColor m_color_func;
             boost::shared_ptr<ColorModel> m_model;
-            static const guint COLOR_FOCUSED;
-            static const guint COLOR_UNFOCUSED;
+            static const uint32_t COLOR_FOCUSED;
+            static const uint32_t COLOR_UNFOCUSED;
     };
-
-    const guint MarkerItem::COLOR_FOCUSED = 0xffffffff;
-    const guint MarkerItem::COLOR_UNFOCUSED = 0x000000ff;
 
 
     class WheelItem :
