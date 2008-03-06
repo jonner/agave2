@@ -101,8 +101,9 @@ namespace agave
 
             m_vlayout.set_border_width (6);
             m_vlayout.set_spacing (6);
-            m_wheel.get_widget ().set_size_request (200, 200);
-            m_vlayout.pack_start (m_wheel.get_widget ());
+            Gtk::HBox* hbox = Gtk::manage(new Gtk::HBox ());
+            m_vlayout.pack_start (*hbox, Gtk::PACK_SHRINK);
+            hbox->pack_start (m_wheel.get_widget (), Gtk::PACK_EXPAND_PADDING);
             m_vlayout.pack_start (m_color_group);
             m_vlayout.pack_start (m_scheme_combo, Gtk::PACK_SHRINK);
 

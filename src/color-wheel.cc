@@ -29,8 +29,9 @@
 
 namespace agave
 {
-    const int WHEEL_MIN_SIZE = 200;
-    const int WHEEL_PADDING = 10;
+    const int WHEEL_DEFAULT_SIZE = 200;
+    const int MARKER_DEFAULT_SIZE = 10;
+    const float STROKE_DEFAULT_WIDTH = 2.0;
 
     typedef sigc::slot<bool, double, double> SlotValidateDrop;
     typedef sigc::slot<std::pair<double, double>, const Color&> SlotDeterminePosition;
@@ -191,6 +192,7 @@ namespace agave
                 m_model (model)
             {
                 property_pointer_events () = Goocanvas::CANVAS_EVENTS_ALL;
+                property_line_width () = STROKE_DEFAULT_WIDTH;
                 property_can_focus () = true;
                 signal_focus_out_event ().connect (sigc::mem_fun (this,
                             &MarkerItem::on_focus_event));
@@ -337,6 +339,7 @@ namespace agave
                         (this, &WheelItem::update_pattern));
                 property_radius_y ().signal_changed ().connect (sigc::mem_fun
                         (this, &WheelItem::update_pattern));
+                property_line_width () = STROKE_DEFAULT_WIDTH;
             }
 
             virtual ~WheelItem () {}
@@ -388,8 +391,12 @@ namespace agave
 
         Priv ()
         {
-            set_size_request (WHEEL_MIN_SIZE, WHEEL_MIN_SIZE);
-            m_wheel = WheelItem::create (WHEEL_MIN_SIZE / 2.0, WHEEL_MIN_SIZE / 2.0, WHEEL_MIN_SIZE / 2.0 - WHEEL_PADDING);
+            set_size_request (WHEEL_DEFAULT_SIZE, WHEEL_DEFAULT_SIZE);
+            m_wheel = WheelItem::create (WHEEL_DEFAULT_SIZE / 2.0,
+                                         WHEEL_DEFAULT_SIZE / 2.0,
+                                         WHEEL_DEFAULT_SIZE / 2.0 -
+                                             MARKER_DEFAULT_SIZE - 2 *
+                                             STROKE_DEFAULT_WIDTH);
             get_root_item ()->add_child (m_wheel);
         }
 
@@ -397,7 +404,6 @@ namespace agave
         {
             Goocanvas::Canvas::on_realize();
             guint pixel = get_style ()->get_bg (Gtk::STATE_NORMAL).get_pixel ();
-            std::cout << std::hex << pixel << std::endl;
             property_background_color_rgb () = pixel;
         }
 
@@ -417,7 +423,7 @@ namespace agave
             if (!found)
             {
                 // not yet in the list, so add it
-                Glib::RefPtr<MarkerItem> marker = MarkerItem::create (model, 10.0);
+                Glib::RefPtr<MarkerItem> marker = MarkerItem::create (model, MARKER_DEFAULT_SIZE);
                 get_root_item ()->add_child (marker);
                 m_markers.push_back (marker);
                 // also connect to the changed signal so that we can redraw when
