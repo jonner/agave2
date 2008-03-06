@@ -52,7 +52,11 @@ namespace agave
 
             void set_color_position_funcs (const SlotDetermineColor& color_func,
                     const SlotDeterminePosition& position_func)
-            { m_position_func = position_func; m_color_func = color_func; }
+            {
+                m_position_func = position_func;
+                m_color_func = color_func;
+                update_position_from_color ();
+            }
 
             boost::shared_ptr<ColorModel> get_model () { return m_model;}
             void set_model (const boost::shared_ptr<ColorModel>& model) { m_model = model;}
@@ -206,14 +210,29 @@ namespace agave
                 }
 
                 property_stroke_color_rgba () = get_stroke_color (UNFOCUSED);
-                // FIXME: set center coordinates based on color value
+
+                // initialize the bacground color and position of the marker
+                on_color_changed ();
             }
+
+            void update_position_from_color ()
+            {
+                if (m_position_func)
+                {
+                    std::pair<double, double> new_position =
+                        m_position_func (m_model->get_color ());
+                    move_to (new_position.first, new_position.second);
+                }
+            }
+
 
             void update_color_from_position ()
             {
+                if (m_color_func) {
                     Color new_color = m_color_func (property_center_x (),
                             property_center_y ());
                     m_model->set_color (new_color);
+                }
             }
 
             enum FocusState {
@@ -234,6 +253,8 @@ namespace agave
                 { style = get_canvas ()->get_style (); }
                 else
                 { style = Gtk::Widget::get_default_style (); }
+                // Gdk::Color only returns rgb without alpha, so we have to
+                // shift over and add in a full alpha component
                 return (style->get_fg(gtk_state).get_pixel () << 8 | 0xff);
             }
 
@@ -370,6 +391,14 @@ namespace agave
             set_size_request (WHEEL_MIN_SIZE, WHEEL_MIN_SIZE);
             m_wheel = WheelItem::create (WHEEL_MIN_SIZE / 2.0, WHEEL_MIN_SIZE / 2.0, WHEEL_MIN_SIZE / 2.0 - WHEEL_PADDING);
             get_root_item ()->add_child (m_wheel);
+        }
+
+        void on_realize ()
+        {
+            Goocanvas::Canvas::on_realize();
+            guint pixel = get_style ()->get_bg (Gtk::STATE_NORMAL).get_pixel ();
+            std::cout << std::hex << pixel << std::endl;
+            property_background_color_rgb () = pixel;
         }
 
         void add_color (const boost::shared_ptr<ColorModel>& model)
