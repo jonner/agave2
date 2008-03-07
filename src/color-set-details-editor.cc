@@ -63,6 +63,9 @@ namespace agave
             m_table.attach (m_label_tags, 0, 1, 3, 4);
             m_table.attach (m_entry_tags, 1, 2, 3, 4);
 
+            m_entry_name.set_text (set.get_name ());
+            m_entry_desc.set_text (set.get_description ());
+
             show_all ();
         }
 

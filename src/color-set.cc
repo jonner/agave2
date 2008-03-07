@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <glibmm.h>
 #include "color-set.h"
+#include <boost/lexical_cast.hpp>
 
 namespace agave
 {
@@ -32,16 +33,21 @@ namespace agave
         Glib::Rand rand;
         Glib::TimeVal tval;
         tval.assign_current_time ();
-        std::ostringstream stream;
-        stream << Glib::get_user_name () << "-" << tval.tv_sec << "-" << tval.tv_usec << "-" << rand.get_int ();
+        std::string input = Glib::get_user_name () + "-"
+            + boost::lexical_cast<std::string> (tval.tv_sec) + "-"
+            + boost::lexical_cast<std::string> (tval.tv_usec) + "-"
+            + boost::lexical_cast<std::string> (rand.get_int ());
         Glib::Checksum sha1(Glib::Checksum::CHECKSUM_SHA1);
-        sha1.update (stream.str ());
+        sha1.update (input);
         return sha1.get_string ();
     }
+
+    static int session_count = 0;
 
     ColorSet::ColorSet () :
         m_id (next_id ())
     {
+        m_name = "ColorSet" + boost::lexical_cast<Glib::ustring>(++session_count);
     }
 
     std::string ColorSet::get_id () const
