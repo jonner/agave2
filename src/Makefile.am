@@ -10,7 +10,11 @@ scheme-manager.cc \
 color-model.h \
 color-model.cc \
 color-relation.h \
-color-relation.cc
+color-relation.cc \
+color-set.h \
+color-set.cc \
+color-set-manager.h \
+color-set-manager.cc
 
 libagavewidgets_la_SOURCES = \
 i-color-view.h \
