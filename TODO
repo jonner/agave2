@@ -1,0 +1,6 @@
+Fix focus indicator on ColorScale Widgets
+Add saved schemes infrastructure
+Add web service to share / download schemes from others
+Add ability to analyze a photograph and pick a colorscheme for it
+copy/paste of color values
+export as gimp palette, etc

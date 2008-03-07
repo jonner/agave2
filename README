@@ -1,4 +1,10 @@
 Agave2 is a re-write of the Agave Colorscheme Designer
 
-It is still in a fairly early state, so if you need a useful tool, you're
-advised to use the original version of agave for the time being.
+This is a tool for web and graphic designers to generate color ideas.  It is
+designed to integrate well with the GNOME desktop environment.
+
+Agave2 is still in a fairly early state, so if you need a useful tool, you're
+advised to use the original version of Agave for the time being.  The original
+version of Agave can likely be installed from your linux distribution's software
+repository, or it can be downloaded in source form from
+http://home.gna.org/colorscheme/
