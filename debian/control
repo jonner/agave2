@@ -1,0 +1,13 @@
+Source: agave2
+Section: universe/gnome
+Priority: optional
+Maintainer: Jonathon Jongsma <jjongsma@gnome.org>
+Build-Depends: cdbs, debhelper (>= 5), libglibmm-2.4-dev (>= 2.8.2), libgtkmm-2.4-dev (>= 2.6.0), intltool (>= 0.35), libglibmm-utils-dev (>= 0.3), libgoocanvasmm-dev (>= 0.4.0), libboost-dev
+Standards-Version: 3.7.2
+
+Package: agave2
+Architecture: any
+Section: universe/gnome
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Colorscheme Designer for GNOME
+ Agave2 is a re-write of agave
