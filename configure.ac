@@ -9,14 +9,8 @@ AC_INIT([Agave2],
 
 AC_CONFIG_SRCDIR([src/color.cc])
 AM_INIT_AUTOMAKE
-GNOME_DOC_INIT
 
-dnl Custom macro that checks if the git binary exists, and if it does, it tries
-dnl to check the git repository version of the working copy and uses that in 
-dnl the application's 'About' window
-#GIT_REPOSITORY_REVISION()
-
-PACKAGE_WEBSITE=[http://home.gna.org/colorscheme/]
+PACKAGE_WEBSITE=[http://github.com/jonner/agave2/wikis]
 AC_DEFINE_UNQUOTED([PACKAGE_WEBSITE], ["$PACKAGE_WEBSITE"],
                    [The website of Agave])
 AC_SUBST([PACKAGE_WEBSITE])
@@ -50,16 +44,6 @@ PKG_CHECK_MODULES(GLIBMM_UTILS, [
 PKG_CHECK_MODULES(GOOCANVAS, [
                           goocanvasmm-1.0 >= 0.4.0
                           ])
-
-dnl ***************
-dnl gconf tool and path info
-dnl ***************
-AC_PATH_PROG(GCONFTOOL, gconftool-2)
-dnl FIXME: this may break if gconf is not installed even if the user
-dnl requests that gconf be disabled.  Do I need to copy this macro into my
-dnl source tree??
-AM_GCONF_SOURCE_2
-AC_SUBST(GCONFTOOL)
 
 dnl Determine whether to compile with debug settings.  Essentially this just
 dnl disables compiler optimizations for now
