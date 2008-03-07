@@ -44,6 +44,11 @@ namespace agave
     {
     }
 
+    std::string ColorSet::get_id () const
+    {
+        return m_id;
+    }
+
     Glib::ustring ColorSet::get_name () const
     {
         return m_name;

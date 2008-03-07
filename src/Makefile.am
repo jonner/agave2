@@ -33,7 +33,9 @@ color-group-box.cc \
 scheme-combo-box.h \
 scheme-combo-box.cc \
 color-wheel.h \
-color-wheel.cc
+color-wheel.cc \
+color-set-details-editor.h \
+color-set-details-editor.cc
 
 agave2_SOURCES = \
 agave.cc \
