@@ -57,6 +57,7 @@ namespace agave
         {
             init ();
             set_model (model);
+            property_can_focus () = true;
         }
 
         void set_model (const boost::shared_ptr<ColorModel>& model)
@@ -123,6 +124,21 @@ namespace agave
             {
                 // FIXME: draw the current value on the widget
             }
+
+            if (has_focus ())
+            {
+                // FIXME: this doesn't paint quite right...
+                gtk_paint_focus (get_style ()->gobj (),
+                                 get_window ()->gobj (),
+                                 static_cast<GtkStateType> (get_state ()),
+                                 0, /* no clip */
+                                 GTK_WIDGET (gobj ()),  /* this widget */
+                                 0, /* no style detail */
+                                 1,
+                                 1,
+                                 get_width () - 2,
+                                 get_height () - 2);
+            }
             return true;
         }
 
@@ -143,6 +159,7 @@ namespace agave
 
         virtual bool on_button_press_event (GdkEventButton* event)
         {
+            grab_focus ();
             if (get_state () != Gtk::STATE_INSENSITIVE)
             {
                 if (event
@@ -185,6 +202,7 @@ namespace agave
 
         virtual bool on_scroll_event (GdkEventScroll* event)
         {
+            grab_focus ();
             if (get_state () != Gtk::STATE_INSENSITIVE)
             {
                 if (event)
@@ -192,10 +210,10 @@ namespace agave
                     switch (event->direction)
                     {
                         case GDK_SCROLL_UP:
-                            m_adj->set_value (m_adj->get_value () + m_adj->get_page_increment ());
+                            increment_page ();
                             break;
                         case GDK_SCROLL_DOWN:
-                            m_adj->set_value (m_adj->get_value () - m_adj->get_page_increment ());
+                            decrement_page ();
                             break;
                         default:
                             // do nothing
@@ -206,34 +224,22 @@ namespace agave
             return true;
         }
 
-        virtual bool on_focus_in_event (GdkEventFocus* event)
-        {
-            set_state (Gtk::STATE_ACTIVE);
-            return true;
-        }
-
-        virtual bool on_focus_out_event (GdkEventFocus* event)
-        {
-            set_state (Gtk::STATE_NORMAL);
-            return true;
-        }
-
         virtual bool on_key_press_event (GdkEventKey* event)
         {
             if (event)
             {
                 switch (event->keyval)
                 {
-                    case GDK_Up:
+                    case GDK_Down:
                     case GDK_Left:
+                        decrement_page ();
+                        break;
+                    case GDK_Up:
+                    case GDK_Right:
                         increment_page ();
                         break;
-                    case GDK_Down:
-                    case GDK_Right:
-                        decrement_page ();
                     default:
-                        // nothing
-                        break;
+                        return false;
                 }
             }
             return true;
@@ -726,8 +732,8 @@ namespace agave
             m_adj.reset (new Gtk::Adjustment (0.0 /* initial value */,
                         0.0 /* lower */,
                         1.0 /* upper */,
-                        0.05 /* step increment */,
-                        0.1 /* page increment */));
+                        0.025 /* step increment */,
+                        0.05 /* page increment */));
             m_adjustment_signal_connection = m_adj->signal_value_changed ().connect
                 (sigc::mem_fun (this, &Priv::on_adjustment_value_changed));
             m_drag_started = false;
