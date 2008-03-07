@@ -30,7 +30,7 @@
 namespace agave
 {
     const int WHEEL_DEFAULT_SIZE = 200;
-    const int MARKER_DEFAULT_SIZE = 10;
+    const float MARKER_DEFAULT_RADIUS = 10.0;
     const float STROKE_DEFAULT_WIDTH = 2.0;
 
     typedef sigc::slot<bool, double, double> SlotValidateDrop;
@@ -70,12 +70,15 @@ namespace agave
 
                 if (event->in)
                 {
-                    property_stroke_color_rgba () = get_stroke_color (FOCUSED);
+                    static double dash_size = G_PI * MARKER_DEFAULT_RADIUS * 2.0 / 15.0;
+                    static GooCanvasLineDash* c_line_dash = goo_canvas_line_dash_new (2, 2.0/3.0*dash_size, 1.0/3.0*dash_size);
+                    property_line_dash () = Goocanvas::LineDash (c_line_dash);
                     raise ();
                 }
                 else
                 {
-                    property_stroke_color_rgba () = get_stroke_color (UNFOCUSED);
+                    static GooCanvasLineDash* no_dash = goo_canvas_line_dash_new (0);
+                    property_line_dash () = Goocanvas::LineDash (no_dash);
                 }
                 return false;
             }
@@ -211,8 +214,6 @@ namespace agave
                             (this, &MarkerItem::on_color_changed));
                 }
 
-                property_stroke_color_rgba () = get_stroke_color (UNFOCUSED);
-
                 // initialize the bacground color and position of the marker
                 on_color_changed ();
             }
@@ -241,24 +242,6 @@ namespace agave
                 FOCUSED,
                 UNFOCUSED
             };
-
-            inline uint32_t get_stroke_color (FocusState focus)
-            {
-                Gtk::StateType gtk_state;
-                if (focus == FOCUSED)
-                    gtk_state = Gtk::STATE_SELECTED;
-                else
-                    gtk_state = Gtk::STATE_NORMAL;
-
-                Glib::RefPtr<Gtk::Style> style;
-                if (get_canvas ())
-                { style = get_canvas ()->get_style (); }
-                else
-                { style = Gtk::Widget::get_default_style (); }
-                // Gdk::Color only returns rgb without alpha, so we have to
-                // shift over and add in a full alpha component
-                return (style->get_fg(gtk_state).get_pixel () << 8 | 0xff);
-            }
 
             bool m_dragging;
             double m_drag_origin_x, m_drag_origin_y;
@@ -395,7 +378,7 @@ namespace agave
             m_wheel = WheelItem::create (WHEEL_DEFAULT_SIZE / 2.0,
                                          WHEEL_DEFAULT_SIZE / 2.0,
                                          WHEEL_DEFAULT_SIZE / 2.0 -
-                                             MARKER_DEFAULT_SIZE - 2 *
+                                             MARKER_DEFAULT_RADIUS - 2 *
                                              STROKE_DEFAULT_WIDTH);
             get_root_item ()->add_child (m_wheel);
         }
@@ -423,7 +406,7 @@ namespace agave
             if (!found)
             {
                 // not yet in the list, so add it
-                Glib::RefPtr<MarkerItem> marker = MarkerItem::create (model, MARKER_DEFAULT_SIZE);
+                Glib::RefPtr<MarkerItem> marker = MarkerItem::create (model, MARKER_DEFAULT_RADIUS);
                 get_root_item ()->add_child (marker);
                 m_markers.push_back (marker);
                 // also connect to the changed signal so that we can redraw when
