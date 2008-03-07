@@ -20,11 +20,27 @@
  *******************************************************************************/
 
 #include <algorithm>
+#include <glibmm.h>
 #include "color-set.h"
 
 namespace agave
 {
-    ColorSet::ColorSet ()
+    static std::string next_id ()
+    {
+        // create a hash of the user's name, the current time, and a random
+        // value
+        Glib::Rand rand;
+        Glib::TimeVal tval;
+        tval.assign_current_time ();
+        std::ostringstream stream;
+        stream << Glib::get_user_name () << "-" << tval.tv_sec << "-" << tval.tv_usec << "-" << rand.get_int ();
+        Glib::Checksum sha1(Glib::Checksum::CHECKSUM_SHA1);
+        sha1.update (stream.str ());
+        return sha1.get_string ();
+    }
+
+    ColorSet::ColorSet () :
+        m_id (next_id ())
     {
     }
 
@@ -52,7 +68,7 @@ namespace agave
     {
         std::list<Glib::ustring>::iterator iter =
             std::find (m_tags.begin (), m_tags.end (), tag);
-        if (iter != m_tags.end ())
+        if (iter == m_tags.end ())
         {
             m_tags.push_back (tag);
         }
@@ -91,8 +107,14 @@ namespace agave
         m_colors.clear ();
     }
 
+    bool ColorSet::operator== (const ColorSet& other)
+    {
+        return (m_id == other.m_id);
+    }
+
     std::ostream& operator<<(std::ostream& out, const ColorSet& s)
     {
+        out << "ID: " << s.m_id << std::endl;
         out << "Name: " << s.get_name () << std::endl;
         out << "Description: " << s.get_description () << std::endl;
         std::list<Color>::const_iterator color_iter;

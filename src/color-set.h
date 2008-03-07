@@ -41,11 +41,12 @@ namespace agave
             void set_colors (const std::list<Color>& colors);
             std::list<Color> get_colors () const;
             void clear ();
+            bool operator== (const ColorSet& other);
 
             friend std::ostream& operator<<(std::ostream& out, const ColorSet& s);
 
-        protected:
         private:
+            const std::string m_id;
             Glib::ustring m_name;
             Glib::ustring m_description;
             std::list<Glib::ustring> m_tags;
