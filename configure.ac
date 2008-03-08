@@ -35,15 +35,16 @@ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$GETTEXT_PACKAGE"],
                    [The domain name to use with gettext])
 AM_GLIB_GNU_GETTEXT
 
-PKG_CHECK_MODULES(GTKMM, [
-                          gtkmm-2.4 >= 2.11.6
+PKG_CHECK_MODULES(UI_DEPS, [
+                            glibmm-2.4 >= 2.15.8
+                            glibmm-utils >= 0.3
+                            gtkmm-2.4 >= 2.11.6
+                            goocanvasmm-1.0 >= 0.4.0
                           ])
-PKG_CHECK_MODULES(GLIBMM_UTILS, [
-                          glibmm-utils >= 0.3
-                          ])
-PKG_CHECK_MODULES(GOOCANVAS, [
-                          goocanvasmm-1.0 >= 0.4.0
-                          ])
+PKG_CHECK_MODULES(CORE_DEPS, [
+                              glibmm-2.4 >= 2.15.8
+                              glibmm-utils >= 0.3
+                              ])
 
 dnl Determine whether to compile with debug settings.  Essentially this just
 dnl disables compiler optimizations for now
@@ -100,13 +101,6 @@ fi
 dnl test for boost::shared_ptr
 AC_CHECK_HEADER([boost/shared_ptr.hpp], ,AC_MSG_ERROR(dnl
                 [Boost header shared_ptr.hpp not found]))
-
-dnl Consolidate all libraries and flags into one variable
-AGAVE_LIBS="$GTKMM_LIBS $GLIBMM_UTILS_LIBS $GOOCANVAS_LIBS"
-AGAVE_CFLAGS="$GTKMM_CFLAGS $GLIBMM_UTILS_CFLAGS $GOOCANVAS_CFLAGS"
-
-AC_SUBST(AGAVE_LIBS)
-AC_SUBST(AGAVE_CFLAGS)
 
 dnl Define directory locations for use in the program
 AGAVE_LOCALEDIR=[${datadir}/locale]

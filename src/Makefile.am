@@ -16,6 +16,9 @@ color-set.cc \
 color-set-manager.h \
 color-set-manager.cc
 
+libagavecore_la_CXXFLAGS=$(CORE_DEPS_CFLAGS)
+libagavecore_la_LIBADD=$(CORE_DEPS_LIBS)
+
 libagavewidgets_la_SOURCES = \
 i-color-view.h \
 swatch.h \
@@ -37,6 +40,9 @@ color-wheel.cc \
 color-set-details-editor.h \
 color-set-details-editor.cc
 
+libagavewidgets_la_CXXFLAGS=$(UI_DEPS_CFLAGS)
+libagavewidgets_la_LIBADD=$(UI_DEPS_LIBS)
+
 agave2_SOURCES = \
 agave.cc \
 application.h \
@@ -46,10 +52,9 @@ application-window.cc \
 about-dialog.h \
 about-dialog.cc
 
-AM_CPPFLAGS = -DAGAVE_LOCALEDIR=\"${AGAVE_LOCALEDIR}\"
-
-AM_CXXFLAGS=$(AGAVE_CFLAGS)
-agave2_LDADD=$(AGAVE_LIBS) libagavewidgets.la libagavecore.la
+agave2_CPPFLAGS = -DAGAVE_LOCALEDIR=\"${AGAVE_LOCALEDIR}\"
+agave2_CXXFLAGS=$(UI_DEPS_CFLAGS)
+agave2_LDADD=$(UI_DEPS_LIBS) libagavewidgets.la libagavecore.la
 
 doc : Doxyfile.in $(libagavewidgets_la_SOURCES) $(libagavecore_la_SOURCES)
 	doxygen Doxyfile
