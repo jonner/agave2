@@ -42,6 +42,7 @@ PKG_CHECK_MODULES(UI_DEPS, [
                             goocanvasmm-1.0 >= 0.4.0
                           ])
 PKG_CHECK_MODULES(CORE_DEPS, [
+                              giomm-2.4 >= 2.15.8
                               glibmm-2.4 >= 2.15.8
                               glibmm-utils >= 0.3
                               ])
@@ -135,17 +136,25 @@ echo ""
 echo "======================================================================"
 echo ""
 echo "$PACKAGE_NAME configuration:"
-echo "  C compiler              : $CC"
-echo "  C++ compiler            : $CXX"
-echo "  Prefix                  : $prefix"
+echo "  C compiler  : $CC"
+echo "  C++ compiler: $CXX"
+echo "  Prefix      : $prefix"
 echo ""
 echo "The following options will be passed to the compiler:"
-echo "  CFLAGS: $CFLAGS"
+echo "  CFLAGS  : $CFLAGS"
 echo "  CXXFLAGS: $CXXFLAGS"
 echo ""
-echo "  AGAVE_CFLAGS: $AGAVE_CFLAGS"
+echo "Core Library:"
+echo "  CFLAGS:"
+echo "  $CORE_DEPS_CFLAGS"
+echo "  LIBS:"
+echo "  $CORE_DEPS_LIBS"
 echo ""
-echo "  AGAVE_LIBS: $AGAVE_LIBS"
+echo "UI Library:"
+echo "  CFLAGS:"
+echo "  $UI_DEPS_CFLAGS"
+echo "  LIBS:"
+echo "  $UI_DEPS_LIBS"
 echo ""
 echo "======================================================================"
 echo ""
