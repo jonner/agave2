@@ -36,7 +36,7 @@ namespace agave
             ColorSetManager (std::string filename);
             void load ();
             void save ();
-            void add_set (const ColorSet& set);
+            ColorSet& add_set (const ColorSet& set);
             void remove_set (const ColorSet& set);
             void clear ();
 

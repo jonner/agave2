@@ -20,34 +20,35 @@
  *******************************************************************************/
 
 #include <algorithm>
+#include <iomanip>
 #include <glibmm.h>
 #include "color-set.h"
-#include <boost/lexical_cast.hpp>
 
 namespace agave
 {
-    static std::string next_id ()
+    std::string ColorSet::update_id ()
     {
-        // create a hash of the user's name, the current time, and a random
-        // value
-        Glib::Rand rand;
-        Glib::TimeVal tval;
-        tval.assign_current_time ();
-        std::string input = Glib::get_user_name () + "-"
-            + boost::lexical_cast<std::string> (tval.tv_sec) + "-"
-            + boost::lexical_cast<std::string> (tval.tv_usec) + "-"
-            + boost::lexical_cast<std::string> (rand.get_int ());
-        Glib::Checksum sha1(Glib::Checksum::CHECKSUM_SHA1);
-        sha1.update (input);
-        return sha1.get_string ();
+        using Glib::ustring;
+        std::string input;
+        for (std::list<Color>::const_iterator it = m_colors.begin ();
+                it != m_colors.end (); ++it)
+        {
+            input += ustring::compose ("%1-%2-%3-%4",
+                ustring::format (std::fixed, std::setprecision(4), it->get_red ()),
+                ustring::format (std::fixed, std::setprecision(4), it->get_green ()),
+                ustring::format (std::fixed, std::setprecision(4), it->get_blue ()),
+                ustring::format (std::fixed, std::setprecision(4), it->get_alpha ()));
+        }
+        return Glib::Checksum::compute_checksum (Glib::Checksum::CHECKSUM_SHA1, input);
     }
 
     static int session_count = 0;
 
-    ColorSet::ColorSet () :
-        m_id (next_id ())
+    ColorSet::ColorSet ()
     {
-        m_name = "ColorSet" + boost::lexical_cast<Glib::ustring>(++session_count);
+        using Glib::ustring;
+        m_name = ustring::compose ("Color Set %1",
+                                   ustring::format(++session_count));
     }
 
     std::string ColorSet::get_id () const
@@ -103,6 +104,7 @@ namespace agave
     void ColorSet::set_colors (const std::list<Color>& colors)
     {
         m_colors.assign (colors.begin (), colors.end ());
+        m_id = update_id ();
     }
 
     std::list<Color> ColorSet::get_colors () const
@@ -123,15 +125,54 @@ namespace agave
         return (m_id == other.m_id);
     }
 
+    ColorSet::iterator ColorSet::begin ()
+    {
+        return m_colors.begin ();
+    }
+
+    ColorSet::const_iterator ColorSet::begin () const
+    {
+        return m_colors.begin ();
+    }
+
+    ColorSet::iterator ColorSet::end ()
+    {
+        return m_colors.end ();
+    }
+
+    ColorSet::const_iterator ColorSet::end () const
+    {
+        return m_colors.end ();
+    }
+
+    ColorSet::reverse_iterator ColorSet::rbegin ()
+    {
+        return m_colors.rbegin ();
+    }
+
+    ColorSet::const_reverse_iterator ColorSet::rbegin () const
+    {
+        return m_colors.rbegin ();
+    }
+
+    ColorSet::reverse_iterator ColorSet::rend ()
+    {
+        return m_colors.rend ();
+    }
+
+    ColorSet::const_reverse_iterator ColorSet::rend () const
+    {
+        return m_colors.rend ();
+    }
+
     std::ostream& operator<<(std::ostream& out, const ColorSet& s)
     {
         out << "ID: " << s.m_id << std::endl;
         out << "Name: " << s.get_name () << std::endl;
         out << "Description: " << s.get_description () << std::endl;
-        std::list<Color>::const_iterator color_iter;
-        for (color_iter = s.m_colors.begin ();
-                color_iter != s.m_colors.end ();
-                ++color_iter)
+        for (ColorSet::const_iterator color_iter = s.begin ();
+             color_iter != s.end ();
+             ++color_iter)
         {
             out << *color_iter << std::endl;
         }

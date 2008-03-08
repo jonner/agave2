@@ -30,6 +30,11 @@ namespace agave
     class ColorSet
     {
         public:
+            typedef std::list<Color>::iterator iterator;
+            typedef std::list<Color>::const_iterator const_iterator;
+            typedef std::list<Color>::reverse_iterator reverse_iterator;
+            typedef std::list<Color>::const_reverse_iterator const_reverse_iterator;
+
             ColorSet ();
             std::string get_id () const;
             Glib::ustring get_name () const;
@@ -44,10 +49,22 @@ namespace agave
             void clear ();
             bool operator== (const ColorSet& other);
 
+            iterator begin ();
+            const_iterator begin () const;
+            iterator end ();
+            const_iterator end () const;
+            reverse_iterator rbegin ();
+            const_reverse_iterator rbegin () const;
+            reverse_iterator rend ();
+            const_reverse_iterator rend () const;
+
+
             friend std::ostream& operator<<(std::ostream& out, const ColorSet& s);
 
         private:
-            const std::string m_id;
+            std::string update_id ();
+
+            std::string m_id;
             Glib::ustring m_name;
             Glib::ustring m_description;
             std::list<Glib::ustring> m_tags;
