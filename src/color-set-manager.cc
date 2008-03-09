@@ -67,7 +67,18 @@ namespace agave
                               const Glib::ustring& element_name,
                               const Parser::AttributeMap& attributes)
             {
-                m_active_elements |= m_element_map[element_name];
+                try
+                {
+                    m_active_elements |= m_element_map[element_name];
+                }
+                catch (const std::out_of_range&)
+                {
+                    std::cerr
+                        << Glib::ustring::compose ("Invalid element found: %1", element_name)
+                        << std::endl;
+                    return;
+                }
+
                 if (element_name == ELEMENT_SETS)
                 {
                     // make sure there wasn't already something left over in the
@@ -96,11 +107,22 @@ namespace agave
             on_end_element (ParseContext& context,
                             const Glib::ustring& element_name)
             {
+                try
+                {
+                    m_active_elements &= ~m_element_map[element_name];
+                }
+                catch (const std::out_of_range&)
+                {
+                    std::cerr
+                        << Glib::ustring::compose ("Invalid element found: %1", element_name)
+                        << std::endl;
+                    return;
+                }
+
                 if (element_name == ELEMENT_SET)
                 {
                     m_parsed_sets.push_back (m_working_set);
                 }
-                m_active_elements &= ~m_element_map[element_name];
             }
 
             virtual void
