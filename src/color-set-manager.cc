@@ -19,6 +19,8 @@
  *
  *******************************************************************************/
 
+#include <iostream>
+#include <iomanip>
 #include <glibmm/markup.h>
 #include <giomm/init.h>
 #include <giomm/file.h>
@@ -54,6 +56,10 @@ namespace agave
     static const Glib::ustring ELEMENT_TAG = "tag";
     static const Glib::ustring ELEMENT_COLORS = "colors";
     static const Glib::ustring ELEMENT_COLOR = "color";
+    static const Glib::ustring ELEMENT_HUE = "hue";
+    static const Glib::ustring ELEMENT_SATURATION = "saturation";
+    static const Glib::ustring ELEMENT_VALUE = "value";
+    static const Glib::ustring ELEMENT_ALPHA = "alpha";
 
     class SavedSetParser : public Parser
     {
@@ -101,6 +107,14 @@ namespace agave
                         // provided?
                     }
                 }
+                else if (element_name == ELEMENT_COLORS)
+                {
+                    m_working_colors.clear ();
+                }
+                else if (element_name == ELEMENT_COLOR)
+                {
+                    m_working_color = Color();
+                }
             }
 
             virtual void
@@ -123,6 +137,14 @@ namespace agave
                 {
                     m_parsed_sets.push_back (m_working_set);
                 }
+                else if (element_name == ELEMENT_COLOR)
+                {
+                    m_working_colors.push_back (m_working_color);
+                }
+                else if (element_name == ELEMENT_COLORS)
+                {
+                    m_working_set.set_colors (m_working_colors);
+                }
             }
 
             virtual void
@@ -139,9 +161,36 @@ namespace agave
                 {
                     m_working_set.set_description (text);
                 }
-                else if ((m_active_elements & m_element_map[ELEMENT_COLOR]))
+                else if ((m_active_elements & m_element_map[ELEMENT_COLOR]) &&
+                         m_active_elements & (m_element_map[ELEMENT_HUE]
+                                              | m_element_map[ELEMENT_SATURATION]
+                                              | m_element_map[ELEMENT_VALUE]
+                                              | m_element_map[ELEMENT_ALPHA]))
                 {
-                    // FIXME: do this
+                    std::istringstream stream (text);
+                    double value = 0.0; // default to 0 if parsed value is invalid
+                    if (!(stream >> value))
+                    {
+                        std::cerr
+                            << Glib::ustring::compose ("Invalid value for double type: '%1'", text)
+                            << std::endl;
+                    }
+                    if ((m_active_elements & m_element_map[ELEMENT_HUE]))
+                    {
+                        m_working_color.set_hue (value);
+                    }
+                    else if ((m_active_elements & m_element_map[ELEMENT_SATURATION]))
+                    {
+                        m_working_color.set_saturation (value);
+                    }
+                    else if ((m_active_elements & m_element_map[ELEMENT_VALUE]))
+                    {
+                        m_working_color.set_value (value);
+                    }
+                    else if ((m_active_elements & m_element_map[ELEMENT_ALPHA]))
+                    {
+                        m_working_color.set_alpha (value);
+                    }
                 }
             }
 
@@ -165,11 +214,17 @@ namespace agave
                         insert (std::make_pair (ELEMENT_TAG, 1 << pos++));
                         insert (std::make_pair (ELEMENT_COLORS, 1 << pos++));
                         insert (std::make_pair (ELEMENT_COLOR, 1 << pos++));
+                        insert (std::make_pair (ELEMENT_HUE, 1 << pos++));
+                        insert (std::make_pair (ELEMENT_SATURATION, 1 << pos++));
+                        insert (std::make_pair (ELEMENT_VALUE, 1 << pos++));
+                        insert (std::make_pair (ELEMENT_ALPHA, 1 << pos++));
                     }
             };
 
             uint16_t m_active_elements;
             ColorSet m_working_set;
+            std::list<Color> m_working_colors;
+            Color m_working_color;
             std::list<ColorSet> m_parsed_sets;
 
             static ElementMap m_element_map;
@@ -264,7 +319,21 @@ namespace agave
                 for (ColorSet::const_iterator color_iter = set_iter->begin ();
                         color_iter != set_iter->end (); ++color_iter)
                 {
-                    out_stream->write (write_simple_element (ELEMENT_COLOR, color_iter->as_hexstring ()));
+                    out_stream->write (Glib::ustring::compose ("<%1>\n", ELEMENT_COLOR));
+                    out_stream->write (write_simple_element (ELEMENT_HUE,
+                                Glib::ustring::format (std::fixed,
+                                    std::setprecision (4), color_iter->get_hue ())));
+                    out_stream->write (write_simple_element (ELEMENT_SATURATION,
+                                Glib::ustring::format (std::fixed,
+                                    std::setprecision (4),
+                                    color_iter->get_saturation ())));
+                    out_stream->write (write_simple_element (ELEMENT_VALUE,
+                                Glib::ustring::format (std::fixed,
+                                    std::setprecision (4), color_iter->get_value ())));
+                    out_stream->write (write_simple_element (ELEMENT_ALPHA,
+                                Glib::ustring::format (std::fixed,
+                                    std::setprecision (4), color_iter->get_alpha ())));
+                    out_stream->write (Glib::ustring::compose ("</%1>\n", ELEMENT_COLOR));
                 }
                 out_stream->write (Glib::ustring::compose ("</%1>\n", ELEMENT_COLORS));
                 out_stream->write (Glib::ustring::compose ("</%1>\n", ELEMENT_SET));
