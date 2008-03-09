@@ -65,7 +65,7 @@ namespace agave
     {
         public:
             SavedSetParser () :
-                m_active_elements (0)
+                m_active_element_bitfield (0)
             {}
 
             virtual void
@@ -75,7 +75,7 @@ namespace agave
             {
                 try
                 {
-                    m_active_elements |= m_element_map[element_name];
+                    m_active_element_bitfield |= s_element_bitmap.at (element_name);
                 }
                 catch (const std::out_of_range&)
                 {
@@ -123,7 +123,7 @@ namespace agave
             {
                 try
                 {
-                    m_active_elements &= ~m_element_map[element_name];
+                    m_active_element_bitfield &= ~s_element_bitmap.at (element_name);
                 }
                 catch (const std::out_of_range&)
                 {
@@ -153,19 +153,20 @@ namespace agave
             {
                 // fixme: these text elements probably need to be trimmed for
                 // whitespace / newlines
-                if ((m_active_elements & m_element_map[ELEMENT_NAME]) && !text.empty ())
+                if ((m_active_element_bitfield & s_element_bitmap.at (ELEMENT_NAME)) && !text.empty ())
                 {
                     m_working_set.set_name (text);
                 }
-                else if ((m_active_elements & m_element_map[ELEMENT_DESCRIPTION]) && !text.empty ())
+                else if ((m_active_element_bitfield & s_element_bitmap.at (ELEMENT_DESCRIPTION)) && !text.empty ())
                 {
                     m_working_set.set_description (text);
                 }
-                else if ((m_active_elements & m_element_map[ELEMENT_COLOR]) &&
-                         m_active_elements & (m_element_map[ELEMENT_HUE]
-                                              | m_element_map[ELEMENT_SATURATION]
-                                              | m_element_map[ELEMENT_VALUE]
-                                              | m_element_map[ELEMENT_ALPHA]))
+                else if ((m_active_element_bitfield & s_element_bitmap.at (ELEMENT_COLOR))
+                        && (m_active_element_bitfield &
+                            (s_element_bitmap.at (ELEMENT_HUE) |
+                             s_element_bitmap.at (ELEMENT_SATURATION) |
+                             s_element_bitmap.at (ELEMENT_VALUE) |
+                             s_element_bitmap.at (ELEMENT_ALPHA))))
                 {
                     std::istringstream stream (text);
                     double value = 0.0; // default to 0 if parsed value is invalid
@@ -175,19 +176,19 @@ namespace agave
                             << Glib::ustring::compose ("Invalid value for double type: '%1'", text)
                             << std::endl;
                     }
-                    if ((m_active_elements & m_element_map[ELEMENT_HUE]))
+                    if ((m_active_element_bitfield & s_element_bitmap.at (ELEMENT_HUE)))
                     {
                         m_working_color.set_hue (value);
                     }
-                    else if ((m_active_elements & m_element_map[ELEMENT_SATURATION]))
+                    else if ((m_active_element_bitfield & s_element_bitmap.at (ELEMENT_SATURATION)))
                     {
                         m_working_color.set_saturation (value);
                     }
-                    else if ((m_active_elements & m_element_map[ELEMENT_VALUE]))
+                    else if ((m_active_element_bitfield & s_element_bitmap.at (ELEMENT_VALUE)))
                     {
                         m_working_color.set_value (value);
                     }
-                    else if ((m_active_elements & m_element_map[ELEMENT_ALPHA]))
+                    else if ((m_active_element_bitfield & s_element_bitmap.at (ELEMENT_ALPHA)))
                     {
                         m_working_color.set_alpha (value);
                     }
@@ -200,10 +201,10 @@ namespace agave
             }
 
         private:
-            class ElementMap : public std::map<Glib::ustring, uint16_t>
+            class ElementBitMap : public std::map<Glib::ustring, uint16_t>
             {
                 public:
-                    ElementMap ()
+                    ElementBitMap ()
                     {
                         unsigned int pos = 0;
                         insert (std::make_pair (ELEMENT_SETS, 1 << pos++));
@@ -221,16 +222,16 @@ namespace agave
                     }
             };
 
-            uint16_t m_active_elements;
+            uint16_t m_active_element_bitfield;
             ColorSet m_working_set;
             std::list<Color> m_working_colors;
             Color m_working_color;
             std::list<ColorSet> m_parsed_sets;
 
-            static ElementMap m_element_map;
+            static const ElementBitMap s_element_bitmap;
     };
 
-    SavedSetParser::ElementMap SavedSetParser::m_element_map;
+    const SavedSetParser::ElementBitMap SavedSetParser::s_element_bitmap;
 
     ColorSetManager::ColorSetManager (std::string filename) :
         m_filename (filename)
