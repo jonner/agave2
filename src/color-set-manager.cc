@@ -22,8 +22,11 @@
 #include <glibmm/markup.h>
 #include <giomm/init.h>
 #include <giomm/file.h>
+#include <giomm/error.h>
 #include <giomm/bufferedoutputstream.h>
+#include <glibmm-utils/ustring.h>
 #include "color-set-manager.h"
+#include <stdexcept>
 
 namespace agave
 {
@@ -65,35 +68,64 @@ namespace agave
                               const Parser::AttributeMap& attributes)
             {
                 m_active_elements |= m_element_map[element_name];
-                std::cout << "<opening element " << element_name << "\n";
-                std::cout << std::hex << m_active_elements << "\n";
+                if (element_name == ELEMENT_SETS)
+                {
+                    // make sure there wasn't already something left over in the
+                    // working data from a previous parse
+                    m_parsed_sets.clear ();
+                }
+                else if (element_name == ELEMENT_SET)
+                {
+                    m_working_set.clear ();
+                    try
+                    {
+                        m_working_set.set_id (attributes.at (ATTRIBUTE_ID));
+                    }
+                    catch (const std::out_of_range&)
+                    {
+                        std::cerr << Glib::ustring::compose (
+                                "Error while loading saved sets: '%1' element without required '%2' attribute",
+                                ELEMENT_SET, ATTRIBUTE_ID) << std::endl;
+                        // FIXME: should we assign an ID ourselves if it's not
+                        // provided?
+                    }
+                }
             }
 
             virtual void
             on_end_element (ParseContext& context,
                             const Glib::ustring& element_name)
             {
+                if (element_name == ELEMENT_SET)
+                {
+                    m_parsed_sets.push_back (m_working_set);
+                }
                 m_active_elements &= ~m_element_map[element_name];
-                std::cout << "closing element " << element_name << ">\n";
-                std::cout << std::hex << m_active_elements << "\n";
             }
 
             virtual void
             on_text (ParseContext& context,
                      const Glib::ustring& text)
             {
+                // fixme: these text elements probably need to be trimmed for
+                // whitespace / newlines
+                if ((m_active_elements & m_element_map[ELEMENT_NAME]) && !text.empty ())
+                {
+                    m_working_set.set_name (text);
+                }
+                else if ((m_active_elements & m_element_map[ELEMENT_DESCRIPTION]) && !text.empty ())
+                {
+                    m_working_set.set_description (text);
+                }
+                else if ((m_active_elements & m_element_map[ELEMENT_COLOR]))
+                {
+                    // FIXME: do this
+                }
             }
 
-            virtual void
-            on_passthrough (ParseContext& context,
-                            const Glib::ustring& passthrough_text)
+            std::list<ColorSet> get_parsed_sets () const
             {
-            }
-
-            virtual void
-            on_error (ParseContext& context,
-                      const Glib::MarkupError& error)
-            {
+                return m_parsed_sets;
             }
 
         private:
@@ -116,7 +148,7 @@ namespace agave
 
             uint16_t m_active_elements;
             ColorSet m_working_set;
-            std::list<ColorSet> m_parsed_set;
+            std::list<ColorSet> m_parsed_sets;
 
             static ElementMap m_element_map;
     };
@@ -147,39 +179,83 @@ namespace agave
 
     void ColorSetManager::load ()
     {
-        /*
-        // load saved schemes from file
-        SavedSetParser parser;
-        Glib::Markup::ParseContext pcontext (parser);
-        pcontext.parse (text);
-        */
+        // load saved sets from file
+        Glib::RefPtr<Gio::File> file = Gio::File::create_for_path (m_filename);
+        g_return_if_fail (file);
+        try {
+            Glib::RefPtr<Gio::FileInputStream> in_stream = file->read ();
+            g_return_if_fail (in_stream);
+            char read_buffer[500];
+            std::string file_contents;
+            for (;;)
+            {
+                gssize bytes_read = 0;
+                bytes_read = in_stream->read (read_buffer, sizeof (read_buffer));
+                if (!bytes_read)
+                    break;
+                file_contents += std::string(read_buffer, read_buffer + bytes_read);
+            }
+
+            SavedSetParser parser;
+            Glib::Markup::ParseContext pcontext (parser);
+            try
+            {
+                pcontext.parse (file_contents);
+            }
+            // FIXME: this doesn't actually catch some exceptions on invalid
+            // UTF-8, see http://bugzilla.gnome.org/show_bug.cgi?id=521294
+            catch (const Glib::Error& exception)
+            {
+                std::cerr
+                    << Glib::ustring::compose ("Parse Error %1: %2\n%3",
+                        exception.code (), exception.what (), file_contents)
+                    << std::endl;
+            }
+            m_sets = parser.get_parsed_sets ();
+        }
+        catch (const Gio::Error& exception)
+        {
+            std::cerr << Glib::ustring::compose ("I/O Error %1: %2",
+                    exception.code (), exception.what ())
+                << std::endl;
+        }
     }
 
     void ColorSetManager::save ()
     {
         Glib::RefPtr<Gio::File> file = Gio::File::create_for_path (m_filename);
-        Glib::RefPtr<Gio::BufferedOutputStream> out_stream =
-            Gio::BufferedOutputStream::create (file->replace ());
-        out_stream->write (Glib::ustring::compose ("<%1>\n", ELEMENT_SETS));
-        for (ColorSetManager::iterator set_iter = begin ();
-             set_iter != end ();
-             ++set_iter)
+        g_return_if_fail (file);
+        try
         {
-            std::string id = set_iter->get_id ();
-            out_stream->write (Glib::ustring::compose ("<%1 id=\"%2\">\n", ELEMENT_SET, id));
-            out_stream->write (write_simple_element (ELEMENT_NAME, set_iter->get_name ()));
-            out_stream->write (write_simple_element (ELEMENT_DESCRIPTION, set_iter->get_description ()));
-            out_stream->write (Glib::ustring::compose ("<%1>\n", ELEMENT_COLORS));
-            for (ColorSet::const_iterator color_iter = set_iter->begin ();
-                 color_iter != set_iter->end (); ++color_iter)
+            Glib::RefPtr<Gio::BufferedOutputStream> out_stream =
+                Gio::BufferedOutputStream::create (file->replace ());
+            out_stream->write (Glib::ustring::compose ("<%1>\n", ELEMENT_SETS));
+            for (ColorSetManager::iterator set_iter = begin ();
+                    set_iter != end ();
+                    ++set_iter)
             {
-                out_stream->write (write_simple_element (ELEMENT_COLOR, color_iter->as_hexstring ()));
+                std::string id = set_iter->get_id ();
+                out_stream->write (Glib::ustring::compose ("<%1 id=\"%2\">\n", ELEMENT_SET, id));
+                out_stream->write (write_simple_element (ELEMENT_NAME, set_iter->get_name ()));
+                out_stream->write (write_simple_element (ELEMENT_DESCRIPTION, set_iter->get_description ()));
+                out_stream->write (Glib::ustring::compose ("<%1>\n", ELEMENT_COLORS));
+                for (ColorSet::const_iterator color_iter = set_iter->begin ();
+                        color_iter != set_iter->end (); ++color_iter)
+                {
+                    out_stream->write (write_simple_element (ELEMENT_COLOR, color_iter->as_hexstring ()));
+                }
+                out_stream->write (Glib::ustring::compose ("</%1>\n", ELEMENT_COLORS));
+                out_stream->write (Glib::ustring::compose ("</%1>\n", ELEMENT_SET));
             }
-            out_stream->write (Glib::ustring::compose ("</%1>\n", ELEMENT_COLORS));
-            out_stream->write (Glib::ustring::compose ("</%1>\n", ELEMENT_SET));
+            out_stream->write (Glib::ustring::compose ("</%1>\n", ELEMENT_SETS));
+            out_stream->close ();
         }
-        out_stream->write (Glib::ustring::compose ("</%1>\n", ELEMENT_SETS));
-        out_stream->close ();
+        catch (const Gio::Error& exception)
+        {
+            std::cerr << Glib::ustring::compose ("Couldn't open file %1: %2",
+                    m_filename, exception.what ())
+                << std::endl;
+        }
     }
 
     // FIXME: this is a poor interface.  It doesn't work intuitively.  The user

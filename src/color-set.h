@@ -37,6 +37,7 @@ namespace agave
 
             ColorSet ();
             std::string get_id () const;
+            void set_id (std::string new_id);
             Glib::ustring get_name () const;
             void set_name (Glib::ustring name);
             Glib::ustring get_description () const;

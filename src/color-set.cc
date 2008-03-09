@@ -56,6 +56,11 @@ namespace agave
         return m_id;
     }
 
+    void ColorSet::set_id (std::string new_id)
+    {
+        m_id = new_id;
+    }
+
     Glib::ustring ColorSet::get_name () const
     {
         return m_name;
