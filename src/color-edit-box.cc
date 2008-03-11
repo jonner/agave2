@@ -41,7 +41,10 @@ namespace agave
             m_hsv_scales (model)
         {
             m_notebook.append_page (m_hsv_scales, "HSV", "Specify the color in HSV Colorspace");
+            m_notebook.set_tab_label_packing (m_hsv_scales, true, true, Gtk::PACK_START);
             m_notebook.append_page (m_rgb_scales, "RGB", "Specify the color in RGB Colorspace");
+            m_notebook.set_tab_label_packing (m_rgb_scales, true, true, Gtk::PACK_START);
+            m_notebook.property_homogeneous () = true;
 
             m_swatch.get_widget ().set_size_request (100, 100);
         }
